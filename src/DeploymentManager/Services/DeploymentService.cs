@@ -1678,12 +1678,14 @@ public sealed class DeploymentService
             if (!File.Exists(manifestPath))
                 return (false, "RELEASE_VERSION: Release integrity manifest missing.");
             using var doc = JsonDocument.Parse(await File.ReadAllTextAsync(manifestPath, ct));
-            if (!doc.RootElement.TryGetProperty("sourceVersion", out var expectedValue) ||
-                expectedValue.ValueKind != JsonValueKind.String ||
-                string.IsNullOrWhiteSpace(expectedValue.GetString()) ||
-                string.Equals(expectedValue.GetString(), "unknown", StringComparison.OrdinalIgnoreCase))
-                return (false, "RELEASE_VERSION: Expected source version is unavailable; cannot verify running API.");
-            var expected = expectedValue.GetString()!.Trim();
+            var strictApiVersion = string.Equals(profile.ApiVersionContractMode, "Strict", StringComparison.OrdinalIgnoreCase);
+            var hasExpectedVersion = doc.RootElement.TryGetProperty("sourceVersion", out var expectedValue) &&
+                expectedValue.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrWhiteSpace(expectedValue.GetString()) &&
+                !string.Equals(expectedValue.GetString(), "unknown", StringComparison.OrdinalIgnoreCase);
+            if (!hasExpectedVersion && strictApiVersion)
+                return (false, "RELEASE_VERSION: Strict mode requires a valid expected API version.");
+            var expected = hasExpectedVersion ? expectedValue.GetString()!.Trim() : "";
             var host = string.IsNullOrWhiteSpace(profile.HostHeader) ? "localhost" : profile.HostHeader;
             var url = $"http://{host}:{profile.HttpPort}/api/v1/health";
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(12) };
@@ -1691,9 +1693,17 @@ public sealed class DeploymentService
             if (!response.IsSuccessStatusCode)
                 return (false, $"RELEASE_VERSION: API version probe returned HTTP {(int)response.StatusCode}.");
             using var actual = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
-            if (!actual.RootElement.TryGetProperty("version", out var version) ||
-                version.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(version.GetString()))
-                return (false, "RELEASE_VERSION: API health response lacks a version field.");
+            var hasObservedVersion = actual.RootElement.TryGetProperty("version", out var version) &&
+                version.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrWhiteSpace(version.GetString()) &&
+                !string.Equals(version.GetString(), "unknown", StringComparison.OrdinalIgnoreCase);
+            if (!hasObservedVersion && strictApiVersion)
+                return (false, "RELEASE_VERSION: Strict mode requires a valid version in API health response.");
+            if (!hasExpectedVersion || !hasObservedVersion)
+            {
+                _runner.Report("[API-VERSION] UNVERIFIED (Compatible): expected or observed API version is missing; HTTP health passed, release identity not asserted.");
+                return (true, "RELEASE_VERSION: API HTTP health PASS; API version UNVERIFIED (Compatible).");
+            }
             var observed = version.GetString()!.Trim();
             if (!ReleaseVersionContract.Matches(expected, observed))
                 return (false, $"RELEASE_VERSION: Expected API {expected}, running API reports {observed}.");
