@@ -1,0 +1,7 @@
+{
+  "static_source_assertions": "PASS",
+  "dotnet_build": "NOT RUN",
+  "synthetic_dotnet_tests": "NOT RUN",
+  "post_deploy_http_ui_api_version": "NOT IMPLEMENTED",
+  "live_deploy": "NOT RUN"
+}

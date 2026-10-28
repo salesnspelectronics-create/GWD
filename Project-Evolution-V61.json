@@ -1,0 +1,1752 @@
+{
+  "_pes": {
+    "standard": "PES-5",
+    "schema_revision": "5.0.0",
+    "standard_name": "Project Evolution Standard",
+    "profile": "software",
+    "adoption_mode": "pes_migration",
+    "software_version": "V61",
+    "project_evolution_version": "V61",
+    "bootstrap_state": "migrated_active",
+    "artifact_filename": "Project-Evolution-V61.json",
+    "purpose": "Self-describing Project Evolution standard and continuation contract; Latest valid Source + Latest aligned PE are sufficient."
+  },
+  "project_identity": {
+    "project_name": "Generic Web Deployment Manager",
+    "project_code": "GWDM",
+    "owner": "Primary user",
+    "current_source_release": "V61",
+    "current_project_evolution_release": "V61",
+    "version_alignment_required": true,
+    "existing_project_rule": "For existing adoption/migration, inspect Source first and align PE to the actual release; never reset an existing project to V1."
+  },
+  "purpose_and_scope": {
+    "project_purpose": "Windows deployment manager for preparing, building, publishing, diagnosing and deploying ASP.NET Core web applications to local or remote IIS with reusable dependency repositories, SQL Server preparation, rollback/health checks and offline-capable workflows.",
+    "in_scope": [
+      "Windows Forms deployment wizard and settings UI",
+      "Local and remote IIS deployment",
+      "ASP.NET Core source detection/build/publish",
+      "Persistent NuGet/npm/tool/installer repository management",
+      "Stable incremental build workspaces",
+      "SQL Server discovery, installation assistance and database connectivity",
+      "Build/deployment diagnostics, history, performance and runtime metrics",
+      "Fast/local/full deployment modes, rollback and health checks",
+      "CLI and smoke-test companion projects",
+      "Self-build/release scripts for Deployment Manager itself"
+    ],
+    "out_of_scope": [
+      "Application-specific business logic of deployed products",
+      "Destructive modification of deployed application business data without explicit approval",
+      "Treating temporary/versioned incoming source folders as persistent dependency repositories"
+    ],
+    "success_criteria": [
+      "A user can select a source, pass automatic source preflight, prepare dependencies and deploy with clear status and diagnostics.",
+      "Reusable dependencies survive deletion of versioned incoming source folders.",
+      "Release output is written to the configured Manager release/output folder as both DeploymentManager.exe and a versioned executable.",
+      "Failures are logged with useful diagnostics while secrets are not persisted in project profiles/log output.",
+      "Every software version is accompanied by an aligned Project Evolution record."
+    ],
+    "source_of_truth_notes": [
+      "Actual Source is authoritative for implementation claims.",
+      "Runtime/user confirmation is required for runtime acceptance.",
+      "PES-1 records durable intent, decisions, state, evidence and history."
+    ]
+  },
+  "continuation_contract": {
+    "handoff_policy": {
+      "separate_handoff_required": false,
+      "status": "retired",
+      "rule": "Any durable continuation knowledge must be committed to PE before release close."
+    },
+    "authoritative_inputs": [
+      "Latest valid complete Source artifact",
+      "Latest aligned self-describing Project Evolution"
+    ],
+    "only_valid_development_base": {
+      "source_release": "V60",
+      "project_evolution_release": "V60",
+      "source_artifact_filename": "Generic-Web-DeploymentManager-V60-PES5-Frontend-Discovery-Fix-net9.zip",
+      "source_sha256": "UNSET",
+      "source_size_bytes": null,
+      "rule": "Validate release and artifact identity; do not continue from an older or ambiguous pair."
+    },
+    "startup_validation": [
+      "Validate adoption mode and actual Source identity.",
+      "Validate Source/PE version alignment.",
+      "Validate source artifact filename/hash when available.",
+      "Read current state, module state, queue, governance and active findings/requirements/decisions.",
+      "Inspect Source before implementation claims.",
+      "STOP/report mismatch if continuation chain cannot be proven."
+    ],
+    "preserve_rules": [
+      "Preserve working behavior unless explicitly changed.",
+      "Preserve requirements, decisions, findings, fixes, migrations and evidence.",
+      "Use stable IDs and relationships; never silently rewrite history."
+    ],
+    "prohibitions": [
+      "No required separate Handoff.",
+      "No fabricated history/evidence/root cause.",
+      "No Build/Test evidence promoted to Runtime acceptance.",
+      "No silent architecture/path/artifact/release-policy changes.",
+      "Finding != Requirement Approval != Implementation Authorization.",
+      "No artificial software release merely for PES migration.",
+      "No Source Vx release without aligned PE Vx.",
+      "Do not require separate Help or Handoff for normal continuation."
+    ],
+    "release_deliverables": [
+      "Complete Source artifact according to artifact policy.",
+      "Aligned self-describing Project Evolution V<same release>.",
+      "No separate Help or Handoff artifact required."
+    ],
+    "verified_release_facts": [],
+    "pending_runtime_acceptance": [
+      "Windows retest of V59 self-release build from a long source path.",
+      "Verify final EXE copy and automatic launch.",
+      "V60 frontend discovery fix requires Windows runtime retest on NSP Office."
+    ],
+    "next_developer_instructions": [
+      "Use V59 Source + Project-Evolution-V59.json as the only valid base.",
+      "Retest build-release.cmd on Windows from the previously failing long source path.",
+      "Do not mark FND-0059-MAXPATH closed until runtime evidence and owner confirmation exist.",
+      "Preserve PES-5 history and return aligned Source + PE for the next release."
+    ],
+    "self_sufficiency_gate": {
+      "required": true,
+      "allowed_item_status": [
+        "pass",
+        "fail",
+        "not_applicable",
+        "unknown"
+      ],
+      "checklist": [
+        {
+          "id": "SSG-001",
+          "key": "source_identity_verified",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-002",
+          "key": "version_alignment_verified",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-003",
+          "key": "source_artifact_identified",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-004",
+          "key": "current_state_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-005",
+          "key": "architecture_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-006",
+          "key": "source_structure_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-007",
+          "key": "build_procedure_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-008",
+          "key": "run_procedure_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-009",
+          "key": "publish_procedure_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-010",
+          "key": "deployment_procedure_present_or_not_applicable",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-011",
+          "key": "path_policy_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-012",
+          "key": "artifact_policy_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-013",
+          "key": "active_defects_present_or_explicitly_none",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-014",
+          "key": "pending_runtime_acceptance_present_or_explicitly_none",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-015",
+          "key": "execution_queue_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-016",
+          "key": "next_developer_instructions_present",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-017",
+          "key": "history_preserved",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        },
+        {
+          "id": "SSG-018",
+          "key": "review_coverage_and_open_findings_understandable",
+          "status": "pass",
+          "evidence_refs": [
+            "EV-0059-STATIC"
+          ]
+        }
+      ],
+      "result": "pass",
+      "pass_rule": "All required items must be pass or legitimately not_applicable; fail/unknown prevents continuation-ready status."
+    }
+  },
+  "current_state": {
+    "summary": "V61 implements a hard Prepared IIS Publish pipeline boundary: validated prebuilt IIS artifacts bypass dependency resolution, npm/Vite, dotnet restore/build/publish and deploy directly through staging/IIS with configuration preservation and health verification. Windows runtime acceptance pending.",
+    "implementation_status": "implemented_pending_runtime_verification",
+    "runtime_status": "pending_runtime_verification",
+    "build_status": "not_verified_in_current_environment",
+    "deployment_status": "unknown",
+    "database_status": "unknown_or_not_applicable",
+    "known_blockers": [],
+    "known_defects": [],
+    "pending_runtime_verification": [
+      "Build/compile Deployment Manager V61 on Windows with the required .NET SDK.",
+      "Select NSP Office IIS-Publish in Prepared IIS Publish mode and verify BUILD-METADATA build/publish/iis_validation are PASS.",
+      "Verify logs show BUILD_FRONTEND=SKIPPED, BUILD_BACKEND=SKIPPED and DOTNET_PUBLISH=SKIPPED and no npm/dotnet build process is invoked.",
+      "Verify deterministic IIS deployment, production configuration preservation, health check and rollback behavior.",
+      "Regression-test Build from Project Source mode."
+    ]
+  },
+  "system_map": {
+    "modules": [
+      {
+        "name": "DeploymentManager GUI",
+        "path": "src/DeploymentManager",
+        "role": "WinForms step-by-step deployment wizard and diagnostics UI"
+      },
+      {
+        "name": "DeploymentManager CLI",
+        "path": "src/DeploymentManager.Cli",
+        "role": "command-line companion using the manager project"
+      },
+      {
+        "name": "DeploymentManager SmokeTests",
+        "path": "src/DeploymentManager.SmokeTests",
+        "role": "automated UI/workflow smoke checks"
+      },
+      {
+        "name": "DeploymentService",
+        "path": "src/DeploymentManager/Services/DeploymentService.cs",
+        "role": "build, stable workspace synchronization, publish, fast state, staging and deployment orchestration"
+      },
+      {
+        "name": "EnvironmentService",
+        "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+        "role": "project/runtime/prerequisite detection"
+      },
+      {
+        "name": "SqlServerService",
+        "path": "src/DeploymentManager/Services/SqlServerService.cs",
+        "role": "SQL Server detection, connection and setup workflows"
+      },
+      {
+        "name": "AppDataService",
+        "path": "src/DeploymentManager/Services/AppDataService.cs",
+        "role": "persistent settings, path history, project profiles and application data"
+      },
+      {
+        "name": "Diagnostics",
+        "path": "src/DeploymentManager/DiagnosticsCenterForm.cs + Services/*Diagnostics*",
+        "role": "unified logs, history, crash/error reports, performance and CPU/memory metrics"
+      },
+      {
+        "name": "Self Release",
+        "path": "build-release*.cmd, publish-latest.ps1, resolve-release-root.ps1",
+        "role": "build/publish the Deployment Manager and place latest/versioned executables in configured output"
+      }
+    ],
+    "cross_cutting_capabilities": [
+      "logging/audit diagnostics",
+      "cancellation",
+      "rollback protection",
+      "offline/hybrid/online dependency resolution",
+      "path persistence",
+      "runtime CPU/memory metrics",
+      "credential redaction/session-only secrets"
+    ],
+    "integrations": [
+      "IIS",
+      "PowerShell/WinRM",
+      "SQL Server",
+      "dotnet CLI/NuGet",
+      "Node.js/npm",
+      "Windows DPAPI",
+      "Windows Registry for legacy/settings compatibility"
+    ],
+    "data_flows": [
+      "Incoming versioned Source -> automatic preflight -> stable project workspace -> build/publish staging -> IIS target.",
+      "Source dependency manifests -> Shared Dependency Repository (NuGet/Node/etc.) -> offline/hybrid build.",
+      "Deployment/runtime events -> logs/history/performance/runtime metrics -> Unified Diagnostics exports.",
+      "Self release -> configured Manager release/output folder -> DeploymentManager.exe + DeploymentManager-Vxx.exe."
+    ],
+    "external_dependencies": [
+      ".NET 9 SDK/runtime",
+      "ASP.NET Core Hosting Bundle",
+      "IIS",
+      "SQL Server/SQL Server Express",
+      "Node.js/npm when frontend assets require them",
+      "Microsoft.Data.SqlClient 5.2.2"
+    ],
+    "notes": [
+      "Stable workspace is project-specific below WorkspaceRoot; DeploymentService sanitizes ApplicationName to form the child workspace directory."
+    ]
+  },
+  "architecture": {
+    "technology_stack": [
+      "C#",
+      "NET 9.0 Windows",
+      "Windows Forms",
+      "PowerShell",
+      "Windows CMD",
+      "Microsoft.Data.SqlClient 5.2.2"
+    ],
+    "backend": {
+      "type": "desktop orchestration/services",
+      "framework": "NET 9",
+      "main_service": "DeploymentService"
+    },
+    "frontend": {
+      "type": "Windows Forms desktop GUI",
+      "main_form": "WizardForm",
+      "diagnostics": "DiagnosticsCenterForm"
+    },
+    "database": {
+      "manager_database": "none observed",
+      "target_database_support": "SQL Server/SQL Server Express via SqlServerService"
+    },
+    "deployment": {
+      "targets": [
+        "Local IIS Server",
+        "Remote IIS Server over WinRM"
+      ],
+      "modes": [
+        "Fast Local Test",
+        "Fast IIS Update",
+        "Full IIS Deploy",
+        "Visual Studio prepared",
+        "Ready publish folder"
+      ],
+      "dependency_modes": [
+        "Offline Only",
+        "Hybrid",
+        "Online"
+      ],
+      "staging_root": "profile.DeploymentRoot/Staging",
+      "stable_workspace": "profile.WorkspaceRoot/<sanitized ApplicationName>",
+      "shared_repository": "profile.DeploymentRepositoryFolder with NuGet, Node, DotNet, Installers, Cache, Scripts, Config, Projects, BuildState, Workspaces subtrees"
+    },
+    "authentication_authorization": {
+      "app_privilege": "GUI self-elevates to Administrator",
+      "remote": "WinRM username/password; saved remote credential protected via Windows DPAPI when requested",
+      "sql": "Windows Authentication or SQL credentials; SQL password remains session-only"
+    },
+    "logging_audit": {
+      "components": [
+        "LogService",
+        "InternalDiagnostics",
+        "DeploymentHistoryService",
+        "BuildPerformanceTrace",
+        "DiagnosticBundleService"
+      ],
+      "rule": "Exceptions should be recorded; secrets must not be written to diagnostic output."
+    },
+    "file_storage": {
+      "settings": "ProgramData application settings/state",
+      "project_profiles": "AppDataService Projects JSON files",
+      "dependency_repository": "configurable persistent folder",
+      "workspace": "configurable persistent workspace root",
+      "release_output": "configurable Manager release/output folder"
+    },
+    "background_jobs": {
+      "notes": "No independent background service observed; asynchronous deployment/prerequisite operations run from the desktop process."
+    },
+    "integration_patterns": [
+      "process execution via CommandRunner",
+      "PowerShell/WinRM for remote operations",
+      "filesystem synchronization for stable workspaces",
+      "JSON state/settings/history"
+    ],
+    "architecture_constraints": [
+      "Windows/x64",
+      "Administrator privileges required for full deployment operations",
+      "Do not persist SQL password in project profile",
+      "Do not use incoming versioned Source as dependency repository",
+      "Do not force periodic GC as a substitute for fixing memory growth/leaks"
+    ],
+    "architecture_unknowns": [
+      "Full runtime memory-growth root cause has not been proven under long-running production use."
+    ]
+  },
+  "source_structure": {
+    "root_structure": [
+      "src/DeploymentManager",
+      "src/DeploymentManager.Cli",
+      "src/DeploymentManager.SmokeTests",
+      "build-release.cmd",
+      "build-release-full.cmd",
+      "publish-latest.ps1",
+      "resolve-release-root.ps1",
+      "Directory.Build.props",
+      "deployment-manager.version.json",
+      "CHANGELOG-V*.md",
+      "TEST-REPORT-V*.md"
+    ],
+    "major_projects_or_packages": [
+      "GenericWeb.DeploymentManager (WinExe)",
+      "DeploymentManager.Cli (Exe)",
+      "DeploymentManager.SmokeTests (Exe)",
+      "Microsoft.Data.SqlClient 5.2.2"
+    ],
+    "important_entry_points": [
+      "src/DeploymentManager/Program.cs",
+      "src/DeploymentManager/WizardForm.cs",
+      "src/DeploymentManager.Cli/Program.cs",
+      "src/DeploymentManager.SmokeTests/Program.cs"
+    ],
+    "build_scripts": [
+      "build-release.cmd",
+      "build-release-full.cmd",
+      "publish-latest.ps1"
+    ],
+    "test_projects": [
+      "src/DeploymentManager.SmokeTests"
+    ],
+    "deployment_assets": [
+      "app.manifest",
+      "resolve-release-root.ps1",
+      "invoke-deployment-manager.ps1"
+    ],
+    "generated_or_ignored_paths": [
+      "dist",
+      "bin",
+      "obj",
+      ".staging-*",
+      "self-build cache under LocalAppData",
+      "persistent stable workspace build caches"
+    ],
+    "notes": [
+      "Directory.Build.props is the single software version source of truth for release scripts."
+    ]
+  },
+  "operational_continuity": {
+    "build": {
+      "commands_or_scripts": [
+        "build-release.cmd",
+        "build-release-full.cmd"
+      ],
+      "prerequisites": [
+        "Windows",
+        "PowerShell",
+        "robocopy",
+        ".NET 9 SDK"
+      ],
+      "known_constraints": [
+        "V59 self-release stages source into a short local path to avoid legacy Windows MAX_PATH failures."
+      ],
+      "last_verified_result": "runtime_retest_pending"
+    },
+    "run": {
+      "commands_or_scripts": [],
+      "prerequisites": [],
+      "last_verified_result": "unknown"
+    },
+    "publish": {
+      "commands_or_scripts": [
+        "build-release.cmd",
+        "build-release-full.cmd",
+        "publish-latest.ps1"
+      ],
+      "output_model": "Configured ManagerReleaseRoot from persisted settings; DeploymentManager.exe + DeploymentManager-V59.exe",
+      "last_verified_result": "runtime_retest_pending"
+    },
+    "deployment": {
+      "target": "UNSET",
+      "procedure": [],
+      "last_verified_result": "unknown"
+    },
+    "path_policy": {
+      "fixed_paths": [],
+      "forbidden_new_folders_or_relocations": [],
+      "temporary_path_rules": [
+        "Self-release build staging: %LOCALAPPDATA%\\GWDM\\Build\\V59",
+        "Do not restore/publish directly under a long incoming/versioned source path."
+      ]
+    },
+    "artifact_policy": {
+      "release_type": "full_source_zip",
+      "include": [
+        "Complete source",
+        "Project-Evolution-V59.json",
+        "CHANGELOG-V59.md",
+        "TEST-REPORT-V59.md"
+      ],
+      "exclude": [
+        "bin",
+        "obj",
+        "dist build outputs from source package"
+      ],
+      "naming_rules": [
+        "Generic-Web-DeploymentManager-V59-*.zip",
+        "Project-Evolution-V59.json"
+      ],
+      "packaging_rules": []
+    }
+  },
+  "domain_model": {
+    "entities": [
+      "DeploymentProfile",
+      "Deployment history record",
+      "Build performance snapshot",
+      "Offline package validation",
+      "SQL instance information",
+      "Runtime metrics sample"
+    ],
+    "value_objects": [
+      "PrerequisiteState",
+      "SqlInstanceInfo",
+      "Workspace sync result",
+      "Smart deploy state/fingerprints"
+    ],
+    "aggregates": [
+      "DeploymentProfile drives one deployment workflow"
+    ],
+    "business_processes": [
+      "select incoming source",
+      "automatic preflight",
+      "select build/dependency mode",
+      "configure target/repository/workspace",
+      "environment/prerequisite scan",
+      "SQL preparation",
+      "build/publish",
+      "IIS deployment",
+      "health check/rollback",
+      "diagnostics export",
+      "self release"
+    ],
+    "business_rules": [
+      "Incoming Source may be temporary/versioned.",
+      "Shared Dependency Repository is persistent across Source versions.",
+      "Stable Build Workspace is persistent and project-specific.",
+      "Build/Dependency mode is selected once on Source page and not re-selected later.",
+      "Runtime success is not inferred from compilation alone."
+    ],
+    "domain_unknowns": []
+  },
+  "requirements": [
+    {
+      "id": "REQ-0057-01",
+      "title": "Automatic source preflight",
+      "user_statement": "After selecting Source, run the tests automatically; remove the test button and checkboxes.",
+      "assistant_interpretation": "All required source preflight checks run automatically whenever a valid Source is selected/changed, with result display only.",
+      "module": "Wizard/Source",
+      "priority": "high",
+      "maturity": "Runtime Verification",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending",
+      "target_version": "V57",
+      "acceptance_criteria": [
+        "No Run Tests/Run Again buttons.",
+        "No user-selectable preflight checkboxes.",
+        "Valid source selection triggers structure/framework/frontend/readability checks automatically."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": []
+    },
+    {
+      "id": "REQ-0057-02",
+      "title": "Remove duplicated mode selectors",
+      "user_statement": "Build Mode and Dependency Mode were already selected on the first page; remove them from Target Source and Building.",
+      "assistant_interpretation": "Do not show disabled duplicate selectors on the later Target page.",
+      "module": "Wizard/Target",
+      "priority": "high",
+      "maturity": "Runtime Verification",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending",
+      "target_version": "V57",
+      "acceptance_criteria": [
+        "Target page contains no Build Mode or Dependency Mode ComboBox.",
+        "Current choices remain authoritative from Source page."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": []
+    },
+    {
+      "id": "REQ-0057-03",
+      "title": "Persistent dependency repository",
+      "user_statement": "Dependency checks must not rely on a temporary versioned Source folder that may be deleted.",
+      "assistant_interpretation": "Use Shared Dependency Repository as the persistent dependency store and Stable Build Workspace as the persistent project working tree.",
+      "module": "Dependency management",
+      "priority": "high",
+      "maturity": "Runtime Verification",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending",
+      "target_version": "V57",
+      "acceptance_criteria": [
+        "Repository remains independent of incoming Source.",
+        "No independent Dependency Sync Source Folder setting is required.",
+        "Stable workspace is beneath configured WorkspaceRoot and separated by project/application."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": []
+    },
+    {
+      "id": "REQ-0057-04",
+      "title": "Close release console after success",
+      "user_statement": "After successful release and automatic launch of the new Deployment Manager, close the Command Prompt automatically.",
+      "assistant_interpretation": "Successful self-release exits its console after launching the new EXE; failure paths remain visible.",
+      "module": "Self release",
+      "priority": "high",
+      "maturity": "Runtime Verification",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending",
+      "target_version": "V57",
+      "acceptance_criteria": [
+        "Successful build script starts versioned EXE then exits without pause.",
+        "Failure paths retain pause/error visibility."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": []
+    },
+    {
+      "id": "REQ-0057-05",
+      "title": "Project Evolution per release",
+      "user_statement": "Every software version should include a ZIP and a Project Evolution file.",
+      "assistant_interpretation": "Adopt PES-1 and align PE version with software version for all releases from V57 onward.",
+      "module": "Governance",
+      "priority": "high",
+      "maturity": "Runtime Verification",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending",
+      "target_version": "V57",
+      "acceptance_criteria": [
+        "V57 package contains Project-Evolution-V57.json.",
+        "Every future release updates Source and PE in the same development cycle.",
+        "Standalone PE JSON is returned alongside the source ZIP."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": []
+    },
+    {
+      "id": "REQ-0058-01",
+      "title": "Centralize dependency management on Source page",
+      "user_statement": "Everything related to dependencies should be managed on the first page; remove the dependency-related controls from Target/Repository but keep Sync Missing Online Once.",
+      "assistant_interpretation": "Source page owns Dependency Mode, Shared Dependency Repository, Stable Build Workspace, Sync Missing Online Once and offline validation. Target page must not repeat dependency controls.",
+      "module": "Wizard UI / dependency workflow",
+      "priority": "high",
+      "maturity": "In Implementation",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending_verification",
+      "target_version": "V58",
+      "acceptance_criteria": [
+        "Dependency controls/actions appear on Source page.",
+        "Target & Identity page has no dependency controls or duplicate dependency summaries.",
+        "Sync Missing Online Once uses the persistent Shared Dependency Repository, not the versioned incoming source."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [
+          "REQ-0057-02"
+        ],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": [
+          "DEC-0057-02"
+        ]
+      },
+      "source_actor": "user",
+      "evidence": [
+        "CHANGELOG-V58.md",
+        "src/DeploymentManager/WizardForm.cs"
+      ]
+    },
+    {
+      "id": "REQ-0058-02",
+      "title": "Auto Deploy navigation placement and cancel state",
+      "user_statement": "Auto Deploy should be after Start Over. Once Auto Deploy starts, change it to Cancel Deploy and disable Back and Next.",
+      "assistant_interpretation": "Reorder footer controls and preserve a single stateful Auto Deploy/Cancel Deploy button; navigation is locked during automation.",
+      "module": "Wizard navigation",
+      "priority": "high",
+      "maturity": "In Implementation",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending_verification",
+      "target_version": "V58",
+      "acceptance_criteria": [
+        "Auto Deploy is visually positioned after Start Over.",
+        "Button text becomes Cancel Deploy while automation is active.",
+        "Back and Next are disabled until auto deploy completes/cancels."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": [
+        "CHANGELOG-V58.md",
+        "src/DeploymentManager/WizardForm.cs"
+      ]
+    },
+    {
+      "id": "REQ-0058-03",
+      "title": "File-centered diagnostic export",
+      "user_statement": "Export should save a file, not ask for a folder. Export All should go to Desktop by default, with an Other Location option; show where it was saved.",
+      "assistant_interpretation": "Diagnostics exports create explicit ZIP files. Desktop is one-click default, SaveFileDialog is used for alternate locations, and completion UI exposes exact path plus open actions.",
+      "module": "Diagnostics export",
+      "priority": "high",
+      "maturity": "In Implementation",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending_verification",
+      "target_version": "V58",
+      "acceptance_criteria": [
+        "No FolderBrowserDialog is used for diagnostics export.",
+        "Current tab and all-diagnostics exports can save directly to Desktop.",
+        "Other Location uses SaveFileDialog.",
+        "Completion dialog shows exact file path and Open File/Open Folder actions."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [
+          "REQ-0057-04"
+        ],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": [
+          "RUN-0058-01"
+        ]
+      },
+      "source_actor": "user",
+      "evidence": [
+        "CHANGELOG-V58.md",
+        "src/DeploymentManager/DiagnosticsCenterForm.cs",
+        "src/DeploymentManager/Services/DiagnosticBundleService.cs"
+      ]
+    },
+    {
+      "id": "REQ-0058-04",
+      "title": "Single diagnostics entry point",
+      "user_statement": "Remove the extra diagnostic error button; it is not needed.",
+      "assistant_interpretation": "Keep Diagnostics Center as the only main-footer diagnostics entry and remove duplicate Diagnostics / Errors entry.",
+      "module": "Diagnostics UX",
+      "priority": "medium",
+      "maturity": "In Implementation",
+      "implementation_status": "implemented_pending_runtime_verification",
+      "runtime_status": "pending_verification",
+      "target_version": "V58",
+      "acceptance_criteria": [
+        "Only the unified Diagnostics Center remains in the main footer."
+      ],
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "depends_on": [],
+        "blocks": [],
+        "related_to": []
+      },
+      "source_actor": "user",
+      "evidence": [
+        "CHANGELOG-V58.md",
+        "src/DeploymentManager/WizardForm.cs"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-0057-01",
+      "title": "Adopt aligned PES-1 release governance",
+      "decision": "From V57 onward, software version and Project Evolution version are aligned in the same release cycle.",
+      "reason": "The user wants the full architecture, decisions, analysis, runtime state and release history to travel with every Source release.",
+      "alternatives_considered": [
+        "Keep separate handoff documents",
+        "Start PE at V1 while software continues at V57"
+      ],
+      "consequences": [
+        "Every release updates two artifacts: Source ZIP and aligned PE JSON.",
+        "PES standard stays PES-1 until the standard itself changes."
+      ],
+      "status": "approved",
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "related_to": [
+          "REQ-0057-05"
+        ]
+      },
+      "evidence": []
+    },
+    {
+      "id": "DEC-0057-02",
+      "title": "Separate temporary Source, persistent repository and stable workspace",
+      "decision": "Incoming Source is treated as temporary/versioned; dependency packages live in Shared Dependency Repository; build working files live in Stable Build Workspace.",
+      "reason": "Incoming version folders may be deleted after deployment and must not be the only dependency/cache source.",
+      "alternatives_considered": [
+        "Use incoming Source as dependency-sync source/store",
+        "Create another per-version dependency folder"
+      ],
+      "consequences": [
+        "Dependencies survive Source cleanup.",
+        "Workspace preserves node_modules/bin/obj for incremental builds."
+      ],
+      "status": "approved",
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "related_to": [
+          "REQ-0057-03"
+        ]
+      },
+      "evidence": []
+    },
+    {
+      "id": "DEC-0058-01",
+      "title": "Diagnostics exports are files, not folder-selection workflows",
+      "decision": "Use explicit ZIP files for tab/all diagnostic exports. Desktop is the default one-click destination; alternate destinations use SaveFileDialog.",
+      "reason": "The previous folder-picker workflow made Desktop selection and the final export location unclear to the operator.",
+      "alternatives_considered": [
+        "Keep FolderBrowserDialog and show a success path",
+        "Always export silently to ProgramData"
+      ],
+      "consequences": [
+        "Export location is deterministic and visible.",
+        "Users can open the file or containing folder immediately.",
+        "ProgramData remains internal runtime storage rather than the normal user export destination."
+      ],
+      "status": "approved",
+      "relationships": {
+        "supersedes": [],
+        "narrows": [],
+        "related_to": [
+          "REQ-0058-03",
+          "RUN-0058-01"
+        ]
+      },
+      "evidence": [
+        "src/DeploymentManager/DiagnosticsCenterForm.cs",
+        "src/DeploymentManager/Services/DiagnosticBundleService.cs"
+      ]
+    }
+  ],
+  "runtime_findings": [],
+  "constraints": {
+    "technical": [
+      "Windows x64",
+      "NET 9",
+      "IIS target",
+      "Settings and project profiles must remain backward-compatible where practical"
+    ],
+    "business": [
+      "Deployment UX should minimize duplicate questions and manual steps."
+    ],
+    "security": [
+      "Do not hard-code or persist SQL passwords.",
+      "Do not log secrets.",
+      "Remote saved credentials use protected storage/DPAPI."
+    ],
+    "performance": [
+      "Reuse persistent dependency caches and stable workspaces.",
+      "Track CPU/memory without unbounded history.",
+      "Do not use periodic forced GC as a leak workaround."
+    ],
+    "compatibility": [
+      "Existing configured repository/workspace/release paths must continue to load."
+    ],
+    "regulatory": [],
+    "operational": [
+      "On successful self-release launch the console closes; failure console remains readable.",
+      "Incoming Source folders may be deleted after deployment."
+    ]
+  },
+  "risks_and_unknowns": {
+    "risks": [],
+    "unknowns": [],
+    "migration_pending": []
+  },
+  "verification_and_evidence": {
+    "source_inspection": [
+      "V59 version metadata and release scripts statically inspected.",
+      "PES-5 migration structure populated from V58 durable record."
+    ],
+    "build_results": [],
+    "test_results": [],
+    "runtime_results": [],
+    "deployment_results": [],
+    "limitations": [
+      "Windows/.NET build and runtime retest were not available in the artifact-generation environment."
+    ]
+  },
+  "module_state": [
+    {
+      "module": "Wizard / Source",
+      "maturity": "Runtime Verification",
+      "implementation_state": "implemented_pending_runtime_verification",
+      "runtime_state": "pending",
+      "known_defects": [],
+      "dependencies": [
+        "EnvironmentService"
+      ],
+      "next_action": "Build/run and verify automatic preflight UX."
+    },
+    {
+      "module": "Wizard / Target & dependency paths",
+      "maturity": "Runtime Verification",
+      "implementation_state": "implemented_pending_runtime_verification",
+      "runtime_state": "pending",
+      "known_defects": [],
+      "dependencies": [
+        "AppDataService",
+        "DeploymentService"
+      ],
+      "next_action": "Verify no duplicated mode controls and persistent paths behave correctly."
+    },
+    {
+      "module": "Deployment engine",
+      "maturity": "Runtime Verification",
+      "implementation_state": "implemented",
+      "runtime_state": "partially user-tested before V57",
+      "known_defects": [],
+      "dependencies": [
+        "dotnet",
+        "npm",
+        "IIS",
+        "filesystem"
+      ],
+      "next_action": "Regression test stable workspace/repository flows with deleted incoming source versions."
+    },
+    {
+      "module": "Self release",
+      "maturity": "Runtime Verification",
+      "implementation_state": "implemented_pending_runtime_verification",
+      "runtime_state": "pending for V57",
+      "known_defects": [],
+      "dependencies": [
+        "dotnet SDK",
+        "PowerShell",
+        "configured release output"
+      ],
+      "next_action": "Run build-release.cmd and build-release-full.cmd; verify new EXE launches and console exits."
+    },
+    {
+      "module": "Diagnostics",
+      "maturity": "Runtime Verification",
+      "implementation_state": "implemented",
+      "runtime_state": "not fully accepted",
+      "known_defects": [],
+      "dependencies": [
+        "AppDataService",
+        "RuntimeMetricsService",
+        "history/log files"
+      ],
+      "next_action": "Continue runtime observation and export verification."
+    },
+    {
+      "module": "PES governance",
+      "maturity": "Closed",
+      "implementation_state": "implemented",
+      "runtime_state": "n/a",
+      "known_defects": [],
+      "dependencies": [],
+      "next_action": "Update PE in every future release."
+    }
+  ],
+  "execution_queue": {
+    "active_now": [
+      {
+        "id": "WORK-0061-ACCEPTANCE",
+        "title": "Runtime acceptance of Prepared IIS Publish pipeline",
+        "priority": "high",
+        "authorized": true,
+        "target_version": "V61",
+        "depends_on": [],
+        "blocks": [],
+        "related_records": [
+          "FND-0061-PREPARED-PUBLISH"
+        ],
+        "status": "runtime_verification",
+        "acceptance_criteria": [
+          "NSPOffice/IIS-Publish validates successfully.",
+          "No npm/vite/dotnet build/publish process runs.",
+          "Prepared files deploy to configured IIS physical path.",
+          "Production configuration preservation is verified.",
+          "HTTP health check succeeds.",
+          "Rollback behavior is verified on forced failure.",
+          "Project Source mode regression test passes."
+        ]
+      }
+    ],
+    "next": [
+      {
+        "id": "WORK-0059-RETEST",
+        "title": "Runtime retest V59 self-release from long source path",
+        "priority": "high",
+        "authorized": true,
+        "target_version": "V59",
+        "depends_on": [],
+        "blocks": [],
+        "related_records": [
+          "FND-0059-MAXPATH"
+        ],
+        "status": "runtime_verification",
+        "acceptance_criteria": [
+          "Restore/publish succeeds without MAX_PATH failure.",
+          "Configured release folder receives DeploymentManager.exe and DeploymentManager-V59.exe.",
+          "V59 launches automatically after successful release."
+        ]
+      }
+    ],
+    "blocked": [],
+    "deferred": [],
+    "rules": [
+      "Queue items use stable structured IDs.",
+      "authorized=false means no implementation authorization.",
+      "Findings under analysis do not automatically enter active development.",
+      "Fixed but unverified work remains pending verification."
+    ]
+  },
+  "governance": {
+    "history_model": "append_oriented",
+    "stable_ids_required": true,
+    "done_rule": "Runtime-dependent work is not Done until required runtime evidence and/or explicit owner acceptance exists.",
+    "version_alignment_rule": "Source/software Vx and PE Vx remain aligned.",
+    "schema_revision_rule": "PES-5 starts at 5.0.0 because embedded normative guidance changes the standard architecture.",
+    "migration_rule": "Migration preserves history/release identity and creates no runtime facts.",
+    "handoff_rule": "Separate Help/Handoff is retired; missing continuation knowledge is a PE defect.",
+    "self_sufficiency_rule": "Continuation-ready PE must be self-describing and pass the machine-checkable gate without external Help or prior chat."
+  },
+  "onboarding": {
+    "bootstrap_instruction": "Inspect Source first. Replace UNSET/unknown values only with evidence-backed facts; record unresolved facts as unknowns.",
+    "normal_read_order": [
+      "_pes",
+      "project_identity",
+      "purpose_and_scope",
+      "continuation_contract",
+      "current_state",
+      "system_map",
+      "architecture",
+      "source_structure",
+      "operational_continuity",
+      "module_state",
+      "execution_queue",
+      "governance",
+      "active requirements/decisions/runtime findings",
+      "verification_and_evidence",
+      "evolution_history"
+    ],
+    "required_first_pass": [
+      "Confirm project identity/latest Source.",
+      "Inspect stack/source structure.",
+      "Document build/run/publish/deploy and path/artifact rules.",
+      "Capture current state.",
+      "Capture material requirements/decisions/defects/evidence.",
+      "Populate continuation_contract.",
+      "Run self-sufficiency gate."
+    ]
+  },
+  "record_templates": {
+    "verified_release_fact": {
+      "id": "FACT-0001",
+      "claim": "",
+      "evidence_type": "source_inspection|build|publish|automated_test|runtime|deployment|owner_acceptance",
+      "applies_to": "source|artifact|runtime|database|deployment|other",
+      "evidence_refs": [],
+      "verified_at": "",
+      "status": "verified|failed|superseded"
+    },
+    "finding": {
+      "id": "FND-0001",
+      "module": "",
+      "finding_type": "runtime_bug|ux|architecture|data_integrity|deployment|requirement_gap|technical_debt|security|build|documentation|verified_behavior|other",
+      "severity": "critical|high|normal|low|informational",
+      "user_statement": "",
+      "expected_behavior": "",
+      "actual_behavior": "",
+      "observation": "",
+      "evidence_refs": [],
+      "source_inspection_result": "",
+      "root_cause": "unknown",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "UNSET",
+      "implementation_result": "",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "not_run",
+      "owner_acceptance": "pending",
+      "disposition": "UNSET",
+      "lifecycle_state": "observed",
+      "implementation_authorized": false,
+      "final_status": "open"
+    },
+    "execution_queue_item": {
+      "id": "WORK-0001",
+      "title": "",
+      "priority": "normal",
+      "authorized": false,
+      "target_version": "UNSET",
+      "depends_on": [],
+      "blocks": [],
+      "related_records": [],
+      "status": "analysis",
+      "acceptance_criteria": []
+    },
+    "evidence": {
+      "id": "EV-0001",
+      "evidence_type": "source_inspection|build|publish|automated_test|runtime|deployment|owner_acceptance|user_report|screenshot|other",
+      "description": "",
+      "artifact_or_location": "",
+      "captured_at": "",
+      "related_records": []
+    },
+    "module_state": {
+      "module": "",
+      "implementation_state": "unknown",
+      "review_state": "not_reviewed|reviewing|issues_found|fix_pending|runtime_verification|accepted",
+      "last_reviewed_version": "UNSET",
+      "related_findings": []
+    },
+    "standard_migration": {
+      "id": "MIG-0001",
+      "from_standard": "",
+      "from_schema_revision": "",
+      "to_standard": "PES-5",
+      "to_schema_revision": "5.0.0",
+      "type": "schema_migration",
+      "performed_at": "",
+      "history_preserved": true,
+      "stable_ids_preserved": "true|partial",
+      "runtime_reverification_required": false,
+      "mapping_notes": [],
+      "migration_pending_refs": [],
+      "result": "pending|completed|completed_with_pending_items"
+    }
+  },
+  "evolution_history": [
+    {
+      "version": "V53",
+      "type": "historical_release",
+      "status": "captured",
+      "description": "Installer UX/latest EXE baseline received by handoff. Build reported successful with 0 warnings/0 errors; smoke test and real IIS deploy were not run.",
+      "evidence": [
+        "CHANGELOG-V53.md",
+        "TEST-REPORT-V53.md"
+      ]
+    },
+    {
+      "version": "V54",
+      "type": "historical_release",
+      "status": "captured",
+      "description": "Unified diagnostics/settings/security cleanup; build not proven in the development environment used to produce the source package.",
+      "evidence": [
+        "CHANGELOG-V54.md",
+        "TEST-REPORT-V54.md"
+      ]
+    },
+    {
+      "version": "V55",
+      "type": "historical_release",
+      "status": "captured",
+      "description": "Automatic/preflight groundwork, runtime CPU/memory metrics and persistent dependency/workspace refinements.",
+      "evidence": [
+        "CHANGELOG-V55.md",
+        "TEST-REPORT-V55.md"
+      ]
+    },
+    {
+      "version": "V56",
+      "type": "historical_release",
+      "status": "captured",
+      "description": "Self-release output path fix: build scripts resolve configured Manager release/output folder and write latest + versioned EXEs.",
+      "evidence": [
+        "CHANGELOG-V56.md",
+        "TEST-REPORT-V56.md"
+      ]
+    },
+    {
+      "version": "V57",
+      "type": "development_release_and_pes_adoption",
+      "status": "implemented_pending_runtime_verification",
+      "description": "PES-1 adopted with aligned Project Evolution. Manual source-test UI removed in favor of automatic preflight; duplicate target-page mode selectors removed; dependency repository/workspace roles clarified; successful release console auto-closes after launching new app.",
+      "evidence": [
+        "CHANGELOG-V57.md",
+        "TEST-REPORT-V57.md",
+        "Project-Evolution-V57.json"
+      ]
+    },
+    {
+      "version": "V58",
+      "type": "development_release",
+      "status": "implemented_pending_runtime_verification",
+      "description": "Dependency management moved to Source page; Target page cleaned; Auto Deploy footer/cancel UX refined; duplicate diagnostics entry removed; diagnostics export redesigned around explicit Desktop/Save As files.",
+      "evidence": [
+        "CHANGELOG-V58.md",
+        "TEST-REPORT-V58.md",
+        "Project-Evolution-V58.json"
+      ]
+    },
+    {
+      "version": "V59",
+      "event_type": "standard_migration",
+      "standard": "PES-5",
+      "schema_revision": "5.0.0",
+      "summary": "Migrated Generic Web Deployment Manager Project Evolution to PES-5 while preserving prior durable history.",
+      "changes": [
+        "PES-5 adoption",
+        "MAX_PATH-resistant short self-build staging workspace"
+      ],
+      "verification": [
+        "Static source inspection only; Windows runtime retest pending."
+      ]
+    },
+    {
+      "version": "V60",
+      "event_type": "development_release",
+      "standard": "PES-5",
+      "schema_revision": "5.0.0",
+      "summary": "Fixed V59 frontend discovery regression that selected generated IIS-Publish ClientApp.",
+      "changes": [
+        "Exclude IIS-Publish and publish trees from frontend candidates.",
+        "Select frontend using source-aware scoring: build script, index.html, vite.config.* and source location.",
+        "Preflight now validates and reports a complete Vite frontend root.",
+        "Preserve drive independence; D:, G: or other configured workspace roots are valid."
+      ],
+      "verification": [
+        "Static source inspection completed.",
+        "Windows build/runtime retest pending."
+      ]
+    },
+    {
+      "version": "V61",
+      "event_type": "development_release",
+      "standard": "PES-5",
+      "schema_revision": "5.0.0",
+      "summary": "Implemented dedicated Prepared IIS Publish direct-deploy pipeline.",
+      "changes": [
+        "Explicit Prepared IIS Publish selection and validation on Source page.",
+        "Hard build-pipeline bypass for prepared artifacts.",
+        "BUILD-METADATA PASS validation when present.",
+        "Prepared post-deploy verification independent of source fingerprints.",
+        "Preserve configured production appsettings files during deterministic replacement.",
+        "Prepared-mode logging for validation and skipped build stages."
+      ],
+      "verification": [
+        "Static source inspection completed.",
+        ".NET SDK unavailable in current environment; compile/runtime acceptance pending."
+      ]
+    }
+  ],
+  "adoption_and_migration": {
+    "supported_modes": {
+      "new_project": "Genuinely new project may start Software V1 + PE V1.",
+      "existing_project_adoption": "Inspect Source first; existing Source V58 normally receives initial PES PE V58.",
+      "pes_migration": "Migrate PES/schema without manufacturing a software release."
+    },
+    "standard_migrations": [
+      {
+        "id": "MIG-0059-PES5",
+        "from_standard": "PES-1",
+        "from_schema_revision": "legacy",
+        "to_standard": "PES-5",
+        "to_schema_revision": "5.0.0",
+        "type": "schema_migration",
+        "performed_at": "2026-09-19",
+        "history_preserved": true,
+        "stable_ids_preserved": "partial",
+        "runtime_reverification_required": false,
+        "mapping_notes": [
+          "Preserved durable V58 requirements, decisions, architecture, source structure, module state and historical runtime findings where representable.",
+          "Migration itself created no runtime PASS facts."
+        ],
+        "migration_pending_refs": [],
+        "result": "completed"
+      }
+    ]
+  },
+  "review_model": {
+    "purpose": "Lightweight review traceability; PES is not an issue tracker/workflow engine.",
+    "finding_lifecycle": [
+      "observed",
+      "classified",
+      "analyzed",
+      "decision_pending",
+      "decision_made",
+      "authorized_work",
+      "implemented",
+      "verified",
+      "runtime_retested",
+      "owner_accepted",
+      "closed"
+    ],
+    "allowed_dispositions": [
+      "fix_authorized",
+      "requirement_clarification",
+      "accepted_as_is",
+      "duplicate",
+      "not_reproducible",
+      "deferred",
+      "rejected",
+      "superseded"
+    ],
+    "principles": [
+      "Finding != Requirement Approval.",
+      "Finding != Implementation Authorization.",
+      "A finding may close without implementation.",
+      "Target Version is an attribute, not a mandatory lifecycle stage.",
+      "Evidence classes remain distinct but link through stable references."
+    ]
+  },
+  "findings": [
+    {
+      "id": "RUN-0056-01",
+      "module": "",
+      "finding_type": "runtime_bug",
+      "severity": "low",
+      "user_statement": "",
+      "expected_behavior": "After successful launch, the build console should close automatically; on failure it should remain visible.",
+      "actual_behavior": "V56 build scripts ended with pause on the success path.",
+      "observation": "The new Deployment Manager launches successfully but the build Command Prompt remains open and requires manual closing.",
+      "evidence_refs": [],
+      "source_inspection_result": "Migrated from prior PES runtime_finding",
+      "root_cause": "Success path contained a trailing pause command.",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "V57",
+      "implementation_result": "",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "UNSET",
+      "lifecycle_state": "observed",
+      "implementation_authorized": false,
+      "final_status": "implemented_pending_runtime_verification"
+    },
+    {
+      "id": "RUN-0057-01",
+      "module": "",
+      "finding_type": "runtime_bug",
+      "severity": "verification",
+      "user_statement": "",
+      "expected_behavior": "Build, publish and smoke tests should be executed before runtime acceptance.",
+      "actual_behavior": "Only static/source checks can be performed in the current environment.",
+      "observation": "Development environment used to prepare V57 lacks dotnet SDK.",
+      "evidence_refs": [],
+      "source_inspection_result": "Migrated from prior PES runtime_finding",
+      "root_cause": "dotnet SDK unavailable in this environment",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "UNSET",
+      "implementation_result": "",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "UNSET",
+      "lifecycle_state": "observed",
+      "implementation_authorized": false,
+      "final_status": "captured"
+    },
+    {
+      "id": "RUN-0058-01",
+      "module": "",
+      "finding_type": "runtime_bug",
+      "severity": "medium",
+      "user_statement": "",
+      "expected_behavior": "Export creates a visible file, defaults to Desktop, supports an explicit alternate file location, and clearly reports the final path.",
+      "actual_behavior": "V57 uses FolderBrowserDialog and then creates a ZIP under the selected folder.",
+      "observation": "Export All Diagnostics opens a folder selector; Desktop cannot be selected as expected and the operator cannot clearly tell where the exported artifact was written.",
+      "evidence_refs": [
+        "User runtime report",
+        "src/DeploymentManager/DiagnosticsCenterForm.cs"
+      ],
+      "source_inspection_result": "Migrated from prior PES runtime_finding",
+      "root_cause": "Export UX modeled destination as a folder rather than an output file.",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "V58",
+      "implementation_result": "",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "UNSET",
+      "lifecycle_state": "observed",
+      "implementation_authorized": false,
+      "final_status": "implemented_pending_runtime_verification"
+    },
+    {
+      "id": "FND-0059-MAXPATH",
+      "module": "Self Release Build",
+      "finding_type": "build",
+      "severity": "high",
+      "user_statement": "Owner supplied V58 build screenshot showing restore failure because generated path exceeded the Windows 260-character path limit.",
+      "expected_behavior": "Release build succeeds regardless of a long incoming/versioned source folder name.",
+      "actual_behavior": "V58 restore failed before publish when building directly under the long source path.",
+      "observation": "MSBuild/NuGet reported fully qualified generated publish path must be less than 260 characters.",
+      "evidence_refs": [
+        "EV-0059-USER-SCREENSHOT"
+      ],
+      "source_inspection_result": "V58 build-release scripts restored/published directly from the source tree.",
+      "root_cause": "Self-release scripts used the incoming source path as the build root, allowing generated paths to exceed legacy MAX_PATH.",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "V59",
+      "implementation_result": "Both release scripts now stage source under %LOCALAPPDATA%\\GWDM\\Build\\V59 before restore/publish.",
+      "build_test_evidence_refs": [
+        "EV-0059-STATIC"
+      ],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "fix_authorized",
+      "lifecycle_state": "implemented",
+      "implementation_authorized": true,
+      "final_status": "implemented_pending_runtime_verification"
+    },
+    {
+      "id": "FND-0005",
+      "module": "Deployment/Frontend Discovery",
+      "finding_type": "build",
+      "severity": "high",
+      "user_statement": "V59 deployment failed during Vite build with Could not resolve entry module index.html.",
+      "expected_behavior": "Deployment Manager must select the real source frontend regardless of drive letter or generated publish folders.",
+      "actual_behavior": "V59 selected IIS-Publish/ClientApp, a generated publish tree without index.html, instead of src/NSPOffice.Api/ClientApp.",
+      "observation": "Diagnostic bundle and runtime screenshot established two ClientApp candidates; generated IIS-Publish candidate was incorrectly selected.",
+      "evidence_refs": [],
+      "source_inspection_result": "V59 FindClientFolder excluded common generated folders but did not exclude IIS-Publish/publish; selection preferred first package.json with a build script.",
+      "root_cause": "Frontend discovery did not classify IIS-Publish/publish as generated output and did not score complete Vite source roots.",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "V60",
+      "implementation_result": "Generated IIS-Publish/publish paths excluded; candidate selection now requires build script and scores index.html + vite.config.*; preflight reports the selected complete Vite root.",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "fix_authorized",
+      "lifecycle_state": "implemented",
+      "implementation_authorized": true,
+      "final_status": "open"
+    },
+    {
+      "id": "FND-0006",
+      "module": "SQL Detection",
+      "finding_type": "deployment",
+      "severity": "normal",
+      "user_statement": "Diagnostic bundle captured SQL integrated-auth warning during deployment.",
+      "expected_behavior": "Administrative SQL connection diagnostics should distinguish authentication/environment warnings from deployment-blocking failures.",
+      "actual_behavior": "Automatic administrative connection test reported untrusted domain / Integrated authentication warning while deployment continued.",
+      "observation": "Not the cause of the V59 frontend build failure; retained for later analysis.",
+      "evidence_refs": [],
+      "source_inspection_result": "Not analyzed in V60 scope.",
+      "root_cause": "unknown",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "UNSET",
+      "implementation_result": "No change in V60.",
+      "build_test_evidence_refs": [],
+      "runtime_retest": "not_run",
+      "owner_acceptance": "pending",
+      "disposition": "deferred",
+      "lifecycle_state": "observed",
+      "implementation_authorized": false,
+      "final_status": "open"
+    },
+    {
+      "id": "FND-0061-PREPARED-PUBLISH",
+      "module": "Deployment/Prepared Publish",
+      "finding_type": "deployment",
+      "severity": "high",
+      "user_statement": "Owner supplied a handoff requiring IIS-Publish to be treated as final prepared output and never as project source.",
+      "expected_behavior": "Prepared IIS Publish validates the prebuilt artifact then deploys it to IIS without npm, Vite, dependency restore, dotnet build or dotnet publish.",
+      "actual_behavior": "Prior workflow could still enter source/frontend build behavior around IIS-Publish and treated ClientApp inside publish output as source.",
+      "observation": "NSP Office GitHub Actions already produces validated IIS-Publish with BUILD-METADATA.json; runtime_acceptance may remain PENDING.",
+      "evidence_refs": [
+        "EV-0061-HANDOFF"
+      ],
+      "source_inspection_result": "V60 already had a Ready/Prepared branch but validation was weak, UI location was split, prepared deployment still generated source fingerprint state and post-deploy verification expected smart-build state.",
+      "root_cause": "Prepared publish existed as a partial mode rather than a fully isolated execution contract.",
+      "related_requirements": [],
+      "related_decisions": [],
+      "target_fix_version": "V61",
+      "implementation_result": "Prepared IIS Publish is explicit on Source page; validates web.config + app binary + wwwroot + optional BUILD-METADATA PASS fields; source dependency controls are disabled; PublishAsync hard-bypasses build stages; post-deploy verification validates prepared output rather than source fingerprints; configured production appsettings files are preserved from rollback copy.",
+      "build_test_evidence_refs": [
+        "EV-0061-STATIC"
+      ],
+      "runtime_retest": "pending",
+      "owner_acceptance": "pending",
+      "disposition": "fix_authorized",
+      "lifecycle_state": "implemented",
+      "implementation_authorized": true,
+      "final_status": "implemented_pending_runtime_verification"
+    }
+  ],
+  "evidence_registry": [
+    {
+      "id": "EV-0059-USER-SCREENSHOT",
+      "evidence_type": "screenshot",
+      "description": "Owner-provided V58 Windows release-build screenshot showing MAX_PATH restore failure.",
+      "artifact_or_location": "conversation screenshot",
+      "captured_at": "2026-09-19",
+      "related_records": [
+        "FND-0059-MAXPATH"
+      ]
+    },
+    {
+      "id": "EV-0059-STATIC",
+      "evidence_type": "source_inspection",
+      "description": "V59 release scripts inspected statically: controlled short staging path added before restore/publish.",
+      "artifact_or_location": "build-release.cmd; build-release-full.cmd",
+      "captured_at": "2026-09-19",
+      "related_records": [
+        "FND-0059-MAXPATH"
+      ]
+    },
+    {
+      "id": "EV-0061-HANDOFF",
+      "evidence_type": "owner_handoff",
+      "description": "Prepared IIS Publish / Direct Deploy Mode requirements supplied by owner on 2026-09-19.",
+      "artifact_or_location": "Pasted text.txt / conversation attachment",
+      "captured_at": "2026-09-19",
+      "related_records": [
+        "FND-0061-PREPARED-PUBLISH"
+      ]
+    },
+    {
+      "id": "EV-0061-STATIC",
+      "evidence_type": "source_inspection",
+      "description": "Static inspection confirms prepared branch occurs before frontend/dotnet build stages, performs prepared validation/copy and has dedicated activated validation. .NET SDK unavailable in current environment, so compilation/runtime are not claimed.",
+      "artifact_or_location": "DeploymentService.cs; WizardForm.cs; TEST-REPORT-V61.md",
+      "captured_at": "2026-09-19",
+      "related_records": [
+        "FND-0061-PREPARED-PUBLISH"
+      ]
+    }
+  ],
+  "traceability": {
+    "relationship_types": [
+      "supersedes",
+      "narrows",
+      "depends_on",
+      "blocks",
+      "related_to",
+      "changed_during_implementation",
+      "observed_by",
+      "supported_by",
+      "resulted_in",
+      "implemented_by",
+      "verified_by",
+      "retested_by",
+      "accepted_by"
+    ],
+    "rule": "Use stable references; do not duplicate full Requirement/Decision/Evidence payloads inside Findings."
+  },
+  "_pes_guide": {
+    "external_help_required": false,
+    "normal_continuation_package": [
+      "Latest valid complete Source",
+      "Latest aligned self-describing Project Evolution"
+    ],
+    "core_rules": [
+      "Source proves implementation facts; PE stores durable project knowledge and continuation state.",
+      "Runtime claims require runtime evidence; Build PASS != Runtime PASS.",
+      "Finding != Requirement Approval != Implementation Authorization.",
+      "History is append-oriented; unknowns are resolved, not silently deleted.",
+      "No fabricated history, evidence, root cause, runtime state, or architecture facts.",
+      "Source/software Vx and PE Vx remain aligned.",
+      "A separate Help or Handoff is not required."
+    ],
+    "version_model": {
+      "software_version": "Actual product/source release.",
+      "project_evolution_version": "Normally aligned with software/source release.",
+      "pes_standard": "Major standard identity; PES-5.",
+      "schema_revision": "Schema revision within PES-5; starts 5.0.0."
+    },
+    "adoption_modes": {
+      "new_project": "Genuinely new project may begin Software V1 + PE V1.",
+      "existing_project_adoption": "Inspect Source first; preserve actual release. Existing V58 normally gets PE V58, not V1.",
+      "pes_migration": "Migrate standard/schema without manufacturing a software release."
+    },
+    "read_order": [
+      "_pes",
+      "_pes_guide",
+      "project_identity",
+      "adoption_and_migration",
+      "continuation_contract",
+      "current_state",
+      "architecture",
+      "source_structure",
+      "operational_continuity",
+      "domain_model",
+      "module_state",
+      "review_model",
+      "findings",
+      "requirements",
+      "decisions",
+      "evidence_registry",
+      "traceability",
+      "execution_queue",
+      "risks_and_unknowns",
+      "verification_and_evidence",
+      "governance",
+      "evolution_history"
+    ],
+    "review_guide": {
+      "lifecycle": [
+        "observed",
+        "classified",
+        "analyzed",
+        "decision_pending",
+        "decision_made",
+        "authorized_work",
+        "implemented",
+        "verified",
+        "runtime_retested",
+        "owner_accepted",
+        "closed"
+      ],
+      "rule": "A Finding may close without implementation; target version is an attribute, not a lifecycle stage."
+    },
+    "evidence_guide": {
+      "types": [
+        "user_report",
+        "screenshot",
+        "source_inspection",
+        "build",
+        "publish",
+        "automated_test",
+        "deployment",
+        "runtime",
+        "owner_acceptance",
+        "other"
+      ],
+      "chain": "User Report/Screenshot -> Finding -> Source Inspection -> Root Cause -> Requirement/Decision -> Source Change -> Build/Test -> Deployment -> Runtime Retest -> Owner Acceptance.",
+      "rule": "Keep evidence classes distinct and link by stable references; do not embed large logs."
+    },
+    "migration_guide": [
+      "Migration is not Bootstrap.",
+      "Preserve history, Requirements, Decisions, Findings, Evidence and stable IDs where possible.",
+      "Uncertain mappings go to migration_pending/unknown; never guess.",
+      "Append migrations to standard_migrations[].",
+      "Migration alone creates no Runtime Fact and no artificial software release."
+    ],
+    "self_sufficiency_rule": "A fresh developer/AI must be able to continue using only Latest Source + Latest PE, without external Help, Handoff, or prior chat.",
+    "update_protocol": [
+      "Validate Source/PE version and artifact identity.",
+      "Inspect Source before implementation claims.",
+      "Implement only authorized work.",
+      "Record durable requirements, decisions, findings, evidence, unknowns and relationships.",
+      "Update current/module state and operational continuity.",
+      "Keep Build/Test/Deployment/Runtime/Owner Acceptance distinct.",
+      "Update verified release facts, pending runtime acceptance, execution queue and next-developer instructions.",
+      "Align Source Vx + PE Vx, run Self-Sufficiency Gate, return Source + PE."
+    ],
+    "design_boundary": "PES-5 is a continuity and traceability backbone, not Jira, TestRail, a workflow engine, or a log archive."
+  }
+}

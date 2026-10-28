@@ -1,0 +1,13 @@
+{
+  "static_checks": {
+    "version": true,
+    "profile mode": true,
+    "compatible missing unverified": true,
+    "strict fail": true,
+    "live policy": true,
+    "hash retained": true
+  },
+  "build": "NOT RUN (dotnet SDK unavailable)",
+  "runtime": "NOT RUN",
+  "deploy": "NOT PERFORMED"
+}

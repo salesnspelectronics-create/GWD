@@ -1,0 +1,14 @@
+{
+  "version": "68.0.0",
+  "release": "V68",
+  "updated_at": "2026-09-21",
+  "summary": "Smart Auto-Verify UI, unified SQL Server + Database stage, sidebar health/status navigation, IIS DataGridView async race fix.",
+  "changes": [
+    "Approved V68 Smart Auto-Verify visual/navigation baseline applied to WinForms shell.",
+    "Background auto-verification begins after valid source selection.",
+    "Verified Environment/IIS/Runtimes/SQL+Database/Deployment stages are marked in sidebar and may be skipped by Next.",
+    "SQL Server and Database merged into one wizard stage.",
+    "IIS/SQL/HTTP footer status removed in favor of sidebar status.",
+    "IIS site/app-pool DataGridView async lifecycle/column guard fixes the reported no-columns exception."
+  ]
+}

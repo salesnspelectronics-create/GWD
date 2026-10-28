@@ -1,0 +1,46 @@
+{
+  "base_zip_sha256": "32ee6b3ee3d4ac8a465f1cf01c5b64a5fabebc8f169aaf188614ae713126a722",
+  "normalization": "LF newlines; V71 secret redaction wrappers and diagnostic version label removed before comparison; no other normalization.",
+  "members": [
+    {
+      "file": "src/DeploymentManager/Services/DeploymentService.cs",
+      "member": "HealthCheckAsync",
+      "sha256": "3deb9b4fbc0542b5d254981f7e5357b79ebfaf8edfb883cfc66246b2cdc505ff"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DeploymentService.cs",
+      "member": "ConfigureIisAsync",
+      "sha256": "21629d135404b4166161acc68b81d683552bff5b6b90875d11efeb319222c9ba"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DeploymentService.cs",
+      "member": "CleanupFailedDeploymentAsync",
+      "sha256": "30b313833386cbff0e94d3e54e2c0580789db0b36f6511aada46b83dd46208ef"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DeploymentService.cs",
+      "member": "FinalizeSuccessfulDeployment",
+      "sha256": "a12ba045ef7786a455eb579c90fc9ff781e5533256e1a6f9d1a42c81c09ae4a7"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DeploymentService.cs",
+      "member": "CollectStartupDiagnosticsAsync",
+      "sha256": "bc5bf04b1d7c9f82a86ffefc6d435bf005f21f2b47e52ec27e142cd2940ae1a6"
+    },
+    {
+      "file": "src/DeploymentManager/WizardForm.cs",
+      "member": "ExportCleanSourceZip",
+      "sha256": "8272ed4f9a2c9212a4876f6e1db3f201c180db7ce9143226d8c1178eb15fc9ac"
+    },
+    {
+      "file": "src/DeploymentManager/WizardForm.cs",
+      "member": "BuildIisPage",
+      "sha256": "2761b5816d90080920a811d626446df3f2a41d01a771ea1f62f0039928f4c530"
+    },
+    {
+      "file": "src/DeploymentManager/WizardForm.cs",
+      "member": "BuildIisSitePage",
+      "sha256": "38c534d6d22a8bf95f7cdc2c483de9bf431fd3edb31d6de4ec6d0fe09815224c"
+    }
+  ]
+}

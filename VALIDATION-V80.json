@@ -1,0 +1,11 @@
+{
+  "static_checks": {
+    "build_contract": true,
+    "live_http_contract": true,
+    "source_release_match": true,
+    "version": true
+  },
+  "dotnet_build": "not run: dotnet unavailable",
+  "synthetic_tests": "not run",
+  "real_deploy": "not performed"
+}

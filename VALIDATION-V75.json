@@ -1,0 +1,13 @@
+{
+  "static_checks": {
+    "fresh_frontend_gate": true,
+    "hash_comparison": true,
+    "manifest": true,
+    "no_hosted_frontend_reuse": true,
+    "version_75": true
+  },
+  "dotnet_build": "not run; SDK unavailable",
+  "synthetic_runtime": "not run",
+  "post_deploy_ui_api_version_comparison": "not implemented",
+  "production_deploy": "not performed"
+}

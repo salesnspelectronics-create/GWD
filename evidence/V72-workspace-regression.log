@@ -1,0 +1,113 @@
+[WORKSPACE] Added: Directory.Build.props
+[WORKSPACE] Added: global.json
+[WORKSPACE] Added: package-lock.json
+[WORKSPACE] Added: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Added: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 5; Updated: 0; Removed: 0; Unchanged: 0; Verified: 5; Mismatch: 0
+PASS: Initial sync verifies all source and build-critical files
+PASS: Regression fixture has identical sizes and timestamps, manifest already trusts Incoming
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Updated: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Removed: src/NSPOffice.Api/Removed.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 0; Updated: 1; Removed: 1; Unchanged: 4; Verified: 5; Mismatch: 0
+PASS: Production pipeline remaps build to verified workspace
+PASS: Production sync overwrites stale Program.cs despite equal metadata and trusted manifest; SHA256 equal
+PASS: Changed build input gets fresh timestamp so incremental compiler cannot trust old source timestamp
+PASS: Untracked stale .cs removed without relying on manifest
+PASS: Explicit cache exclusions preserved
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Unchanged: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 0; Updated: 0; Removed: 0; Unchanged: 5; Verified: 5; Mismatch: 0
+PASS: Unchanged still receives full mandatory hash verification
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Unchanged: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Mismatch: src/NSPOffice.Api/Program.cs; source SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14; workspace SHA256=8F723E77CB03902A94FDF6DC765625F0F9B369F401D8F2C9A4A8A5CA6975A0E0; source snapshot stable=True
+[WORKSPACE] Verification: Verified: 4; Mismatch: 1
+PASS: Post-sync corruption blocks Build/Publish with path and both hashes
+PASS: Failed verification cannot promote manifest
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Updated: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 0; Updated: 1; Removed: 0; Unchanged: 4; Verified: 5; Mismatch: 0
+PASS: Incoming mutation during sync rejected even when both current hashes match
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Updated: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 0; Updated: 1; Removed: 0; Unchanged: 4; Verified: 5; Mismatch: 0
+PASS: Corrupt legacy manifest cannot suppress repair or verification
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Unchanged: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Mismatch: src/NSPOffice.Api/Program.cs; source SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14; workspace SHA256=8F723E77CB03902A94FDF6DC765625F0F9B369F401D8F2C9A4A8A5CA6975A0E0; source snapshot stable=True
+[WORKSPACE] Verification: Verified: 4; Mismatch: 1
+[PERF] Build pipeline total: 00:00:00.021. Use Build Performance for the stage breakdown.
+PASS: Actual PublishAsync mismatch stops before staging or any external build/publish command
+[WORKSPACE] Unchanged: Directory.Build.props
+[WORKSPACE] Unchanged: global.json
+[WORKSPACE] Unchanged: package-lock.json
+[WORKSPACE] Unchanged: src/NSPOffice.Api/NSPOffice.Api.csproj
+[WORKSPACE] Updated: src/NSPOffice.Api/Program.cs
+[WORKSPACE] Verified: Directory.Build.props; SHA256=400B35829B2A391F4048DA02E1108B98DB09431B2947E806A184743BD1B33C3A
+[WORKSPACE] Verified: global.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: package-lock.json; SHA256=44136FA355B3678A1146AD16F7E8649E94FB4FC21FE77E8310C060F61CAAFF8A
+[WORKSPACE] Verified: src/NSPOffice.Api/NSPOffice.Api.csproj; SHA256=FF35FC221FCACC509ADD8E3ACF046138ABB8DDB3497F9777537CFA0930987AF9
+[WORKSPACE] Verified: src/NSPOffice.Api/Program.cs; SHA256=6A7A481CAC28E9D726982D352901CDDF3EA4A8256661FFE868775EF02BAB0A14
+[WORKSPACE] Verification: Verified: 5; Mismatch: 0
+[WORKSPACE] Added: 0; Updated: 1; Removed: 0; Unchanged: 4; Verified: 5; Mismatch: 0
+[PERF] Build pipeline total: 00:00:00.004. Use Build Performance for the stage breakdown.
+PASS: Concurrent pipeline cannot modify/build a leased workspace
+PASS: Cancellation stops pipeline
+WORKSPACE REGRESSION TESTS COMPLETE

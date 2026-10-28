@@ -1,0 +1,7 @@
+{
+  "static_assertions": "passed",
+  "dotnet_build": "not run (SDK unavailable)",
+  "synthetic_runtime": "not run",
+  "post_deploy_version_check": "pending",
+  "real_deploy": "not performed"
+}

@@ -1,0 +1,137 @@
+{
+  "baseline": "V71 uploaded archive",
+  "files": [
+    {
+      "file": "src/DeploymentManager/app.manifest",
+      "sha256": "2531a3ae6c753b15b63ed37bba6f3f4fc69c27cf5d9e1b99388e883f143e5dee"
+    },
+    {
+      "file": "src/DeploymentManager/AutoYesConfirmationForm.cs",
+      "sha256": "1e71d65d2c084ac3c43cf6d163382eacb14463ec2db585101e42b5d29627a98f"
+    },
+    {
+      "file": "src/DeploymentManager/BuildPerformanceForm.cs",
+      "sha256": "e362497d34306d143afe04c229cd78ea0a2bc0585764dcab0d37d17a9aee5327"
+    },
+    {
+      "file": "src/DeploymentManager/DeploymentHistoryForm.cs",
+      "sha256": "d2743f0d4c58208c2cb1753438bf42f724f95c938a811f657df842a784e46913"
+    },
+    {
+      "file": "src/DeploymentManager/DeploymentManager.csproj",
+      "sha256": "15465782f7264fb316ed96eff6c6d57e97dd95623bc299b13f566fcbd7339174"
+    },
+    {
+      "file": "src/DeploymentManager/DiagnosticsCenterForm.cs",
+      "sha256": "7439cb937c230d930430ebb20d5a4ce14989bfff263780e273b5f735b3fad199"
+    },
+    {
+      "file": "src/DeploymentManager/ErrorReportForm.cs",
+      "sha256": "2c88c46218d26a224decc5474e4b4e125b41b3cb56200bd2afa36b40e93bc521"
+    },
+    {
+      "file": "src/DeploymentManager/Ipv4AddressControl.cs",
+      "sha256": "bf176f7bca7a7b1bd588d4f0f2d73e5b1e7ff71376c9ef23792b37401b91dfe9"
+    },
+    {
+      "file": "src/DeploymentManager/LogForm.cs",
+      "sha256": "fa0a50d5fa4486359ec3e897517bf687780dc48fb46d7cc6321855c83989fe70"
+    },
+    {
+      "file": "src/DeploymentManager/ProductInfo.cs",
+      "sha256": "fede4550e1db75820a930d5bf0c989805bff52b947e750bc13ca030c51d6808f"
+    },
+    {
+      "file": "src/DeploymentManager/SettingsForm.cs",
+      "sha256": "d474c5afe1c8425891a32f0949b7b1942946b7894de8acf373966cf9fe378853"
+    },
+    {
+      "file": "src/DeploymentManager/WizardForm.cs",
+      "sha256": "c48695f4b8c7ff7f181d71aaed5d5296f5c16ee23fabff6a64875c45b344beee"
+    },
+    {
+      "file": "src/DeploymentManager/Models/DeploymentHistoryModels.cs",
+      "sha256": "044963a486d1079510f38acf4db05a8388594382d2c48475929f50704758d577"
+    },
+    {
+      "file": "src/DeploymentManager/Models/DeploymentProfile.cs",
+      "sha256": "37fac2448e6c94e772f6e0d7284abcd326813731944a805bb1c210abe7584944"
+    },
+    {
+      "file": "src/DeploymentManager/Services/AppDataService.cs",
+      "sha256": "9365657a19105b25234b727db138b59d1f5659aadc1a8f8af39bb2bdf558f8e2"
+    },
+    {
+      "file": "src/DeploymentManager/Services/BackgroundHealthMonitor.cs",
+      "sha256": "0448e711f3e752b1061bb93b9a54e3ed4a7558fca02dd0618d3b15cfd438e7bd"
+    },
+    {
+      "file": "src/DeploymentManager/Services/BuildPerformanceTrace.cs",
+      "sha256": "7efedf747636776db83caa660016cd809a522dfbbcc7e32885a7ecf14ea7b5ed"
+    },
+    {
+      "file": "src/DeploymentManager/Services/CommandRunner.cs",
+      "sha256": "9bda8a7389ebee0f5811ad6f7addee0d7f7f6adc09877b7d1afe08defe8d44e7"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DeploymentHistoryService.cs",
+      "sha256": "7e0bb7cd2485902c0bddf3da9a3239caa4a131f8b581894e8df1b52d7f0854e6"
+    },
+    {
+      "file": "src/DeploymentManager/Services/DiagnosticBundleService.cs",
+      "sha256": "6c6ac9e5dca8ada50abd563214020af52dd69b6901859ee91f4c31000c12f1ee"
+    },
+    {
+      "file": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "sha256": "22864b08fc4214228bc8ee76d4478f8fd727a9e9c52dbd0c7080dd75daafb114"
+    },
+    {
+      "file": "src/DeploymentManager/Services/InternalDiagnostics.cs",
+      "sha256": "50daadba0b8cf11de517b4d35ea567c9ddee16cdb74c1d0b2ab4b619215af7b5"
+    },
+    {
+      "file": "src/DeploymentManager/Services/LogService.cs",
+      "sha256": "a6e471324bd3b1238d301a2da1dfee1bb4796b5bad1752cc71397b4ac1af2ba8"
+    },
+    {
+      "file": "src/DeploymentManager/Services/PrerequisiteService.cs",
+      "sha256": "da24d03f0372129884df00ad1bb10b3e1ac485797976c29e3d1d3e4212fefaf4"
+    },
+    {
+      "file": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "sha256": "8fd208c3c48c52579df6620e76b05901d9231f6385df8f6143775454de05a01c"
+    },
+    {
+      "file": "src/DeploymentManager/Services/RuntimeMetricsService.cs",
+      "sha256": "8d160767281b0a6dcd6418b49c999279ab78df196e771b58b5475f15cf041316"
+    },
+    {
+      "file": "src/DeploymentManager/Services/SecretRedactor.cs",
+      "sha256": "6d18bbee46763d5d24831b2605623c5d1b901b07120ca4a75d4db0202aef03e0"
+    },
+    {
+      "file": "src/DeploymentManager/Services/SqlConnectionStrategy.cs",
+      "sha256": "923fe575b3fb9636d1aa6f3a9a3a5dc5bfaa23a38dd0def40b072109daed653f"
+    },
+    {
+      "file": "src/DeploymentManager/Services/SqlServerService.cs",
+      "sha256": "b33641f02026bc9930b00f4c3bc3af55dd01094ef4705e0f660e4346b1d51823"
+    },
+    {
+      "file": "src/DeploymentManager.Cli/DeploymentManager.Cli.csproj",
+      "sha256": "48654b9d0519cd4e66fed7ce891d5e837808ff9765067019d682482f3aece13b"
+    },
+    {
+      "file": "src/DeploymentManager.SmokeTests/DeploymentManager.SmokeTests.csproj",
+      "sha256": "b3e73345b1882e3bb0aed6c20d9dbf2113269dda01a4f5ba9907e73ec55c35f0"
+    },
+    {
+      "file": "src/DeploymentManager/Program.cs",
+      "sha256": "8a1a3297d227632fa269939677bb88d68132a290bb735194de7ad74733395ed3"
+    },
+    {
+      "file": "src/DeploymentManager.Cli/Program.cs",
+      "sha256": "93465d6b728c20643d056c24016f7c6babd28d72736bd0655f20abe30566ee1e"
+    }
+  ]
+}

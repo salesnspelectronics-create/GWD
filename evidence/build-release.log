@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  DeploymentManager -> C:\Users\Ali\Documents\Codex\2026-09-23\referenced-chatgpt-conversation-this-is-an\work\V71\src\DeploymentManager\bin\Release\net9.0-windows\GenericWeb.DeploymentManager.dll
+  DeploymentManager.Cli -> C:\Users\Ali\Documents\Codex\2026-09-23\referenced-chatgpt-conversation-this-is-an\work\V71\src\DeploymentManager.Cli\bin\Release\net9.0-windows\DeploymentManager.dll
+  DeploymentManager.SmokeTests -> C:\Users\Ali\Documents\Codex\2026-09-23\referenced-chatgpt-conversation-this-is-an\work\V71\src\DeploymentManager.SmokeTests\bin\Release\net9.0-windows\DeploymentManager.SmokeTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:22.29

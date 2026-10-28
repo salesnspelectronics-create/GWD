@@ -1,0 +1,12 @@
+{
+  "dotnet_sdk_available": false,
+  "dotnet_test_execution": "NOT RUN",
+  "test_cases_authored": 11,
+  "runtime_http_iis_e2e": "NOT RUN",
+  "static_checks": {
+    "helper_used_staging": true,
+    "helper_used_api": true,
+    "helper_used_frontend": true,
+    "regression_case_573_560": true
+  }
+}

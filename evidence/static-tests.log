@@ -1,0 +1,26 @@
+PASS: Single SQL connection construction boundary
+PASS: Single connection-string builder boundary
+PASS: Discovery uses registry metadata without hidden Windows authentication
+PASS: PrepareDatabaseAsync uses profile strategy
+PASS: DiagnoseAsync uses profile strategy
+PASS: TestConnectionWithSafeFallbackAsync uses profile strategy
+PASS: Wizard verification derives from strategy, not a second mutable flag
+PASS: Generated suggestions do not silently become fallback credentials
+PASS: Fallback requires configured credential and Integrated-auth failure
+PASS: Concurrent/stale connection guard remains present
+PASS: Startup diagnostics remain before health-failure throw and rollback
+PASS: Effective connection refreshed after database preparation
+PASS: Base and Production application connections aligned
+PASS: Release versions aligned to 71.0.0
+PASS: DeploymentManager retains net9.0-windows
+PASS: DeploymentManager.Cli retains net9.0-windows
+PASS: DeploymentManager.SmokeTests retains net9.0-windows
+PASS: V70 source preservation (only redaction/version-label normalization): HealthCheckAsync
+PASS: V70 source preservation (only redaction/version-label normalization): ConfigureIisAsync
+PASS: V70 source preservation (only redaction/version-label normalization): CleanupFailedDeploymentAsync
+PASS: V70 source preservation (only redaction/version-label normalization): FinalizeSuccessfulDeployment
+PASS: V70 source preservation (only redaction/version-label normalization): CollectStartupDiagnosticsAsync
+PASS: V70 source preservation (only redaction/version-label normalization): ExportCleanSourceZip
+PASS: V70 source preservation (only redaction/version-label normalization): BuildIisPage
+PASS: V70 source preservation (only redaction/version-label normalization): BuildIisSitePage
+STATIC TESTS: 25 passed. Source checks do not establish live IIS/SQL behavior.

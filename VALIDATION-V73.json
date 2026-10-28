@@ -1,0 +1,9 @@
+{
+  "static_checks": {
+    "worktree_filter": true,
+    "canonical_client": true,
+    "version": true
+  },
+  "build": "not run",
+  "post_deploy_version_check": "not implemented"
+}

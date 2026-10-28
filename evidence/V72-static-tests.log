@@ -1,0 +1,64 @@
+PASS: Workspace Unchanged compares actual SHA256, not metadata/manifest
+PASS: Mandatory verification before manifest promotion, fail closed
+PASS: Explicit directory exclusions, no source extension filter
+PASS: Production source pipeline sync+verify precedes staging/build/publish
+PASS: Workspace lease spans source build pipeline
+PASS: V71 unchanged source: src/DeploymentManager/app.manifest
+PASS: V71 unchanged source: src/DeploymentManager/AutoYesConfirmationForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/BuildPerformanceForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/DeploymentHistoryForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/DeploymentManager.csproj
+PASS: V71 unchanged source: src/DeploymentManager/DiagnosticsCenterForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/ErrorReportForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/Ipv4AddressControl.cs
+PASS: V71 unchanged source: src/DeploymentManager/LogForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/ProductInfo.cs
+PASS: V71 unchanged source: src/DeploymentManager/SettingsForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/WizardForm.cs
+PASS: V71 unchanged source: src/DeploymentManager/Models/DeploymentHistoryModels.cs
+PASS: V71 unchanged source: src/DeploymentManager/Models/DeploymentProfile.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/AppDataService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/BackgroundHealthMonitor.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/BuildPerformanceTrace.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/CommandRunner.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/DeploymentHistoryService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/DiagnosticBundleService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/EnvironmentService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/InternalDiagnostics.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/LogService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/PrerequisiteService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/RemoteDeploymentService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/RuntimeMetricsService.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/SecretRedactor.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/SqlConnectionStrategy.cs
+PASS: V71 unchanged source: src/DeploymentManager/Services/SqlServerService.cs
+PASS: V71 unchanged source: src/DeploymentManager.Cli/DeploymentManager.Cli.csproj
+PASS: V71 unchanged source: src/DeploymentManager.SmokeTests/DeploymentManager.SmokeTests.csproj
+PASS: V71 unchanged source: src/DeploymentManager/Program.cs
+PASS: V71 unchanged source: src/DeploymentManager.Cli/Program.cs
+PASS: Single SQL connection construction boundary
+PASS: Single connection-string builder boundary
+PASS: Discovery uses registry metadata without hidden Windows authentication
+PASS: PrepareDatabaseAsync uses profile strategy
+PASS: DiagnoseAsync uses profile strategy
+PASS: TestConnectionWithSafeFallbackAsync uses profile strategy
+PASS: Wizard verification derives from strategy, not a second mutable flag
+PASS: Generated suggestions do not silently become fallback credentials
+PASS: Fallback requires configured credential and Integrated-auth failure
+PASS: Concurrent/stale connection guard remains present
+PASS: Startup diagnostics remain before health-failure throw and rollback
+PASS: Effective connection refreshed after database preparation
+PASS: Base and Production application connections aligned
+PASS: Release versions aligned to 72.0.0
+PASS: DeploymentManager retains net9.0-windows
+PASS: DeploymentManager.Cli retains net9.0-windows
+PASS: DeploymentManager.SmokeTests retains net9.0-windows
+PASS: V70 source preservation (only redaction/version-label normalization): HealthCheckAsync
+PASS: V70 source preservation (only redaction/version-label normalization): ConfigureIisAsync
+PASS: V70 source preservation (only redaction/version-label normalization): CleanupFailedDeploymentAsync
+PASS: V70 source preservation (only redaction/version-label normalization): FinalizeSuccessfulDeployment
+PASS: V70 source preservation (only redaction/version-label normalization): CollectStartupDiagnosticsAsync
+PASS: V70 source preservation (only redaction/version-label normalization): ExportCleanSourceZip
+PASS: V70 source preservation (only redaction/version-label normalization): BuildIisPage
+PASS: V70 source preservation (only redaction/version-label normalization): BuildIisSitePage
+STATIC TESTS: 63 passed. Source checks do not establish live IIS/SQL behavior.

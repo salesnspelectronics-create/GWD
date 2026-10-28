@@ -1,0 +1,4 @@
+PASS: smart browse parent fallback, settings persistence, and Review -> Start Over -> Project Source UI cycle checks passed.
+PASS: profile round-trip preserves source/lock state and excludes credentials.
+PASS: clean source export retains source and excludes all five default generated folders.
+PASS: IIS site/application-pool grids survive three page rebuild cycles (live async IIS refresh not exercised).

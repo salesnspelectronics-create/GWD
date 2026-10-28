@@ -1,0 +1,14 @@
+{
+  "static_checks": {
+    "HTTP live API version probe": true,
+    "Requires exact version match": true,
+    "Fails closed on missing version": true,
+    "Runs after activated file check": true,
+    "Runs before success mark": true,
+    "Version increment": true
+  },
+  "dotnet_build": "unavailable",
+  "synthetic_http_tests": "not executed",
+  "live_deploy": "not performed",
+  "ui_version_runtime_check": "not implemented"
+}

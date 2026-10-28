@@ -1,0 +1,12 @@
+{
+  "static_checks": {
+    "Marker generated in fresh staged frontend": true,
+    "HTTP marker verification": true,
+    "Fail closed before success": true,
+    "Version 79": true
+  },
+  "dotnet_build": "not run: dotnet SDK unavailable",
+  "synthetic_http_tests": "not run",
+  "real_deploy": "not performed",
+  "displayed_ui_version_contract": "not implemented"
+}

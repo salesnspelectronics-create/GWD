@@ -1,0 +1,1 @@
+GWD V82 N1: Removed Prepared IIS Publish bypasses in live API and frontend release verification. Prepared packages without gwd-release-integrity.json now fail closed. Existing source-build verification remains unchanged. WARNING: prepared packages require compatible manifests and live endpoints. Build/tests NOT RUN: .NET SDK unavailable. No deployment performed.

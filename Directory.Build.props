@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <DeploymentManagerVersion>101.0.0</DeploymentManagerVersion>
+    <Version>$(DeploymentManagerVersion)</Version>
+    <AssemblyVersion>$(DeploymentManagerVersion).0</AssemblyVersion>
+    <FileVersion>$(DeploymentManagerVersion).0</FileVersion>
+  </PropertyGroup>
+</Project>

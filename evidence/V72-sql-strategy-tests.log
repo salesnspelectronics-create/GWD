@@ -1,0 +1,37 @@
+PASS: Untrusted-domain failure falls back once to configured SQL credential, before alternate endpoints
+PASS: Fallback records effective SQL auth; master verification does not claim database verified
+PASS: Subsequent database and health connections never retry hidden Integrated authentication
+PASS: Database open records actual catalog verification
+PASS: Application connection string uses successful auth and exact configured credential
+PASS: Unrelated settings and state reads preserve verification
+PASS: Configuration change invalidates verification: 1
+PASS: Configuration change invalidates verification: 2
+PASS: Configuration change invalidates verification: 3
+PASS: Configuration change invalidates verification: 4
+PASS: Configuration change invalidates verification: 5
+PASS: Absent credentials never trigger guessed fallback
+PASS: Generated but unapplied password is ineligible for fallback
+PASS: Generated but unapplied password is ineligible for direct SQL authentication
+PASS: Network failure does not switch authentication
+PASS: Failed fallback leaves unverified state and identifies both auth attempts
+PASS: Cancellation does not invalidate a previously verified connection
+PASS: Real operation failure invalidates verification while retaining successful auth selection
+PASS: In-flight result cannot verify edited configuration
+PASS: Concurrent health and deployment opens share one serialized fallback decision
+PASS: Profile serialization excludes credentials and session authorization state
+PASS: Legacy plaintext profile credentials are ignored
+PASS: Redacts registered raw/escaped secret variant
+PASS: Redacts registered raw/escaped secret variant
+PASS: Redacts registered raw/escaped secret variant
+PASS: Redacts registered raw/escaped secret variant
+PASS: Redacts legacy quoted semicolon password
+PASS: Redacts legacy JSON password with escaped quote
+PASS: Disk log, error report and internal diagnostics redact before writing
+PASS: Diagnostic ZIP sanitizes historical and current secrets
+PASS: Auth logs identify failed/used/fallback methods without secrets
+PASS: Manual/automatic and health service APIs reuse the successful auth strategy
+PASS: Workspace profile clone shares exact verification session
+PASS: Effective SQL auth written without altering unrelated application settings: appsettings.json
+PASS: Effective SQL auth written without altering unrelated application settings: appsettings.Production.json
+PASS: Built assembly version is 72.0.0
+SQL STRATEGY TESTS: 36 passed. Transport is simulated; no SQL Server/IIS runtime acceptance is claimed.
