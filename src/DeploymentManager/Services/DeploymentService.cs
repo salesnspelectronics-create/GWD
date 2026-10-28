@@ -286,8 +286,11 @@ public sealed class DeploymentService
         // Future Git updates must finish in Incoming before entering this pipeline.
         // Keep the workspace exclusively owned through verification and publish.
         // V74: validate source provenance before copying anything to the stable workspace.
-        if (!string.Equals(profile.BuildMode, "Prepared IIS Publish", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(profile.BuildMode, "Prepared IIS Publish", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(profile.GitSourceVerificationMode, "Strict", StringComparison.OrdinalIgnoreCase))
             VerifyIncomingGitProvenance(profile);
+        else
+            _runner.Report("[SOURCE] Git verification OFF; source path and workspace SHA256 controls remain active.");
         using var workspaceLease = AcquireWorkspaceLease(profile);
         if (!string.Equals(profile.BuildMode, "Prepared IIS Publish", StringComparison.OrdinalIgnoreCase))
         {
