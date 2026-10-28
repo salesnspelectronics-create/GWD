@@ -20,6 +20,7 @@ public sealed class DeploymentProfile
     // Compatible (default): missing app-owned UI version is reported as unverified.
     // Strict: require an app-owned version file and an exact source-version match.
     public string UiVersionContractMode { get; set; } = "Compatible";
+    public string ApiVersionContractMode { get; set; } = "Compatible";
     public string BuildMode { get; set; } = "Fast Local Test";
     public bool OfflineBuild { get; set; } = true;
     public string DependencyResolutionMode { get; set; } = "Offline Only";
