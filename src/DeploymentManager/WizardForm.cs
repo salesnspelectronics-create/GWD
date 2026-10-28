@@ -3092,6 +3092,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         return new string(chars.ToArray());
     }
 
+    private DateTime _lastLogStateSaveUtc = DateTime.MinValue;
     private void AppendLog(string message)
     {
         message = SecretRedactor.Redact(message);
@@ -3124,11 +3125,15 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             _activity.AutoEllipsis = true;
             if (_reviewActivity is not null && !_reviewActivity.IsDisposed) _reviewActivity.Text = oneLine;
         }
-        _persistentState.LastStage = _steps[Math.Clamp(_pageIndex, 0, _steps.Length - 1)];
-        _persistentState.LastSourceFolder = _profile.SourceFolder;
-        _persistentState.LastSiteName = _profile.SiteName;
-        _persistentState.UpdatedAt = DateTime.Now;
-        _appData.SaveState(_persistentState);
+        if ((DateTime.UtcNow - _lastLogStateSaveUtc).TotalSeconds >= 5)
+        {
+            _lastLogStateSaveUtc = DateTime.UtcNow;
+            _persistentState.LastStage = _steps[Math.Clamp(_pageIndex, 0, _steps.Length - 1)];
+            _persistentState.LastSourceFolder = _profile.SourceFolder;
+            _persistentState.LastSiteName = _profile.SiteName;
+            _persistentState.UpdatedAt = DateTime.Now;
+            _appData.SaveState(_persistentState);
+        }
     }
 
 
