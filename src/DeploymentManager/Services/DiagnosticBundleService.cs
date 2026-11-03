@@ -69,6 +69,9 @@ public sealed class DiagnosticBundleService
             }, new JsonSerializerOptions { WriteIndented = true }));
         }
 
+        if (section is DiagnosticExportSection.All or DiagnosticExportSection.DeploymentHistory)
+            AddDirectoryTextFiles(archive, Path.Combine(appData.Root, "IisAttempts"), "iis-attempts", "*.json");
+
         if (section is DiagnosticExportSection.All or DiagnosticExportSection.CodeQuality)
         {
             var qualityRoot = CodeQualitySession.Store(appData).Root;

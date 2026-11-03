@@ -1,4 +1,4 @@
-﻿using GenericWeb.DeploymentManager.Models;
+using GenericWeb.DeploymentManager.Models;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json.Nodes;
@@ -16,6 +16,59 @@ public sealed class DeploymentService
     private SmartDeployState? _lastPreparedState;
     private string? _activeRollbackFolder;
     public DeploymentService(CommandRunner runner, SqlServerService sql, AppDataService appData) { _runner = runner; _sql = sql; _appData = appData; }
+
+    private IisDeploymentAttempt? _iisAttempt;
+    private bool _filesChanged;
+    public IDisposable BeginIisAttempt(DeploymentProfile profile, string? attemptId = null)
+    {
+        if (_iisAttempt is { IsDisposed: false }) throw new IOException("Another IIS deployment attempt is active in this engine.");
+        _activeRollbackFolder = null;
+        _filesChanged = false;
+        _iisAttempt = new IisDeploymentAttempt(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GenericWeb.DeploymentManager", "TargetLocks"),
+            Path.Combine(_appData.Root, "IisAttempts"),
+            new[] { "site:" + profile.SiteName, "pool:" + profile.AppPoolName, "path:" + Path.GetFullPath(profile.HostingRoot).TrimEnd('\\', '/') },
+            attemptId ?? Guid.NewGuid().ToString("N"), _runner.Report);
+        ReportIis($"[IIS] GWD={ProductInfo.Version}; attempt={_iisAttempt.Id}; site={profile.SiteName}; pool={profile.AppPoolName}; path={profile.HostingRoot}; initial state is an observation, not proof deployment caused a later failure.");
+        return _iisAttempt;
+    }
+    public void RecordDeploymentHealth(string detail) => ReportIis("[HEALTH] " + detail);
+    public void IisStage(string stage, string state) => _iisAttempt?.Stage(stage, state);
+    public void ResolveIisAttempt() { _iisAttempt?.Resolve(); _filesChanged = false; }
+
+    private IisSafety Iis()
+    {
+        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
+        if (!File.Exists(appcmd)) throw new IOException("IIS_MANAGEMENT_UNAVAILABLE: appcmd.exe was not found; deployment blocked.");
+        return new IisSafety((args, ct) => _runner.RunAsync(appcmd, args, ct: ct, timeout: TimeSpan.FromSeconds(60)), ReportIis);
+    }
+
+    private void ReportIis(string message)
+    {
+        var safe = SecretRedactor.Redact(message);
+        _runner.Report(safe);
+        try { _iisAttempt?.Observe(safe); }
+        catch (Exception ex) { _runner.Report("[DIAGNOSTICS] Could not persist IIS observation: " + ex.Message); InternalDiagnostics.Record(ex, "Persist IIS observation"); }
+    }
+
+    public async Task ValidateIisPreflightAsync(DeploymentProfile profile, CancellationToken ct = default)
+    {
+        _activeRollbackFolder = null; // Never reuse a backup from a previous attempt.
+        IisStage("PREFLIGHT", "RUNNING");
+        var state = await Iis().ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        ReportIis($"[PREFLIGHT] IIS observation; initial_site={state.Site}; initial_pool={state.Pool}; stopped_policy=allow_verified_stop_then_start");
+        if (File.Exists(Path.Combine(profile.HostingRoot, ".deployment-incomplete")))
+            throw new IOException("Previous deployment is unresolved (.deployment-incomplete). Inspect backup, IIS and HTTP health and resolve the prior attempt manually before retrying.");
+        await Iis().CheckedAsync($"list site /name:\"{profile.SiteName}\"", ct);
+        var actualPath = await GetSitePhysicalPathAsync(profile, ct);
+        if (string.IsNullOrWhiteSpace(actualPath)) throw new IOException("IIS physical path is unknown; deployment blocked.");
+        if (string.Equals(profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase) && !PathsEqual(actualPath, profile.HostingRoot))
+            throw new IOException("IIS physical path does not match the selected hosting folder; deployment blocked before backup.");
+        var actualPool = await Iis().CheckedAsync($"list app /app.name:\"{profile.SiteName}/\" /text:applicationPool", ct);
+        if (!string.Equals(actualPool.Output.Trim(), profile.AppPoolName, StringComparison.OrdinalIgnoreCase))
+            throw new IOException("IIS application pool differs from the selected target; configuration was not changed.");
+        IisStage("PREFLIGHT", "PASS");
+    }
 
     public BuildPerformanceTrace? LastPerformanceSnapshot { get; private set; }
 
@@ -1384,10 +1437,12 @@ public sealed class DeploymentService
     public async Task<string> ActivateStagingAsync(DeploymentProfile profile, string stagingFolder, CancellationToken ct = default)
     {
         if (!Directory.Exists(stagingFolder)) throw new DirectoryNotFoundException("Staging folder was not found: " + stagingFolder);
+        await ValidateIisPreflightAsync(profile, ct);
         var target = ResolveActivePublishFolder(profile);
         var rollback = CreateUniqueRollbackFolder(profile);
         _activeRollbackFolder = rollback;
 
+        IisStage("BACKUP", "RUNNING");
         _runner.Report($"[DEPLOY] BACKUP = PENDING; target={target}; backup={rollback}");
         Directory.CreateDirectory(Path.GetDirectoryName(target) ?? profile.HostingRoot);
 
@@ -1416,7 +1471,10 @@ public sealed class DeploymentService
             _runner.Report("[DEPLOY] BACKUP = NOT_REQUIRED");
         }
 
+        IisStage("BACKUP", Directory.Exists(rollback) ? "PASS" : "SKIPPED");
+        IisStage("STOP", "RUNNING");
         await StopSiteForDeploymentAsync(profile, ct);
+        IisStage("STOP", "PASS");
         _runner.Report("[DEPLOY] IIS_STOP = PASS");
 
         // V65: IIS may report the site/pool stopped before worker-process file handles are fully released.
@@ -1429,6 +1487,7 @@ public sealed class DeploymentService
             // must also trigger recovery instead of bypassing the catch block.
             // Copy the entire staged release to a sibling directory before touching the live folder.
             // This prevents a staging-copy failure from destroying the currently hosted files.
+            IisStage("FILE_DEPLOY", "RUNNING");
             var fullTarget = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             var parentFolder = Path.GetDirectoryName(fullTarget) ?? throw new IOException("Hosted path has no parent directory.");
             var preparedRelease = Path.Combine(parentFolder, Path.GetFileName(fullTarget) + ".gwd-new-" + Guid.NewGuid().ToString("N"));
@@ -1437,6 +1496,9 @@ public sealed class DeploymentService
             {
                 CopyDirectory(stagingFolder, preparedRelease, ct);
                 ct.ThrowIfCancellationRequested();
+                await WaitForAppPoolStoppedAsync(profile, ct);
+                _filesChanged = true;
+                if (_iisAttempt is not null) _iisAttempt.FilesChanged = true;
                 if (Directory.Exists(fullTarget)) Directory.Move(fullTarget, displacedRelease);
                 try { Directory.Move(preparedRelease, fullTarget); }
                 catch
@@ -1468,6 +1530,7 @@ public sealed class DeploymentService
                 }
             }
             Directory.Delete(stagingFolder, recursive: true);
+            IisStage("FILE_DEPLOY", "PASS");
             _runner.Report("[DEPLOY] FILE_DEPLOY = PASS");
             _runner.Report($"[DEPLOY] Activated hosted site folder: {target}");
             return target;
@@ -1481,6 +1544,7 @@ public sealed class DeploymentService
             {
                 try
                 {
+                    await StopSiteForDeploymentAsync(profile, CancellationToken.None);
                     await RestoreHostedFolderSafelyAsync(rollback, target);
                     _runner.Report("[ROLLBACK] Activation failure restored the previous hosted folder.");
                 }
@@ -1539,20 +1603,12 @@ public sealed class DeploymentService
 
     private async Task WaitForAppPoolStoppedAsync(DeploymentProfile profile, CancellationToken ct)
     {
-        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (!File.Exists(appcmd) || string.IsNullOrWhiteSpace(profile.AppPoolName)) return;
-        for (var attempt = 1; attempt <= 20; attempt++)
-        {
-            ct.ThrowIfCancellationRequested();
-            var state = await _runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\" /text:state", ct: ct);
-            if (state.ExitCode != 0 || state.Output.Contains("Stopped", StringComparison.OrdinalIgnoreCase))
-            {
-                _runner.Report($"[DEPLOY] APPPOOL_STOP_CONFIRMED = PASS; attempts={attempt}");
-                return;
-            }
-            await Task.Delay(250, ct);
-        }
-        _runner.Report("[DEPLOY] APPPOOL_STOP_CONFIRMED = TIMEOUT; continuing with lock-aware file replacement retry.");
+        var iis = Iis();
+        var site = await iis.StateAsync("site", profile.SiteName, ct);
+        var pool = await iis.StateAsync("apppool", profile.AppPoolName, ct);
+        if (site != "Stopped" || pool != "Stopped")
+            throw new IOException($"FILE_DEPLOY blocked: site={site}; apppool={pool}; both must be verified Stopped immediately before file replacement.");
+        _runner.Report("[DEPLOY] SITE_AND_APPPOOL_STOP_CONFIRMED = PASS");
     }
 
     private async Task DeleteDirectoryWithRetryAsync(string path, CancellationToken ct)
@@ -1586,16 +1642,12 @@ public sealed class DeploymentService
 
     public async Task StopSiteForDeploymentAsync(DeploymentProfile profile, CancellationToken ct = default)
     {
-        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (!File.Exists(appcmd)) return;
-        var portOwner = new EnvironmentService(_runner).GetIisSiteUsingPort(profile.HttpPort);
-        if (!string.IsNullOrWhiteSpace(portOwner) && !string.Equals(portOwner, profile.SiteName, StringComparison.OrdinalIgnoreCase))
-        {
-            _runner.Report($"[IIS] Stopping existing site '{portOwner}' before activating files for port {profile.HttpPort}.");
-            await _runner.RunAsync(appcmd, $"stop site /site.name:\"{portOwner}\"", ct: ct);
-        }
-        await _runner.RunAsync(appcmd, $"stop site /site.name:\"{profile.SiteName}\"", ct: ct);
-        await _runner.RunAsync(appcmd, $"stop apppool /apppool.name:\"{profile.AppPoolName}\"", ct: ct);
+        if (_iisAttempt is null || _iisAttempt.IsDisposed) throw new IOException("IIS deployment target lock is required before STOP.");
+        var iis = Iis();
+        await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        _iisAttempt.BeginMutation();
+        await iis.TransitionAsync("site", profile.SiteName, "Stopped", ct);
+        await iis.TransitionAsync("apppool", profile.AppPoolName, "Stopped", ct);
     }
 
     public (bool Ok, string Detail) VerifyActivatedDeployment(DeploymentProfile profile, string publishFolder)
@@ -1861,47 +1913,23 @@ public sealed class DeploymentService
 
     public async Task ConfigureIisAsync(DeploymentProfile profile, string publishFolder, CancellationToken ct = default)
     {
-        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (!File.Exists(appcmd)) throw new InvalidOperationException("IIS appcmd.exe was not found. Install IIS first.");
-
-        var listPool = await _runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\"");
-        if (listPool.ExitCode != 0 || string.IsNullOrWhiteSpace(listPool.Output))
-            await _runner.RunCheckedAsync(appcmd, $"add apppool /name:\"{profile.AppPoolName}\"");
-        await _runner.RunCheckedAsync(appcmd, $"set apppool /apppool.name:\"{profile.AppPoolName}\" /managedRuntimeVersion:\"\" /processModel.identityType:ApplicationPoolIdentity");
-
-        var portOwner = new EnvironmentService(_runner).GetIisSiteUsingPort(profile.HttpPort);
-        if (!string.IsNullOrWhiteSpace(portOwner) && !string.Equals(portOwner, profile.SiteName, StringComparison.OrdinalIgnoreCase))
-        {
-            _runner.Report($"[IIS] Port {profile.HttpPort} is currently owned by IIS site '{portOwner}'. Taking over the requested port: stopping and removing the conflicting IIS site before creating '{profile.SiteName}'.");
-            await _runner.RunAsync(appcmd, $"stop site /site.name:\"{portOwner}\"", ct: ct);
-            await _runner.RunCheckedAsync(appcmd, $"delete site /site.name:\"{portOwner}\"", ct: ct);
-        }
-
-        var listSite = await _runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\"");
-        if (listSite.ExitCode == 0 && !string.IsNullOrWhiteSpace(listSite.Output))
-        {
-            _runner.Report($"[IIS] Existing site '{profile.SiteName}' detected. Reusing the requested binding by replacing only this IIS site; IIS itself and unrelated sites remain running.");
-            await _runner.RunAsync(appcmd, $"stop site /site.name:\"{profile.SiteName}\"");
-            await _runner.RunCheckedAsync(appcmd, $"delete site /site.name:\"{profile.SiteName}\"");
-        }
-
-        var binding = string.IsNullOrWhiteSpace(profile.HostHeader) ? $"http/*:{profile.HttpPort}:" : $"http/*:{profile.HttpPort}:{profile.HostHeader}";
-        await _runner.RunCheckedAsync(appcmd, $"add site /name:\"{profile.SiteName}\" /physicalPath:\"{publishFolder}\" /bindings:\"{binding}\"");
-        await _runner.RunCheckedAsync(appcmd, $"set app /app.name:\"{profile.SiteName}/\" /applicationPool:\"{profile.AppPoolName}\"");
-
+        if (_iisAttempt is null || _iisAttempt.IsDisposed) throw new IOException("IIS deployment target lock is required before CONFIGURE.");
+        var iis = Iis();
+        var states = await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        if (states.Site != "Stopped" || states.Pool != "Stopped") throw new IOException("CONFIGURE blocked: site and pool must both be verified Stopped.");
+        // Upgrade existing sites in place. Never delete a site or take over a binding.
+        await iis.CheckedAsync($"set vdir /vdir.name:\"{profile.SiteName}/\" /physicalPath:\"{publishFolder}\"", ct);
         var dataFolder = Path.Combine(profile.DeploymentRoot, "Data");
         Directory.CreateDirectory(dataFolder);
-        await _runner.RunCheckedAsync("icacls.exe", $"\"{dataFolder}\" /grant \"IIS AppPool\\{profile.AppPoolName}:(OI)(CI)M\" /T");
-        await _runner.RunAsync(appcmd, $"start apppool /apppool.name:\"{profile.AppPoolName}\"");
-        await _runner.RunAsync(appcmd, $"start site /site.name:\"{profile.SiteName}\"");
+        await _runner.RunCheckedAsync("icacls.exe", $"\"{dataFolder}\" /grant \"IIS AppPool\\{profile.AppPoolName}:(OI)(CI)M\" /T", ct: ct);
     }
 
 
     public async Task<string?> GetSitePhysicalPathAsync(DeploymentProfile profile, CancellationToken ct = default)
     {
         var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (!File.Exists(appcmd)) return null;
-        var result = await _runner.RunAsync(appcmd, $"list vdir /vdir.name:\"{profile.SiteName}/\" /text:physicalPath", ct: ct);
+        if (!File.Exists(appcmd)) throw new IOException("IIS management unavailable.");
+        var result = await Iis().CheckedAsync($"list vdir /vdir.name:\"{profile.SiteName}/\" /text:physicalPath", ct);
         if (result.ExitCode != 0) return null;
         var value = result.Output.Trim();
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim('"');
@@ -1911,7 +1939,7 @@ public sealed class DeploymentService
     {
         try
         {
-            var result = await _runner.RunAsync(executable, arguments, ct: CancellationToken.None, timeout: TimeSpan.FromSeconds(60));
+            var result = await Iis().CheckedAsync(arguments, CancellationToken.None);
             if (result.ExitCode != 0)
             {
                 var detail = string.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error;
@@ -1932,6 +1960,13 @@ public sealed class DeploymentService
     {
         // A null publish path is not evidence that no hosted files were changed.
         // For Single Folder deployments, a valid rollback backup still requires recovery.
+        if (!_filesChanged)
+        {
+            if (_iisAttempt is { MutationStarted: true, Resolved: false })
+                throw new IOException("FILES_UNCHANGED / IIS_UNVERIFIED: STOP may have partially completed. No file rollback or blind restart attempted; manual IIS verification required.");
+            _runner.Report("[ROLLBACK] SKIPPED: hosted files were not changed.");
+            return;
+        }
         var hasSingleFolderBackup = string.Equals(profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase)
             && Directory.Exists(GetRollbackFolder(profile));
         if (string.IsNullOrWhiteSpace(failedPublishFolder) && !hasSingleFolderBackup) return;
@@ -1955,7 +1990,9 @@ public sealed class DeploymentService
         if (string.Equals(profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase) && Directory.Exists(rollback))
         {
             _runner.Report("[ROLLBACK] Restoring the previous Single Folder deployment.");
-            await StopSiteForDeploymentAsync(profile, recoveryToken);
+            _iisAttempt?.RecordRecovery("FILES_NOT_RESTORED / IIS_UNVERIFIED");
+            try { await StopSiteForDeploymentAsync(profile, recoveryToken); }
+            catch (Exception ex) { throw new IOException("FILES_NOT_RESTORED / IIS_UNHEALTHY: safe STOP could not be verified; backup and current files preserved. " + ex.Message, ex); }
             var target = Path.GetFullPath(profile.HostingRoot);
             // Prepare the recovery payload before touching the active folder. A failed
             // copy must not destroy the only remaining hosted deployment.
@@ -1966,6 +2003,8 @@ public sealed class DeploymentService
             {
                 CopyRecoveryPayloadWithDeadline(rollback, prepared);
 
+                // Revalidate after potentially long backup preparation.
+                await WaitForAppPoolStoppedAsync(profile, recoveryToken);
                 // Once replacement begins, cancellation must not interrupt recovery.
                 if (Directory.Exists(target)) Directory.Move(target, displaced);
                 try
@@ -1993,14 +2032,16 @@ public sealed class DeploymentService
                     catch (Exception ex) { InternalDiagnostics.Record(ex, "Cleanup prepared rollback folder"); }
                 }
             }
-            await ConfigureIisAsync(profile, profile.HostingRoot, recoveryToken);
-            await RestartAppAsync(profile, recoveryToken);
+            _iisAttempt?.RecordRecovery("FILES_RESTORED / IIS_UNHEALTHY");
+            _runner.Report("[ROLLBACK] FILES_RESTORED / IIS_UNHEALTHY; files restored; IIS/HTTP verification pending.");
+            try { await RestartAppAsync(profile, recoveryToken); }
+            catch (Exception ex) { throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: file rollback succeeded; IIS recovery failed. " + ex.Message, ex); }
             // Restoring files and configuration does not establish that the prior
             // release is actually responding over HTTP. Avoid a verified-success claim.
             // Verify live service health after rollback, not just successful IIS commands.
             var recoveredHealth = await HealthCheckAsync(profile, recoveryToken);
             if (!recoveredHealth.Ok)
-                throw new IOException("Rollback restored files but HTTP health failed: " + recoveredHealth.Detail);
+                throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: " + recoveredHealth.Detail);
             var recoveredManifest = Path.Combine(target, "gwd-release-integrity.json");
             if (File.Exists(recoveredManifest))
             {
@@ -2014,27 +2055,35 @@ public sealed class DeploymentService
             {
                 _runner.Report("[ROLLBACK] Recovery HTTP health PASS; release identity NOT VERIFIED (legacy backup without manifest).");
             }
+            _iisAttempt?.RecordRecovery("FILES_RESTORED / IIS_HEALTHY");
+            ResolveIisAttempt();
             return;
         }
         var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
         if (File.Exists(appcmd))
         {
+            await StopSiteForDeploymentAsync(profile, recoveryToken);
             var current = await GetSitePhysicalPathAsync(profile, recoveryToken);
-            if (!string.IsNullOrWhiteSpace(current) && PathsEqual(current, failedPublishFolder))
+            if (!string.IsNullOrWhiteSpace(current) && !string.IsNullOrWhiteSpace(failedPublishFolder) && PathsEqual(current, failedPublishFolder))
             {
                 if (!string.IsNullOrWhiteSpace(previousSitePath) && Directory.Exists(previousSitePath) && !PathsEqual(previousSitePath, failedPublishFolder))
                 {
                     _runner.Report($"[ROLLBACK] Restoring IIS site '{profile.SiteName}' to previous path: {previousSitePath}");
                     await RunRollbackCommandCheckedAsync(appcmd, $"set vdir /vdir.name:\"{profile.SiteName}/\" /physicalPath:\"{previousSitePath}\"", "restore previous site path");
-                    await RunRollbackCommandCheckedAsync(appcmd, $"start site /site.name:\"{profile.SiteName}\"", "start restored site");
+                    _iisAttempt?.RecordRecovery("FILES_RESTORED / IIS_UNHEALTHY");
+                    await RestartAppAsync(profile, recoveryToken);
+                    var health = await HealthCheckAsync(profile, recoveryToken);
+                    if (!health.Ok) throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: " + health.Detail);
+                    ResolveIisAttempt();
                 }
                 else
                 {
-                    _runner.Report($"[CLEANUP] Removing IIS site '{profile.SiteName}' because it points to the failed deployment and no previous site is available.");
-                    await RunRollbackCommandCheckedAsync(appcmd, $"delete site /site.name:\"{profile.SiteName}\"", "remove failed site");
+                    throw new IOException("Recovery blocked: no previous site path. Site, binding and failed files preserved for manual recovery.");
                 }
             }
+            else throw new IOException("Recovery could not prove the active IIS path; failed files preserved for manual review.");
         }
+        else throw new IOException("IIS unavailable during recovery; files preserved.");
 
         try
         {
@@ -2066,34 +2115,26 @@ public sealed class DeploymentService
 
     public async Task RestartAppAsync(DeploymentProfile profile, CancellationToken ct = default)
     {
-        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (!File.Exists(appcmd)) return;
-        var pool = await _runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\"", ct: ct);
-        if (pool.ExitCode == 0 && !string.IsNullOrWhiteSpace(pool.Output))
-            await _runner.RunAsync(appcmd, $"recycle apppool /apppool.name:\"{profile.AppPoolName}\"", ct: ct);
-        else
-            _runner.Report($"[IIS] App pool '{profile.AppPoolName}' does not exist; recycle skipped.");
-        var site = await _runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\"", ct: ct);
-        if (site.ExitCode == 0 && !string.IsNullOrWhiteSpace(site.Output))
-            await _runner.RunAsync(appcmd, $"start site /site.name:\"{profile.SiteName}\"", ct: ct);
-        else
-            _runner.Report($"[IIS] Site '{profile.SiteName}' does not exist; start skipped.");
+        var iis = Iis();
+        await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        await iis.TransitionAsync("apppool", profile.AppPoolName, "Started", ct);
+        await iis.TransitionAsync("site", profile.SiteName, "Started", ct);
     }
 
     public sealed record HealthCheckResult(bool Ok, string Detail, string Classification, int? HttpStatus = null, string? Url = null);
 
     public async Task<HealthCheckResult> HealthCheckAsync(DeploymentProfile profile, CancellationToken ct = default)
     {
-        var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
-        if (File.Exists(appcmd))
+        try
         {
-            var pool = await _runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\"", ct: ct);
-            if (pool.ExitCode != 0 || !pool.Output.Contains("state:Started", StringComparison.OrdinalIgnoreCase))
-                return new(false, $"IIS AppPool '{profile.AppPoolName}' is not Started.\r\n{pool.Output} {pool.Error}".Trim(), "IIS_APPPOOL_DOWN");
-            var site = await _runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\"", ct: ct);
-            if (site.ExitCode != 0 || !site.Output.Contains("state:Started", StringComparison.OrdinalIgnoreCase))
-                return new(false, $"IIS Site '{profile.SiteName}' is not Started.\r\n{site.Output} {site.Error}".Trim(), "IIS_SITE_DOWN");
+            var iis = Iis();
+            var site = await iis.StateAsync("site", profile.SiteName, ct);
+            var pool = await iis.StateAsync("apppool", profile.AppPoolName, ct);
+            if (site == "Unknown" || pool == "Unknown") return new(false, $"site={site}; pool={pool}", "IIS_MANAGEMENT_FAILURE");
+            if (site != "Started") return new(false, "IIS site is " + site, "IIS_SITE_DOWN");
+            if (pool != "Started") return new(false, "IIS app pool is " + pool, "IIS_APPPOOL_DOWN");
         }
+        catch (Exception ex) when (ex is not OperationCanceledException) { return new(false, ex.Message, "IIS_MANAGEMENT_FAILURE"); }
 
         var host = string.IsNullOrWhiteSpace(profile.HostHeader) ? "localhost" : profile.HostHeader;
         var path = string.IsNullOrWhiteSpace(profile.HealthPath) ? "/" : profile.HealthPath;
@@ -2153,8 +2194,8 @@ public sealed class DeploymentService
             var appcmd = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "inetsrv", "appcmd.exe");
             if (File.Exists(appcmd))
             {
-                var pool = await _runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\"", ct: ct);
-                var site = await _runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\"", ct: ct);
+                var pool = await Iis().CheckedAsync($"list apppool /name:\"{profile.AppPoolName}\"", ct);
+                var site = await Iis().CheckedAsync($"list site /name:\"{profile.SiteName}\"", ct);
                 sb.AppendLine("--- IIS ---"); sb.AppendLine(pool.Output); sb.AppendLine(site.Output);
             }
             var dotnet = await _runner.RunAsync("dotnet", "--list-runtimes", ct: ct, timeout: TimeSpan.FromSeconds(10));
@@ -2202,6 +2243,16 @@ public sealed class DeploymentService
         }
         catch (Exception ex) { sb.AppendLine("Event Log diagnostic warning: " + ex.Message); }
         return SecretRedactor.Redact(sb.ToString());
+    }
+
+    public async Task CollectIisFailureDiagnosticsAsync(DeploymentProfile profile)
+    {
+        var ps = "Get-WinEvent -FilterHashtable @{LogName='System';StartTime=(Get-Date).AddHours(-1)} -ErrorAction Stop | Where-Object {$_.ProviderName -match 'WAS|W3SVC'} | Select-Object -First 30 TimeCreated,ProviderName,Id,Message | Format-List";
+        await IisDiagnostics.CollectAsync(
+            async command => { await Iis().CheckedAsync(command, CancellationToken.None); },
+            () => _runner.RunAsync("powershell.exe", "-NoProfile -NonInteractive -Command \"" + ps + "\"", ct: CancellationToken.None, timeout: TimeSpan.FromSeconds(15)),
+            profile.SiteName, profile.AppPoolName, ReportIis);
+        _runner.Report("[MANUAL RECOVERY] Inspect read-only appcmd site/pool states, binding, physical path and WAS/W3SVC events. Retain backup and attempt journal. Repair IIS management with an administrator before explicitly starting only the intended site/pool. Verify HTTP health and deployed release. Clear unresolved markers only after verification. GWD does not reset IIS or restart Windows services.");
     }
 
     // Source integrity gate: never discover a frontend from a nested Git worktree.

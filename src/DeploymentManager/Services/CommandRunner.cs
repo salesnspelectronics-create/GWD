@@ -184,5 +184,3 @@ public sealed class CommandRunner
         return process.ExitCode;
     }
 }
-
-public sealed record CommandResult(int ExitCode, string Output, string Error);

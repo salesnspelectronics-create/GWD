@@ -42,6 +42,7 @@ public sealed class Ipv4AddressControl : UserControl
     }
 
     [AllowNull]
+    [System.ComponentModel.DefaultValue("...")]
     public override string Text
     {
         get => string.Join('.', _parts.Select(x => x.Text));

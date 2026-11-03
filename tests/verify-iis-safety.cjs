@@ -1,0 +1,30 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const read = p => fs.readFileSync(path.join(root,p), 'utf8');
+const engine = read('src/DeploymentManager/Services/DeploymentService.cs');
+const cli = read('src/DeploymentManager.Cli/Program.cs');
+const wizard = read('src/DeploymentManager/WizardForm.cs');
+let n=0;
+function check(ok, name) { if (!ok) throw Error(name); console.log('PASS ' + name); n++; }
+function section(text, a, b) { return text.slice(text.indexOf(a), text.indexOf(b, text.indexOf(a))); }
+const activate = section(engine, 'public async Task<string> ActivateStagingAsync', 'private Task RestoreHostedFolderSafelyAsync');
+check(activate.indexOf('ValidateIisPreflightAsync') < activate.indexOf('CreateUniqueRollbackFolder'), 'preflight precedes backup creation');
+check(activate.indexOf('await StopSiteForDeploymentAsync') < activate.indexOf('CopyDirectory(stagingFolder'), 'checked STOP precedes file preparation');
+check(activate.indexOf('await WaitForAppPoolStoppedAsync(profile, ct);',activate.indexOf('CopyDirectory(stagingFolder')) < activate.indexOf('Directory.Move(fullTarget'), 'STOP revalidated after staging copy and before swap');
+check(!engine.includes('delete site ') && !engine.includes('add site '), 'deploy and recovery never delete or recreate sites');
+check(!engine.includes('iisreset') && !engine.includes('Restart-Service'), 'no IIS reset or service restart in deployment engine');
+const recovery = section(engine,'public async Task CleanupFailedDeploymentAsync','public void MarkDeploymentSuccessful');
+check(!recovery.includes('ConfigureIisAsync'), 'file rollback does not reconfigure bindings/site');
+check(recovery.indexOf('FILES_RESTORED / IIS_UNHEALTHY') < recovery.indexOf('try { await RestartAppAsync'), 'file result recorded before IIS recovery');
+check(recovery.includes('if (!_filesChanged)') && recovery.includes('FILES_UNCHANGED / IIS_UNVERIFIED'), 'failed partial STOP cannot trigger blind file restore');
+const wait = section(engine,'private async Task WaitForAppPoolStoppedAsync','private async Task DeleteDirectoryWithRetryAsync');
+check(wait.includes('site != "Stopped" || pool != "Stopped"') && wait.includes('throw new IOException'), 'unknown/non-stopped site or pool cannot authorize files');
+check(!wait.includes('continuing with') && !wait.includes('ExitCode != 0 ||'), 'old failed-query and timeout PASS paths removed');
+const deployCli = section(cli,'private static async Task<CliResult> DeployAsync','private static async Task<CliResult> RollbackAsync');
+check(deployCli.indexOf('BeginIisAttempt') < deployCli.indexOf('PublishWithQualityAsync') && deployCli.includes('CleanupFailedDeploymentAsync'), 'CLI holds target lease before build and compensates failed activation/start');
+const deployWizard = section(wizard,'private async Task DeployAsync','private static bool');
+check(deployWizard.indexOf('BeginIisAttempt') < deployWizard.indexOf('PublishAsync(_profile') && deployWizard.includes('iisAttempt?.Dispose()'), 'wizard holds target lease before build through recovery');
+check(!deployWizard.includes('publish is null && _profile.TargetMode != "Remote IIS Server") await _deployment.RestartAppAsync'), 'failed preflight no longer blindly restarts IIS');
+check(read('src/DeploymentManager/Services/DiagnosticBundleService.cs').includes('"iis-attempts"'), 'attempt evidence included in diagnostics bundle');
+console.log(`${n} integration source guards passed (static; no IIS operations).`);

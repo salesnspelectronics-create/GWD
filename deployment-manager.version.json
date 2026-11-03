@@ -1,6 +1,6 @@
 {
-  "version": "105.0.0",
+  "version": "106.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "افزودن تشخیص هشدارهای ساخت، گزارش کیفیت کد و هندآف توسعه"
+  "commitNote": "ایمن‌سازی استقرار IIS و تفکیک نتیجه بازیابی"
 }

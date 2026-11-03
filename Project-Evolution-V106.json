@@ -1,0 +1,22 @@
+{
+  "version": "106.0.0",
+  "date": "2026-11-03",
+  "handoff": "GWD-106",
+  "baseCommit": "3a7289c174c9dc0a11318e0b679960dae7912561",
+  "summary": "ایمن‌سازی Preflight و توقف IIS؛ حفظ سایت و Binding؛ تفکیک Rollback فایل و سلامت IIS؛ قفل و Journal تلاش",
+  "validation": {
+    "IisSafetyCore": "32 PASS",
+    "sourceGuards": "14 PASS",
+    "CodeQuality": "35 PASS",
+    "ReleaseContract": "11 PASS",
+    "solution": "cross-target Windows PASS",
+    "WindowsIisRuntime": "NOT_RUN"
+  },
+  "limitations": [
+    "Remote wizard deployment blocked",
+    "Existing site and pool required",
+    "OS HRESULT root cause unproven",
+    "Full file recovery integration NOT_RUN"
+  ],
+  "report": "TEST-REPORT-V106.md"
+}

@@ -156,7 +156,7 @@ public sealed class WizardForm : Form
         {
             _iisHealth.Text = snapshot.IisInstalled ? "✓ IIS" : "✕ IIS";
             _iisHealth.ForeColor = snapshot.IisInstalled ? Color.ForestGreen : Color.Firebrick;
-            _iisHealth.Tag = snapshot.IisInstalled ? $"IIS healthy — {snapshot.SiteCount} site(s), {snapshot.AppPoolCount} app pool(s)" : "IIS missing/unavailable";
+            _iisHealth.Tag = snapshot.IisInstalled ? $"IIS installed — {snapshot.SiteCount} site(s), {snapshot.AppPoolCount} app pool(s); target health not verified" : "IIS missing/unavailable";
 
             var sqlState = _sql.Connections.State(_profile);
             _sqlHealth.Text = sqlState.Verified ? "✓ SQL Server" : "○ SQL Server";
@@ -616,6 +616,7 @@ public sealed class WizardForm : Form
                         _iisState = await _environment.CheckIisAsync();
                         if (!_iisState.Installed)
                             throw new InvalidOperationException("IIS is not installed. Automatic deployment stopped on the IIS step. Install/enable IIS here, then run Auto Deploy again.");
+                        if (_profile.TargetMode != "Remote IIS Server") await _deployment.ValidateIisPreflightAsync(_profile, ct);
                         break;
 
                     case 4:
@@ -2726,14 +2727,23 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         string? stagedPublish = null;
         string? publish = null;
         string? previousSitePath = null;
+        IDisposable? iisAttempt = null;
         try
         {
             var isRemote = _profile.TargetMode == "Remote IIS Server" && !isFastLocalTest;
+            if (isRemote) throw new InvalidOperationException("Remote IIS deployment is blocked until equivalent target-side IIS safety checks and locking are verified. No remote changes were made.");
+            if (!isFastLocalTest)
+            {
+                iisAttempt = _deployment.BeginIisAttempt(_profile, historyAttempt?.AttemptId);
+                await _deployment.ValidateIisPreflightAsync(_profile, ct);
+            }
             if (!isRemote && !isFastLocalTest) previousSitePath = await _deployment.GetSitePhysicalPathAsync(_profile, ct);
             AppendLog($"Starting deployment. Target mode: {_profile.TargetMode}; Build mode: {_profile.BuildMode}; Dependency mode: {_profile.DependencyResolutionMode}; Offline build: {_profile.OfflineBuild}");
             if (isRemote) { AppendLog("[REMOTE] Checking/bootstrapping target prerequisites..."); await _remote.BootstrapAsync(_profile, ct); }
             if (!isFastLocalTest && !isRemote) await _sql.TestConnectionWithSafeFallbackAsync(_profile, ct);
+            _deployment.IisStage("BUILD", "RUNNING");
             stagedPublish = await _deployment.PublishAsync(_profile, ct);
+            _deployment.IisStage("BUILD", "PASS");
             if (isFastLocalTest)
             {
                 publish = stagedPublish;
@@ -2757,14 +2767,20 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
                 publish = await _deployment.ActivateStagingAsync(_profile, stagedPublish, ct);
                 stagedPublish = null;
                 AppendLog("Configuring IIS site and application pool...");
+                _deployment.IisStage("CONFIGURE", "RUNNING");
                 await _deployment.ConfigureIisAsync(_profile, publish, ct);
+                _deployment.IisStage("CONFIGURE", "PASS");
                 AppendLog("Preparing database and IIS application-pool login...");
                 await _sql.CreateDatabaseAndAppPoolLoginAsync(_profile, ct);
                 _deployment.WriteConnectionString(publish, _profile);
+                _deployment.IisStage("START", "RUNNING");
                 await _deployment.RestartAppAsync(_profile, ct);
+                _deployment.IisStage("START", "PASS");
+                _deployment.IisStage("HEALTH", "RUNNING");
                 await Task.Delay(2500, ct);
                 var health = await _deployment.HealthCheckAsync(_profile, ct);
                 AppendLog($"Health check [{health.Classification}]: " + health.Detail);
+                _deployment.RecordDeploymentHealth($"{health.Classification}; HTTP={health.HttpStatus}; URL={health.Url}; {health.Detail}");
                 if (!health.Ok)
                 {
                     AppendLog("[DIAGNOSTICS] Health failure detected. Collecting startup diagnostics BEFORE rollback...");
@@ -2788,10 +2804,13 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
 
             if (!isFastLocalTest)
             {
+                _deployment.IisStage("HEALTH", "PASS");
+                _deployment.IisStage("COMMIT", "RUNNING");
                 _deployment.MarkDeploymentSuccessful(publish);
                 _lastSuccessfulPublishPath = publish;
                 try { _deployment.FinalizeSuccessfulDeployment(_profile, publish); } catch (Exception cleanupEx) { AppendLog("[CLEANUP] Post-success cleanup warning: " + cleanupEx.Message); }
             }
+            if (!isFastLocalTest) { _deployment.IisStage("COMMIT", "PASS"); _deployment.ResolveIisAttempt(); }
             _deploymentStatus = "DEPLOYMENT SUCCESSFUL";
             _persistentState.LastResult = "Successful";
             _progress.Value = 100;
@@ -2820,7 +2839,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
                     rollbackAttempted = publish is not null;
                     await _deployment.CleanupFailedDeploymentAsync(_profile, publish, previousSitePath, CancellationToken.None);
                 }
-                if (!isFastLocalTest && publish is null && _profile.TargetMode != "Remote IIS Server") await _deployment.RestartAppAsync(_profile, CancellationToken.None);
+
                 AppendLog("[CANCEL] Deployment cancelled — cleanup completed; rollback " + (rollbackAttempted ? "attempt completed (restoration not independently verified)." : "not required or not attempted."));
             }
             catch (Exception cleanupEx)
@@ -2839,12 +2858,13 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             _deploymentStatus = "DEPLOYMENT UNSUCCESSFUL";
             _persistentState.LastResult = "Failed";
             AppendLog("DEPLOYMENT UNSUCCESSFUL: " + ex);
+            if (iisAttempt is not null) await _deployment.CollectIisFailureDiagnosticsAsync(_profile);
             var recoveryFailed = false;
             try
             {
                 if (!string.IsNullOrWhiteSpace(stagedPublish) && Directory.Exists(stagedPublish)) Directory.Delete(stagedPublish, recursive: true);
                 if (!isFastLocalTest && _profile.TargetMode != "Remote IIS Server") await _deployment.CleanupFailedDeploymentAsync(_profile, publish, previousSitePath, CancellationToken.None);
-                if (!isFastLocalTest && publish is null && _profile.TargetMode != "Remote IIS Server") await _deployment.RestartAppAsync(_profile);
+
             }
             catch (Exception cleanupEx)
             {
@@ -2865,6 +2885,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         }
         finally
         {
+            try { iisAttempt?.Dispose(); } catch (Exception journalEx) { AppendLog("[IIS] Could not finalize attempt journal: " + journalEx.Message); }
             codeQuality.Finish(_persistentState.LastResult == "Successful" ? "Successful" : _persistentState.LastResult == "Cancelled" ? "Cancelled" : "Failed");
             _runner.CodeQuality = null;
             deploymentStopwatch.Stop();

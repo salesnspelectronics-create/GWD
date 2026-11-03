@@ -148,10 +148,14 @@ internal static class CliApplication
         profile.BuildMode = mode == "fast" ? "Fast IIS Update" : "Full IIS Deploy";
         var (runner, deployment, sql) = CreateEngine();
         runner.Output += line => Console.Error.WriteLine(Redact(line));
+        using var iisAttempt = deployment.BeginIisAttempt(profile);
+        await deployment.ValidateIisPreflightAsync(profile);
+        deployment.IisStage("BUILD", "RUNNING");
         string stage;
         try { stage = await PublishWithQualityAsync(runner, deployment, profile); }
         catch (Exception ex) { throw new CliFailure(3, "Build/publish failed: " + ex.Message); }
         ValidatePublishedOutput(profile, stage);
+        deployment.IisStage("BUILD", "PASS");
 
         string backup;
         try { backup = CreateBackup(profile); }
@@ -162,28 +166,27 @@ internal static class CliApplication
         try
         {
             target = await deployment.ActivateStagingAsync(profile, stage);
+            deployment.IisStage("CONFIGURE", "RUNNING");
             await deployment.ConfigureIisAsync(profile, target);
+            deployment.IisStage("CONFIGURE", "PASS");
             if (!string.IsNullOrWhiteSpace(profile.SqlInstance)) await sql.CreateDatabaseAndAppPoolLoginAsync(profile);
+            deployment.IisStage("START", "RUNNING");
             await deployment.RestartAppAsync(profile);
+            deployment.IisStage("START", "PASS");
+            deployment.IisStage("HEALTH", "RUNNING");
+            var engineHealth = await deployment.HealthCheckAsync(profile);
+            deployment.RecordDeploymentHealth(engineHealth.Classification + "; " + engineHealth.Detail);
+            if (!engineHealth.Ok) throw new CliFailure(5, engineHealth.Detail);
             var health = await HealthWithRetryAsync(profile, 4, TimeSpan.FromSeconds(3));
-            if (!health.Passed)
-            {
-                if (args.Has("no-auto-rollback")) throw new CliFailure(5, "Health check failed and automatic rollback was disabled.");
-                try
-                {
-                    await deployment.CleanupFailedDeploymentAsync(profile, target, previousSitePath);
-                    var failure = CliResult.Fail("deploy", profile.ApplicationName, "Health check failed; automatic rollback succeeded.", 6);
-                    failure.Data["healthCheck"] = health;
-                    failure.Data["rolledBack"] = true;
-                    failure.Data["backupPath"] = backup;
-                    return failure;
-                }
-                catch (Exception rollbackEx) { throw new CliFailure(7, "Health check and automatic rollback failed: " + rollbackEx.Message); }
-            }
+            if (!health.Passed) throw new CliFailure(5, "HTTP health failed after deployment.");
             var verification = deployment.VerifyActivatedDeployment(profile, target);
             if (!verification.Ok) throw new CliFailure(5, verification.Detail);
+            deployment.IisStage("HEALTH", "PASS");
+            deployment.IisStage("COMMIT", "RUNNING");
             deployment.MarkDeploymentSuccessful(target);
             deployment.FinalizeSuccessfulDeployment(profile, target);
+            deployment.IisStage("COMMIT", "PASS");
+            deployment.ResolveIisAttempt();
             return CliResult.Ok("deploy", profile.ApplicationName, new()
             {
                 ["mode"] = mode, ["sourcePath"] = profile.SourceFolder, ["publishPath"] = target,
@@ -192,8 +195,16 @@ internal static class CliApplication
                 ["healthCheck"] = health, ["rolledBack"] = false
             });
         }
-        catch (CliFailure) { throw; }
-        catch (Exception ex) { throw new CliFailure(5, "Deploy failed: " + ex.Message); }
+        catch (Exception ex)
+        {
+            await deployment.CollectIisFailureDiagnosticsAsync(profile);
+            if (!args.Has("no-auto-rollback"))
+            {
+                try { await deployment.CleanupFailedDeploymentAsync(profile, target, previousSitePath); }
+                catch (Exception recoveryEx) { throw new CliFailure(7, "Deploy failed: " + ex.Message + "; Recovery: " + recoveryEx.Message); }
+            }
+            throw new CliFailure(5, "Deploy failed: " + ex.Message);
+        }
     }
 
     private static async Task<CliResult> RollbackAsync(DeploymentProfile profile, Arguments args)
@@ -206,23 +217,32 @@ internal static class CliApplication
         var backup = requested.Equals("latest", StringComparison.OrdinalIgnoreCase) ? backups.FirstOrDefault() : backups.FirstOrDefault(x => Path.GetFileName(x).Equals(requested, StringComparison.OrdinalIgnoreCase));
         if (backup is null) throw new CliFailure(9, "Requested backup was not found.");
         var (_, deployment, _) = CreateEngine();
+        using var iisAttempt = deployment.BeginIisAttempt(profile);
+        await deployment.ValidateIisPreflightAsync(profile);
+        var displacedOriginal = false;
         var failed = profile.HostingRoot.TrimEnd('\\') + ".__cli_failed_" + DateTime.Now.ToString("yyyyMMddHHmmss");
         try
         {
             await deployment.StopSiteForDeploymentAsync(profile);
-            if (Directory.Exists(profile.HostingRoot)) Directory.Move(profile.HostingRoot, failed);
+            if (Directory.Exists(profile.HostingRoot)) { Directory.Move(profile.HostingRoot, failed); displacedOriginal = true; }
             CopyTree(backup, profile.HostingRoot);
             await deployment.ConfigureIisAsync(profile, profile.HostingRoot);
             await deployment.RestartAppAsync(profile);
+            var engineHealth = await deployment.HealthCheckAsync(profile);
+            deployment.RecordDeploymentHealth(engineHealth.Classification + "; " + engineHealth.Detail);
+            if (!engineHealth.Ok) throw new CliFailure(5, engineHealth.Detail);
             var health = await HealthWithRetryAsync(profile, 4, TimeSpan.FromSeconds(3));
             if (!health.Passed) throw new IOException("Restored backup failed health check.");
             try { if (Directory.Exists(failed)) Directory.Delete(failed, true); } catch { }
+            deployment.ResolveIisAttempt();
             return CliResult.Ok("rollback", profile.ApplicationName, new() { ["backupPath"] = backup, ["targetPath"] = profile.HostingRoot, ["healthCheck"] = health });
         }
         catch (Exception ex)
         {
+            if (!displacedOriginal) throw new CliFailure(5, "Rollback stopped before file replacement; original files preserved: " + ex.Message);
             try
             {
+                await deployment.StopSiteForDeploymentAsync(profile);
                 if (Directory.Exists(profile.HostingRoot)) Directory.Delete(profile.HostingRoot, true);
                 if (Directory.Exists(failed)) Directory.Move(failed, profile.HostingRoot);
                 await deployment.RestartAppAsync(profile);
@@ -247,7 +267,7 @@ internal static class CliApplication
             else
             {
                 var runner = new CommandRunner();
-                var site = await runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\"");
+                var site = await runner.RunAsync(appcmd, $"list site /name:\"{profile.SiteName}\" /text:state");
                 if (!requireAdministrator && site.ExitCode == 5)
                 {
                     data["iisSiteFound"] = null;
@@ -255,8 +275,10 @@ internal static class CliApplication
                 }
                 else
                 {
-                    data["iisSiteFound"] = site.ExitCode == 0 && !string.IsNullOrWhiteSpace(site.Output);
-                    if (!(bool)data["iisSiteFound"]!) errors.Add("IIS site was not found: " + profile.SiteName);
+                    data["iisSiteFound"] = IisSafety.ParseState(site) is "Started" or "Stopped";
+                    if (!(bool)data["iisSiteFound"]!) errors.Add("IIS site state invalid/unknown: " + profile.SiteName);
+                    var pool = await runner.RunAsync(appcmd, $"list apppool /name:\"{profile.AppPoolName}\" /text:state");
+                    if (IisSafety.ParseState(pool) is not ("Started" or "Stopped")) errors.Add("IIS app pool state invalid/unknown: " + profile.AppPoolName);
                 }
             }
         }
