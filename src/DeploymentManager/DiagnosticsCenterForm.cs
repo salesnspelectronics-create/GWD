@@ -3,7 +3,7 @@ using GenericWeb.DeploymentManager.Services;
 
 namespace GenericWeb.DeploymentManager;
 
-public sealed class DiagnosticsCenterForm : Form
+public sealed partial class DiagnosticsCenterForm : Form
 {
     private readonly AppDataService _appData;
     private readonly DeploymentHistoryService _history;
@@ -61,6 +61,7 @@ public sealed class DiagnosticsCenterForm : Form
         AddTab(CreateLogTab(), DiagnosticExportSection.CurrentLog);
         AddTab(CreateFilesTab("Crash Reports", _appData.CrashReports, "*.txt"), DiagnosticExportSection.CrashReports);
         AddTab(CreateFilesTab("Error Reports", _appData.ErrorReports, "*.txt"), DiagnosticExportSection.ErrorReports);
+        AddTab(CreateCodeQualityTab(), DiagnosticExportSection.CodeQuality);
         AddTab(CreatePerformanceTab(), DiagnosticExportSection.BuildPerformance);
         AddTab(CreateRuntimeResourcesTab(), DiagnosticExportSection.RuntimeResources);
         AddTab(CreateFilesTab("Internal Diagnostics", _appData.InternalDiagnosticsFolder, "*.log"), DiagnosticExportSection.InternalDiagnostics);

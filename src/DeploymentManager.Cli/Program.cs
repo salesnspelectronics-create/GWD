@@ -92,10 +92,31 @@ internal static class CliApplication
         var (runner, deployment, _) = CreateEngine();
         runner.Output += line => Console.Error.WriteLine(Redact(line));
         string stage;
-        try { stage = await deployment.PublishAsync(profile); }
+        try { stage = await PublishWithQualityAsync(runner, deployment, profile); }
         catch (Exception ex) { throw new CliFailure(3, "Build/publish failed: " + ex.Message); }
         ValidatePublishedOutput(profile, stage);
         return CliResult.Ok("publish", profile.ApplicationName, new() { ["sourcePath"] = profile.SourceFolder, ["publishPath"] = stage, ["version"] = DetectVersion(stage) });
+    }
+
+    private static async Task<string> PublishWithQualityAsync(CommandRunner runner, DeploymentService deployment, DeploymentProfile profile)
+    {
+        var quality = new CodeQualitySession();
+        try
+        {
+            var appData = new AppDataService();
+            await Task.Run(() => quality.Start(appData, profile, new DeploymentHistoryService().GetProjectId(profile), Guid.NewGuid().ToString("N")));
+            runner.CodeQuality = quality;
+        }
+        catch (Exception ex) { InternalDiagnostics.Record(ex, "CLI Code Quality start (non-blocking)"); }
+        var result = "Failed";
+        try
+        {
+            var publish = await deployment.PublishAsync(profile);
+            result = "Successful";
+            return publish;
+        }
+        catch (OperationCanceledException) { result = "Cancelled"; throw; }
+        finally { quality.Finish(result); runner.CodeQuality = null; }
     }
 
     private static async Task<CliResult> DeployAsync(DeploymentProfile profile, Arguments args)
@@ -128,7 +149,7 @@ internal static class CliApplication
         var (runner, deployment, sql) = CreateEngine();
         runner.Output += line => Console.Error.WriteLine(Redact(line));
         string stage;
-        try { stage = await deployment.PublishAsync(profile); }
+        try { stage = await PublishWithQualityAsync(runner, deployment, profile); }
         catch (Exception ex) { throw new CliFailure(3, "Build/publish failed: " + ex.Message); }
         ValidatePublishedOutput(profile, stage);
 

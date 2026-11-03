@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeploymentManager.Cli", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeploymentManager.SmokeTests", "src\DeploymentManager.SmokeTests\DeploymentManager.SmokeTests.csproj", "{70F9E09E-D90D-48D2-ACAF-D22A72E16C1A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeploymentManager.CodeQuality", "src\DeploymentManager.CodeQuality\DeploymentManager.CodeQuality.csproj", "{D231CE10-BAE1-48E6-8E8B-640403360E20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|x64.Build.0 = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Debug|x86.Build.0 = Debug|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|x64.ActiveCfg = Release|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|x64.Build.0 = Release|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|x86.ActiveCfg = Release|Any CPU
+		{D231CE10-BAE1-48E6-8E8B-640403360E20}.Release|x86.Build.0 = Release|Any CPU
 		{A3B32A9F-265A-4B1A-A4A6-1E5A93282977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A3B32A9F-265A-4B1A-A4A6-1E5A93282977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3B32A9F-265A-4B1A-A4A6-1E5A93282977}.Debug|x64.ActiveCfg = Debug|Any CPU

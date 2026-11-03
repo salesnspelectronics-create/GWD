@@ -5,11 +5,18 @@ namespace GenericWeb.DeploymentManager.Services;
 
 public sealed class CommandRunner
 {
+    public CodeQualitySession? CodeQuality { get; set; }
     public event Action<string>? Output;
     public void Report(string message) => Output?.Invoke(SecretRedactor.Redact(message));
 
     public async Task<CommandResult> RunAsync(string fileName, string arguments, string? workingDirectory = null, CancellationToken ct = default, TimeSpan? timeout = null, IReadOnlyDictionary<string, string?>? environment = null)
     {
+        var quality = CodeQuality;
+        var qualityStage = quality?.Begin(fileName, arguments);
+        int? qualityExitCode = null;
+        var qualityStatus = "Interrupted";
+        try
+        {
         var cwd = workingDirectory ?? Environment.CurrentDirectory;
         Report($">>> {fileName} {arguments}");
         Report($"Working directory: {cwd}");
@@ -52,6 +59,7 @@ public sealed class CommandRunner
             if (e.Data is not null)
             {
                 lastOutputUtc = DateTime.UtcNow;
+                quality?.Line(qualityStage, "stdout", e.Data);
                 AppendBounded(stdout, e.Data, MaxCapturedChars);
                 Report(e.Data);
             }
@@ -61,6 +69,7 @@ public sealed class CommandRunner
             if (e.Data is not null)
             {
                 lastOutputUtc = DateTime.UtcNow;
+                quality?.Line(qualityStage, "stderr", e.Data);
                 AppendBounded(stderr, e.Data, MaxCapturedChars);
                 Report("ERR: " + e.Data);
             }
@@ -98,6 +107,8 @@ public sealed class CommandRunner
         catch (OperationCanceledException) when (!ct.IsCancellationRequested && timeoutCts?.IsCancellationRequested == true)
         {
             try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill timed-out process tree"); }
+            qualityStatus = "TimedOut";
+            try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
             var configuredTimeout = timeout ?? TimeSpan.Zero;
             var message = $"Process timed out after {configuredTimeout.TotalMinutes:0.#} minute(s): {fileName} {arguments}";
             Report("TIMEOUT: " + message);
@@ -106,6 +117,8 @@ public sealed class CommandRunner
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
             try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill cancelled process tree"); }
+            qualityStatus = "Cancelled";
+            try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
             Report($"CANCELLED: {Path.GetFileName(fileName)} process tree was stopped by the operator.");
             throw;
         }
@@ -115,7 +128,11 @@ public sealed class CommandRunner
 
         var duration = DateTime.UtcNow - started;
         Report($"<<< Exit code {process.ExitCode}; duration {duration.TotalSeconds:0.0}s");
+        qualityExitCode = process.ExitCode;
+        qualityStatus = "Completed";
         return new CommandResult(process.ExitCode, stdout.ToString(), stderr.ToString());
+        }
+        finally { quality?.End(qualityStage, qualityExitCode, qualityStatus); }
     }
 
     private static void AppendBounded(StringBuilder buffer, string line, int maxChars)

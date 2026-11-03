@@ -2706,6 +2706,9 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         {
             AppendLog("[HISTORY] Warning: could not start persistent deployment-history record: " + historyEx.Message);
         }
+        var codeQuality = new CodeQualitySession();
+        await Task.Run(() => codeQuality.Start(_appData, _profile, historyAttempt?.ProjectId ?? "unknown", historyAttempt?.AttemptId ?? Guid.NewGuid().ToString("N")));
+        _runner.CodeQuality = codeQuality;
         using var elapsedTimer = new System.Windows.Forms.Timer { Interval = 500 };
         elapsedTimer.Tick += (_, _) =>
         {
@@ -2862,6 +2865,8 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         }
         finally
         {
+            codeQuality.Finish(_persistentState.LastResult == "Successful" ? "Successful" : _persistentState.LastResult == "Cancelled" ? "Cancelled" : "Failed");
+            _runner.CodeQuality = null;
             deploymentStopwatch.Stop();
             if (historyAttempt is not null)
             {

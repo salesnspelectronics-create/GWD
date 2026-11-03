@@ -15,7 +15,8 @@ public enum DiagnosticExportSection
     ErrorReports,
     BuildPerformance,
     InternalDiagnostics,
-    RuntimeResources
+    RuntimeResources,
+    CodeQuality
 }
 
 public sealed class DiagnosticBundleService
@@ -66,6 +67,23 @@ public sealed class DiagnosticBundleService
                 profile.TargetFrameworkMajor,
                 profile.RequiresNode
             }, new JsonSerializerOptions { WriteIndented = true }));
+        }
+
+        if (section is DiagnosticExportSection.All or DiagnosticExportSection.CodeQuality)
+        {
+            var qualityRoot = CodeQualitySession.Store(appData).Root;
+            foreach (var build in CodeQualitySession.Store(appData).Read())
+                AddText(archive, "code-quality/" + build.BuildId + ".json", GenericWeb.DeploymentManager.CodeQuality.DiagnosticExport.Json(build));
+            if (Directory.Exists(qualityRoot))
+                foreach (var file in Directory.EnumerateFiles(qualityRoot, "*.log", SearchOption.AllDirectories))
+                {
+                    var entry = archive.CreateEntry("code-quality/" + Path.GetRelativePath(qualityRoot, file).Replace('\\', '/'), CompressionLevel.Optimal);
+                    using var writer = new StreamWriter(entry.Open(), new UTF8Encoding(false));
+                    using var source = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    using var reader = new StreamReader(source);
+                    string? line;
+                    while ((line = reader.ReadLine()) is not null) writer.WriteLine(SecretRedactor.Redact(line));
+                }
         }
 
         if (section is DiagnosticExportSection.All or DiagnosticExportSection.DeploymentHistory)
