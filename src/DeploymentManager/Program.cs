@@ -29,6 +29,8 @@ internal static class Program
         // in the deployment tool itself. The manager primarily connects to local SQL Server instances,
         // so managed networking is a safer deployment-time dependency profile.
         AppContext.SetSwitch("Switch.Microsoft.Data.SqlClient.UseManagedNetworkingOnWindows", true);
+        // Opt into modern per-monitor DPI scaling before creating any WinForms controls.
+        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         ApplicationConfiguration.Initialize();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += (_, e) => SaveCrash(e.Exception, "UI thread");

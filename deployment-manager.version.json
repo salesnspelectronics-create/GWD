@@ -1,6 +1,6 @@
 {
-  "version": "100.0.0",
+  "version": "104.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V89: protect compensating recovery from cancelled deployment tokens; V87: fail rollback cleanup when appcmd path restoration, site start, or failed-site removal exits unsuccessfully."
+  "commitNote": "V104: fix wizard DPI scaling and scrolling, compact deployment profile actions, make source path browse-only."
 }

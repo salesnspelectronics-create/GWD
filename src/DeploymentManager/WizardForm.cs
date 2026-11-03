@@ -132,6 +132,8 @@ public sealed class WizardForm : Form
         StartPosition = FormStartPosition.CenterScreen;
         WindowState = FormWindowState.Maximized;
         Font = new Font("Segoe UI", 9.5F);
+        // Scale controls consistently when Windows display DPI is changed.
+        AutoScaleMode = AutoScaleMode.Dpi;
 
         BuildShell();
         _runtimeMetricsTimer.Tick += (_, _) => UpdateRuntimeMetrics();
@@ -222,6 +224,9 @@ public sealed class WizardForm : Form
         right.Controls.Add(header, 0, 0);
         right.Controls.Add(_pageDescription, 0, 1);
         _content.Dock = DockStyle.Fill;
+        // Auto-sized wizard rows can exceed the available height, especially at 125%/150% DPI.
+        // Keep the footer visible and scroll the page instead of clipping/overlapping fields.
+        _content.AutoScroll = true;
         _content.Padding = new Padding(0, 18, 0, 0);
         right.Controls.Add(_content, 0, 2);
         root.Controls.Add(right, 1, 0);
@@ -872,13 +877,20 @@ public sealed class WizardForm : Form
         _pageTitle.Text = "Select source and dependency strategy";
         _pageDescription.Text = "Choose the incoming source and all build/dependency settings here. Source preflight runs automatically. Persistent dependencies and stable build workspaces stay outside the versioned source folder.";
         var form = FormGrid();
-        var source = new TextBox { Text = _profile.SourceFolder, Dock = DockStyle.Fill };
+        var source = new TextBox { Text = _profile.SourceFolder, Dock = DockStyle.Fill, ReadOnly = true, TabStop = false, BackColor = SystemColors.Window };
         var browse = new Button { Text = "Browse source...", AutoSize = true };
         var lockSource = new CheckBox { Text = "Lock source", AutoSize = true, Checked = false, Margin = new Padding(8, 7, 3, 3) };
         var saveProfile = new Button { Text = "Save Profile", AutoSize = true };
         var loadProfile = new Button { Text = "Load Profile", AutoSize = true };
         var exportSource = new Button { Text = "Export Clean Source ZIP", AutoSize = true };
-        var profileActions = Wrap(saveProfile, loadProfile, lockSource, exportSource);
+        // A single compact action strip stays opposite the Deployment profile label.
+        foreach (var action in new Control[] { saveProfile, loadProfile, lockSource, exportSource })
+        {
+            action.Font = new Font("Segoe UI", 8.5F);
+            action.Margin = new Padding(2, 1, 3, 1);
+        }
+        var profileActions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = false, FlowDirection = FlowDirection.LeftToRight };
+        profileActions.Controls.AddRange(new Control[] { saveProfile, loadProfile, lockSource, exportSource });
         var sourceRow = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 2 };
         sourceRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); sourceRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         sourceRow.Controls.Add(source, 0, 0); sourceRow.Controls.Add(browse, 1, 0);
@@ -1065,7 +1077,7 @@ public sealed class WizardForm : Form
 
         lockSource.CheckedChanged += (_, _) =>
         {
-            source.ReadOnly = lockSource.Checked;
+            // The path is always browse-only; locking also prevents folder changes.
             browse.Enabled = !lockSource.Checked;
             lockSource.Text = lockSource.Checked ? "Source locked" : "Lock source";
         };
@@ -3022,7 +3034,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
 
     private static TableLayoutPanel FormGrid()
     {
-        var grid = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, Padding = new Padding(0, 4, 0, 0) };
+        var grid = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, GrowStyle = TableLayoutPanelGrowStyle.AddRows, ColumnCount = 2, RowCount = 0, Padding = new Padding(0, 4, 0, 0) };
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220));
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         return grid;
@@ -3032,7 +3044,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
     {
         var row = grid.RowCount++;
         grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        grid.Controls.Add(new Label { Text = label, AutoSize = true, Padding = new Padding(0, 8, 10, 0) }, 0, row);
+        grid.Controls.Add(new Label { Text = label, AutoSize = true, Margin = new Padding(3, 4, 3, 8), Padding = new Padding(0, 8, 10, 0) }, 0, row);
         control.Margin = new Padding(3, 4, 3, 8);
         grid.Controls.Add(control, 1, row);
     }
