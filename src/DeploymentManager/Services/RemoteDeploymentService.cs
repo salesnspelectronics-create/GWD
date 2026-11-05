@@ -119,7 +119,7 @@ try {
     param($stage,$target,$site,$pool,$port)
     Import-Module WebAdministration
     New-Item -ItemType Directory -Force -Path $target | Out-Null
-    $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss')
+    $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
     if(Test-Path $target) { Copy-Item $target $backup -Recurse -Force }
     if(Test-Path "IIS:\Sites\$site") { Stop-Website $site -ErrorAction SilentlyContinue }
     if(Test-Path "IIS:\AppPools\$pool") {

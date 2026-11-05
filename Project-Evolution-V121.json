@@ -1,0 +1,34 @@
+{
+  "version": "121.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-121-R",
+  "baseCommit": "ccf599d8644f26007d0956fb6d78e93854443759",
+  "summary": "نام پشتیبان استقرار IIS راه دور قبلاً فقط بر اساس ثانیه ساخته می‌شد و امکان ادغام یا بازنویسی پوشه پشتیبان در اجراهای نزدیک به هم وجود داشت. افزودن GUID مستقل به نام پشتیبان، تداخل نام را برطرف می‌کند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "d6ade0264990bc2cbfcc4a307cf214ece6054a9a"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-245",
+      "sha": "d6ade0264990bc2cbfcc4a307cf214ece6054a9a"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Remote IIS rollback after a partial deployment is not transactional",
+    "Windows/IIS PowerShell runtime not executed",
+    "GUID only prevents backup-path collisions and is not a distributed lock"
+  ]
+}
