@@ -1,6 +1,6 @@
 {
-  "version": "118.0.0",
+  "version": "119.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V118-R — حفاظت از خروجی تشخیصی پیشین هنگام شکست ساخت ZIP"
+  "commitNote": "V119-R — حفظ نشانگرهای بازیابی IIS تا ثبت موفق وضعیت در ژورنال"
 }

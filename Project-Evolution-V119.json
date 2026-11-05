@@ -1,0 +1,39 @@
+{
+  "version": "119.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-119-R",
+  "baseCommit": "d5e1f1434045dcada7d982b56592b1d831bcb98d",
+  "summary": "در IisDeploymentAttempt.Resolve ابتدا وضعیت تکمیل تلاش در ژورنال ذخیره می‌شود و تنها پس از موفقیت ذخیره، نشانگرهای unresolved حذف می‌شوند. در صورت خطای ذخیره، نشانگرها برای جلوگیری از استقرار جدید باقی می‌مانند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "lines": "1-101",
+      "sha": "f446c706593636a40c04b8de1897cda4c0d7a8d4"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-260",
+      "sha": "2b4a3e8b72a118adaed4983b683e5d2a0e1745a4"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DiagnosticBundleService.cs",
+      "lines": "1-190",
+      "sha": "9be8b41f12d3329526ae929fb53b5f69b6f9d500"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS runtime not executed",
+    "Failure during removal of multiple unresolved markers may leave a partially cleared marker set",
+    "RemoteDeploymentService still needs a separate failure-recovery audit"
+  ]
+}

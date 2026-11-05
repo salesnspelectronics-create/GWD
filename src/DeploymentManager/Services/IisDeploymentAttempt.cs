@@ -64,9 +64,12 @@ public sealed class IisDeploymentAttempt : IDisposable
     }
     public void Resolve()
     {
-        foreach (var path in _unresolved) if (File.Exists(path)) File.Delete(path);
+        // Persist resolution before clearing write-ahead recovery markers.
+        // A failed journal write must not remove the protection against a new mutation.
         Resolved = true;
-        Save();
+        try { Save(); }
+        catch { Resolved = false; throw; }
+        foreach (var path in _unresolved) if (File.Exists(path)) File.Delete(path);
     }
     private void Save()
     {
