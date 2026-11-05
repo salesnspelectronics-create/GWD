@@ -1,0 +1,38 @@
+{
+  "version": "125.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-125-R",
+  "baseCommit": "b2cb129329a1a822d4bc883e8ad9c0f3a9d3cf8d",
+  "summary": "مسیر staging یکتای IIS راه دور فقط پس از استقرار موفق حذف می‌شد و در شکست Copy-Item یا Invoke-Command پوشه‌های موقت روی سرور باقی می‌ماندند. حذف staging به finally منتقل شد؛ خطای پاک‌سازی ثبت می‌شود و خطای اصلی استقرار را نمی‌پوشاند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "a489a9f9e845fd80b6cb399241796f0c6786f69b"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-275",
+      "sha": "a489a9f9e845fd80b6cb399241796f0c6786f69b"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "warnings": {
+    "confirmedExisting": "Historical build log inspected; not evidence for V125 compilation",
+    "potential": "PowerShell remoting runtime unverified"
+  },
+  "limitations": [
+    "Remote cleanup may fail if session is broken; error is logged and does not replace primary failure",
+    "Remote rollback remains non-transactional",
+    "No Windows/IIS runtime or new build executed"
+  ]
+}

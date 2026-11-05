@@ -168,9 +168,18 @@ try {
     }
     Start-WebAppPool $pool
     Start-Website $site
-    Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
   } -ArgumentList '{{Ps(remoteStage)}}','{{Ps(profile.HostingRoot)}}','{{Ps(profile.SiteName)}}','{{Ps(profile.AppPoolName)}}',{{profile.HttpPort}}
 } finally {
+  # Clean up the unique staging directory even when upload or deployment fails.
+  # Cleanup is best-effort and must not mask the original deployment error.
+  try {
+    Invoke-Command -Session $s -ScriptBlock {
+      param($stage)
+      Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction Stop
+    } -ArgumentList '{{Ps(remoteStage)}}' -ErrorAction Stop
+  } catch {
+    [Console]::Error.WriteLine("Remote staging cleanup failed: $($_.Exception.Message)")
+  }
   Remove-PSSession $s -ErrorAction SilentlyContinue
 }
 """;
