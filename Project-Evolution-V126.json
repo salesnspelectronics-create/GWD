@@ -1,0 +1,43 @@
+{
+  "version": "126.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-126-R",
+  "baseCommit": "fc466389ea7a5088231c2e259f3840482d81f7bd",
+  "summary": "در نخستین استقرار، ساخت پوشه هدف پیش از تشخیص وجود نسخه قبلی موجب ایجاد پشتیبان خالی و گمراه‌کننده می‌شد. اکنون وجود پوشه پیش از ایجاد آن ثبت می‌شود؛ تنها برای پوشه موجود پشتیبان گرفته می‌شود و وجود فایل به جای پوشه به خطای صریح منجر می‌شود.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "459c50e8f1f306c559bfd1bb2fe767c77896cb2d"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-284",
+      "sha": "459c50e8f1f306c559bfd1bb2fe767c77896cb2d"
+    },
+    {
+      "path": "src/DeploymentManager/Models/DeploymentProfile.cs",
+      "lines": "1-~100",
+      "note": "read from main; reviewed relevant HostingRoot and PreserveProductionFiles definitions"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "warnings": {
+    "confirmedExisting": "No current build log inspected; no confirmed warning",
+    "potential": "PowerShell remote backup behavior requires user runtime validation"
+  },
+  "limitations": [
+    "Remote deployment still lacks transactional rollback",
+    "Backup is created before IIS stop and may be inconsistent under concurrent writes",
+    "Concurrent remote deployments remain unprotected by a distributed lock"
+  ]
+}

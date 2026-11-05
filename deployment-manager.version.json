@@ -1,6 +1,6 @@
 {
-  "version": "125.0.0",
+  "version": "126.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V125-R — پاک‌سازی staging راه دور در شکست استقرار"
+  "commitNote": "V126-R — جلوگیری از ساخت پشتیبان خالی در نخستین استقرار راه دور"
 }

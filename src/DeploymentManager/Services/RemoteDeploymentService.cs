@@ -118,9 +118,16 @@ try {
   Invoke-Command -Session $s -ScriptBlock {
     param($stage,$target,$site,$pool,$port)
     Import-Module WebAdministration
-    New-Item -ItemType Directory -Force -Path $target | Out-Null
-    $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
-    if(Test-Path $target) { Copy-Item $target $backup -Recurse -Force }
+    # A first-time deployment has no prior application to back up.
+    # Capture whether the target existed before creating its directory.
+    $targetExisted=Test-Path -LiteralPath $target -PathType Container
+    if(Test-Path -LiteralPath $target -PathType Leaf) { throw "Remote IIS target is a file, not a directory: $target" }
+    if($targetExisted) {
+      $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
+      Copy-Item -LiteralPath $target -Destination $backup -Recurse -Force -ErrorAction Stop
+    } else {
+      New-Item -ItemType Directory -Force -Path $target -ErrorAction Stop | Out-Null
+    }
     if(Test-Path "IIS:\Sites\$site") {
       $siteState=(Get-Website -Name $site).State
       if($siteState -eq 'Started') { Stop-Website -Name $site -ErrorAction Stop }
