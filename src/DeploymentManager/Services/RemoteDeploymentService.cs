@@ -133,6 +133,26 @@ try {
     } else {
       New-WebAppPool $pool | Out-Null
     }
+    # A successful Stop command can return while IIS is still stopping.
+    # Never modify hosted files until both existing resources report Stopped.
+    if(Test-Path "IIS:\Sites\$site") {
+      $siteStopped=$false
+      for($attempt=0; $attempt -lt 20; $attempt++) {
+        $state=(Get-Website -Name $site -ErrorAction Stop).State
+        if($state -eq 'Stopped') { $siteStopped=$true; break }
+        if($state -ne 'Stopping') { throw "Remote IIS site failed to stop: $state" }
+        Start-Sleep -Milliseconds 250
+      }
+      if(-not $siteStopped) { throw "Remote IIS site stop timed out: $site" }
+    }
+    $poolStopped=$false
+    for($attempt=0; $attempt -lt 20; $attempt++) {
+      $state=(Get-WebAppPoolState -Name $pool -ErrorAction Stop).Value
+      if($state -eq 'Stopped') { $poolStopped=$true; break }
+      if($state -ne 'Stopping') { throw "Remote IIS app pool failed to stop: $state" }
+      Start-Sleep -Milliseconds 250
+    }
+    if(-not $poolStopped) { throw "Remote IIS app pool stop timed out: $pool" }
     # A failed cleanup must abort deployment instead of leaving stale application files.
     Remove-Item (Join-Path $target '*') -Recurse -Force -ErrorAction Stop
     Copy-Item (Join-Path $stage '*') $target -Recurse -Force

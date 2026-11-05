@@ -1,6 +1,6 @@
 {
-  "version": "122.0.0",
+  "version": "123.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V122-R — توقف ایمن IIS راه دور پیش از حذف فایل‌های سایت"
+  "commitNote": "V123-R — تأیید توقف کامل IIS راه دور پیش از تغییر فایل‌های سایت"
 }

@@ -1,0 +1,40 @@
+{
+  "version": "123.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-123-R",
+  "baseCommit": "fd5c5f616c3f15cb55b7be90db8e2a891f7db384",
+  "summary": "بعد از Stop-Website و Stop-WebAppPool، وضعیت نهایی IIS کنترل نمی‌شد و حذف فایل‌ها می‌توانست قبل از توقف کامل آغاز شود. اکنون با Polling محدود و توقف فوری هنگام خطا/Timeout، عملیات پاک‌سازی فقط پس از رسیدن Site موجود و App Pool به Stopped انجام می‌شود.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "2c6cf3351d1b8566db01a26f6d2dd5ee990cb1a2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-251",
+      "sha": "2c6cf3351d1b8566db01a26f6d2dd5ee990cb1a2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisSafety.cs",
+      "lines": "54-85",
+      "sha": "40ba7a55a4ebdd0f9d31ab1c5d5428eb3bc18ced"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS PowerShell runtime not executed",
+    "Remote IIS rollback after destructive changes remains non-transactional",
+    "Existing site may already be stopped; polling checks only existing sites and the provisioned pool",
+    "IIS state may change due to external actors immediately after observation"
+  ]
+}
