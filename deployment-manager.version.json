@@ -1,6 +1,6 @@
 {
-  "version": "114.0.0",
+  "version": "115.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V114-R — جلوگیری از برخورد مسیر نگهداری سایت پیشین هنگام Rollback در CLI"
+  "commitNote": "V115-R — جلوگیری از حذف فایل‌های بازیابی هنگام فقدان پوشه اصلی در Rollback CLI"
 }

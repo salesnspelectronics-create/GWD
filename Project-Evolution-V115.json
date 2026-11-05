@@ -1,0 +1,21 @@
+{
+  "version": "115.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-115-R",
+  "baseCommit": "1f3940d4cb8676d9985643023526b2514e82dc5f",
+  "summary": "پیش از حذف پوشه بازیابی ناموفق، وجود واقعی پوشه سایت اصلی جابه‌جا‌شده کنترل می‌شود؛ در صورت فقدان، عملیات تخریبی متوقف و فایل‌های موجود برای بررسی دستی حفظ می‌شوند.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS rollback runtime not executed",
+    "Does not address all partial recovery failure scenarios"
+  ]
+}

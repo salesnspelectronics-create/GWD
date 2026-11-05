@@ -243,8 +243,12 @@ internal static class CliApplication
             try
             {
                 await deployment.StopSiteForDeploymentAsync(profile);
+                // Never remove the attempted restore unless the displaced original still exists.
+                // A missing original requires manual recovery, not destructive cleanup.
+                if (!Directory.Exists(failed))
+                    throw new IOException("Pre-rollback site folder is missing; attempted restore preserved for inspection.");
                 if (Directory.Exists(profile.HostingRoot)) Directory.Delete(profile.HostingRoot, true);
-                if (Directory.Exists(failed)) Directory.Move(failed, profile.HostingRoot);
+                Directory.Move(failed, profile.HostingRoot);
                 await deployment.RestartAppAsync(profile);
             }
             catch { throw new CliFailure(7, "Rollback failed and the pre-rollback site could not be restored: " + ex.Message); }
