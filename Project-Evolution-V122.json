@@ -1,0 +1,34 @@
+{
+  "version": "122.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-122-R",
+  "baseCommit": "9a628d1079ec8ebd9c4653f95ef4affd955558bb",
+  "summary": "در استقرار IIS راه دور، خطاهای Stop-Website و Stop-WebAppPool نادیده گرفته می‌شدند و در ادامه فایل‌های سایت حذف می‌شدند. اکنون وضعیت اولیه سایت/Pool بررسی شده و فقط در صورت Started توقف با ErrorAction Stop انجام می‌شود؛ وضعیت غیرپایدار عملیات را پیش از تخریب متوقف می‌کند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "6d14187ecc21941a2075e6d2f5deb67e7f53af95"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-245",
+      "sha": "6d14187ecc21941a2075e6d2f5deb67e7f53af95"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "IIS remote deployment still has no transactional rollback for failures after content mutation",
+    "Runtime stop transition and PowerShell behavior not executed on Windows",
+    "Post-stop state verification and distributed locking remain outside this narrow patch"
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "version": "121.0.0",
+  "version": "122.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V121-R — یکتاسازی مسیر پشتیبان IIS راه دور برای جلوگیری از برخورد نام"
+  "commitNote": "V122-R — توقف ایمن IIS راه دور پیش از حذف فایل‌های سایت"
 }

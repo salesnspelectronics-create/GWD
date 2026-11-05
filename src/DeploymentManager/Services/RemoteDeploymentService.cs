@@ -121,9 +121,15 @@ try {
     New-Item -ItemType Directory -Force -Path $target | Out-Null
     $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
     if(Test-Path $target) { Copy-Item $target $backup -Recurse -Force }
-    if(Test-Path "IIS:\Sites\$site") { Stop-Website $site -ErrorAction SilentlyContinue }
+    if(Test-Path "IIS:\Sites\$site") {
+      $siteState=(Get-Website -Name $site).State
+      if($siteState -eq 'Started') { Stop-Website -Name $site -ErrorAction Stop }
+      elseif($siteState -ne 'Stopped') { throw "Remote IIS site is not in a stable state: $siteState" }
+    }
     if(Test-Path "IIS:\AppPools\$pool") {
-      Stop-WebAppPool $pool -ErrorAction SilentlyContinue
+      $poolState=(Get-WebAppPoolState -Name $pool).Value
+      if($poolState -eq 'Started') { Stop-WebAppPool -Name $pool -ErrorAction Stop }
+      elseif($poolState -ne 'Stopped') { throw "Remote IIS application pool is not in a stable state: $poolState" }
     } else {
       New-WebAppPool $pool | Out-Null
     }
