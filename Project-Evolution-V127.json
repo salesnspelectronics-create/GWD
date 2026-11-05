@@ -1,0 +1,53 @@
+{
+  "version": "127.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-127-R",
+  "baseCommit": "9a64b1ea5634aee5239757619d192496158d4932",
+  "summary": "پشتیبان‌گیری فایل‌های IIS راه دور قبل از توقف Site و App Pool انجام می‌شد؛ بنابراین هنگام نوشتن برنامه، نسخه پشتیبان می‌توانست ناسازگار باشد. عملیات Copy-Item پشتیبان به بعد از تأیید Stopped هر دو منبع و پیش از حذف فایل‌های مقصد منتقل شد.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "ba407bbe81c42c91ccc3470a4a71e712669e8889"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-292",
+      "sha": "ba407bbe81c42c91ccc3470a4a71e712669e8889"
+    },
+    {
+      "path": "src/DeploymentManager/Models/DeploymentProfile.cs",
+      "lines": "1-82",
+      "sha": "ce465ead5080442d3d1a3fcb5ed93705a5554700"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "lines": "1-90",
+      "sha": "3bd8b6ad44a38ff3c0733150df9159cc7424bbb1"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "lines": "201-260",
+      "sha": "3bd8b6ad44a38ff3c0733150df9159cc7424bbb1"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "warnings": {
+    "confirmedExisting": "Historical V72 build log: 0 warnings, 0 errors; no current build log inspected",
+    "potential": "No confirmed current compiler warnings"
+  },
+  "limitations": [
+    "Backup after stopping IIS reduces application writes but cannot exclude external filesystem writers",
+    "No distributed deployment lock or transactional rollback",
+    "No Windows runtime verification"
+  ]
+}

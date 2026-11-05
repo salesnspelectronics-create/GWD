@@ -122,10 +122,7 @@ try {
     # Capture whether the target existed before creating its directory.
     $targetExisted=Test-Path -LiteralPath $target -PathType Container
     if(Test-Path -LiteralPath $target -PathType Leaf) { throw "Remote IIS target is a file, not a directory: $target" }
-    if($targetExisted) {
-      $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
-      Copy-Item -LiteralPath $target -Destination $backup -Recurse -Force -ErrorAction Stop
-    } else {
+    if(-not $targetExisted) {
       New-Item -ItemType Directory -Force -Path $target -ErrorAction Stop | Out-Null
     }
     if(Test-Path "IIS:\Sites\$site") {
@@ -165,6 +162,11 @@ try {
       Start-Sleep -Milliseconds 250
     }
     if(-not $poolStopped) { throw "Remote IIS app pool stop timed out: $pool" }
+    # Back up only after IIS has stopped, before changing any target files.
+    if($targetExisted) {
+      $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
+      Copy-Item -LiteralPath $target -Destination $backup -Recurse -Force -ErrorAction Stop
+    }
     # A failed cleanup must abort deployment instead of leaving stale application files.
     Remove-Item (Join-Path $target '*') -Recurse -Force -ErrorAction Stop
     Copy-Item (Join-Path $stage '*') $target -Recurse -Force
