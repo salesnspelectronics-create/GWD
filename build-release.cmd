@@ -47,7 +47,8 @@ echo Release output: %MANAGER_ROOT%
 echo ============================================================
 set "NEED_RESTORE=0"
 if not exist "%RESTORE_STAMP%" set "NEED_RESTORE=1"
-if not exist "src\DeploymentManager\obj\project.assets.json" set "NEED_RESTORE=1"
+rem The fresh short-path stage excludes obj; source assets cannot satisfy --no-restore there.
+if not exist "%BUILD_STAGE%\src\DeploymentManager\obj\project.assets.json" set "NEED_RESTORE=1"
 if "%NEED_RESTORE%"=="0" (
   powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=(Get-Item '%SOURCE_ROOT%\src\DeploymentManager\DeploymentManager.csproj').LastWriteTimeUtc; $v=(Get-Item '%SOURCE_ROOT%\Directory.Build.props').LastWriteTimeUtc; $s=(Get-Item '%RESTORE_STAMP%').LastWriteTimeUtc; if($p -gt $s -or $v -gt $s){exit 10}else{exit 0}" >nul 2>&1
   if errorlevel 10 set "NEED_RESTORE=1"

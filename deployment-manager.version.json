@@ -1,6 +1,6 @@
 {
-  "version": "110.0.0",
+  "version": "111.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V110-R — اعتبارسنجی محتوای پشتیبان CLI با SHA256 برای هر فایل"
+  "commitNote": "V111-R — اصلاح تشخیص نیاز به Restore در فضای Build موقت"
 }

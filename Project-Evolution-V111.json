@@ -1,0 +1,21 @@
+{
+  "version": "111.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-111-R",
+  "baseCommit": "b430c0da0437a27a11d4e9196b65a66acb239b8b",
+  "summary": "رفع اعتماد نادرست به project.assets.json سورس هنگام اجرای --no-restore در فضای Build تازه‌ای که obj از آن حذف شده است",
+  "sourceFiles": [
+    "build-release.cmd"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows batch runtime not executed",
+    "Restore stamp optimization intentionally bypassed when staged project.assets.json is absent"
+  ]
+}
