@@ -233,8 +233,10 @@ internal static class CliApplication
             if (!engineHealth.Ok) throw new CliFailure(5, engineHealth.Detail);
             var health = await HealthWithRetryAsync(profile, 4, TimeSpan.FromSeconds(3));
             if (!health.Passed) throw new IOException("Restored backup failed health check.");
-            try { if (Directory.Exists(failed)) Directory.Delete(failed, true); } catch { }
+            // Keep the displaced original until the successful attempt is durably resolved.
+            // If resolution fails, the catch path still needs these files for recovery.
             deployment.ResolveIisAttempt();
+            try { if (Directory.Exists(failed)) Directory.Delete(failed, true); } catch { }
             return CliResult.Ok("rollback", profile.ApplicationName, new() { ["backupPath"] = backup, ["targetPath"] = profile.HostingRoot, ["healthCheck"] = health });
         }
         catch (Exception ex)

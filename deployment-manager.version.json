@@ -1,6 +1,6 @@
 {
-  "version": "115.0.0",
+  "version": "116.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V115-R — جلوگیری از حذف فایل‌های بازیابی هنگام فقدان پوشه اصلی در Rollback CLI"
+  "commitNote": "V116-R — حفظ نسخه اصلی تا تأیید نهایی بازیابی CLI"
 }

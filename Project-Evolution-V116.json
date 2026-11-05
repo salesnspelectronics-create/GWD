@@ -1,0 +1,33 @@
+{
+  "version": "116.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-116-R",
+  "baseCommit": "8e8aa53795511603742254e112fe6ea263e47d44",
+  "summary": "در Rollback CLI حذف پوشه سایت قبلی تا پس از ResolveIisAttempt به تعویق افتاد؛ شکست ثبت وضعیت موفقیت دیگر مسیر بازیابی را از فایل‌های اصلی محروم نمی‌کند.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "lines": "1-400",
+      "sha": "e33fa22cb3961c1435a2e1926400c8c2001ede03"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "lines": "1-92",
+      "sha": "f446c706593636a40c04b8de1897cda4c0d7a8d4"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS runtime not executed",
+    "Potential partial marker deletion inside Resolve remains a separate recovery concern"
+  ]
+}
