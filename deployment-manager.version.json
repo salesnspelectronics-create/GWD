@@ -1,6 +1,6 @@
 {
-  "version": "113.0.0",
+  "version": "114.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V113-R — جلوگیری از برخورد نام و بازنویسی پشتیبان‌های هم‌ثانیه در CLI"
+  "commitNote": "V114-R — جلوگیری از برخورد مسیر نگهداری سایت پیشین هنگام Rollback در CLI"
 }

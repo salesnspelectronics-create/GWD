@@ -220,7 +220,7 @@ internal static class CliApplication
         using var iisAttempt = deployment.BeginIisAttempt(profile);
         await deployment.ValidateIisPreflightAsync(profile);
         var displacedOriginal = false;
-        var failed = profile.HostingRoot.TrimEnd('\\') + ".__cli_failed_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+        var failed = profile.HostingRoot.TrimEnd('\\') + ".__cli_failed_" + DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + Guid.NewGuid().ToString("N");
         try
         {
             await deployment.StopSiteForDeploymentAsync(profile);

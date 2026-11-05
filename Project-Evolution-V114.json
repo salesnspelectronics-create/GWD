@@ -1,0 +1,21 @@
+{
+  "version": "114.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-114-R",
+  "baseCommit": "fe01b1d37cba603f357bbf7edc5618e5d4adee46",
+  "summary": "تخصیص شناسه GUID به مسیر جابه‌جایی سایت پیشین در Rollback CLI برای جلوگیری از برخورد نام‌های هم‌ثانیه و حفظ بازیابی ایمن",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS rollback runtime not executed",
+    "Existing rollback and recovery state handling unchanged"
+  ]
+}
