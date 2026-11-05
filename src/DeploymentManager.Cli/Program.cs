@@ -347,7 +347,7 @@ internal static class CliApplication
         if (!Directory.Exists(profile.HostingRoot)) throw new DirectoryNotFoundException("Hosted site folder was not found: " + profile.HostingRoot);
         var root = ProjectBackupRoot(profile);
         Directory.CreateDirectory(root);
-        var path = Path.Combine(root, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + SafeName(DetectVersion(profile.HostingRoot) ?? "unknown"));
+        var path = Path.Combine(root, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + SafeName(DetectVersion(profile.HostingRoot) ?? "unknown") + "-" + Guid.NewGuid().ToString("N"));
         CopyTree(profile.HostingRoot, path);
         // Equal file counts and aggregate sizes cannot establish a recoverable backup.
         // Compare each relative path and its SHA256 before permitting deployment.

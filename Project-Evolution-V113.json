@@ -1,0 +1,21 @@
+{
+  "version": "113.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-113-R",
+  "baseCommit": "d1acda4c2efd8f38524854ec1bb26b2964888115",
+  "summary": "جلوگیری از برخورد مسیر پشتیبان CLI هنگام ایجاد چند پشتیبان با نسخه و زمان یکسان؛ تخصیص شناسه یکتای GUID به نام هر پشتیبان",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows runtime and backup integration not executed",
+    "Existing backup folders are unchanged"
+  ]
+}
