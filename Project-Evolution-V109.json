@@ -1,0 +1,21 @@
+{
+  "version": "109.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-109-R",
+  "baseCommit": "0dd484447e331966a1d8cd92fa45f9f5d79a0d61",
+  "summary": "جایگزینی پوشه نسخه‌دار در بازانتشار همان نسخه بدون باقی‌ماندن فایل‌های قدیمی و با امکان بازگردانی در شکست انتقال",
+  "sourceFiles": [
+    "publish-latest.ps1"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "PowerShell/Windows runtime not executed",
+    "Root-level EXE copies remain separate non-atomic operations"
+  ]
+}

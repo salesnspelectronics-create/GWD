@@ -46,8 +46,38 @@ try {
     [ordered]@{ version=$version; buildDateUtc=[DateTimeOffset]::UtcNow.ToString('O'); commit=$commit } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $staging 'deployment-manager.version.json') -Encoding utf8
 
-    New-Item -ItemType Directory -Path $releaseRoot -Force | Out-Null
-    Get-ChildItem -LiteralPath $staging | Copy-Item -Destination $releaseRoot -Recurse -Force
+    # A same-version republish must not merge obsolete files into an existing release.
+    # Build the replacement beside the destination and retain the old directory until
+    # the new directory has been installed successfully.
+    $nextRelease = Join-Path $DestinationRoot ('.release-next-' + [Guid]::NewGuid().ToString('N'))
+    $previousRelease = Join-Path $DestinationRoot ('.release-previous-' + [Guid]::NewGuid().ToString('N'))
+    $previousReleaseMoved = $false
+    try {
+        New-Item -ItemType Directory -Path $nextRelease -Force | Out-Null
+        Get-ChildItem -LiteralPath $staging | Copy-Item -Destination $nextRelease -Recurse -Force -ErrorAction Stop
+        if (-not (Test-Path -LiteralPath (Join-Path $nextRelease 'GenericWeb.DeploymentManager.exe') -PathType Leaf)) {
+            throw 'Versioned release replacement is missing the GUI executable.'
+        }
+        if (Test-Path -LiteralPath $releaseRoot) {
+            Move-Item -LiteralPath $releaseRoot -Destination $previousRelease -ErrorAction Stop
+            $previousReleaseMoved = $true
+        }
+        try {
+            Move-Item -LiteralPath $nextRelease -Destination $releaseRoot -ErrorAction Stop
+        } catch {
+            if ($previousReleaseMoved) {
+                Move-Item -LiteralPath $previousRelease -Destination $releaseRoot -ErrorAction Stop
+                $previousReleaseMoved = $false
+            }
+            throw
+        }
+    } finally {
+        if (Test-Path -LiteralPath $nextRelease) { Remove-Item -LiteralPath $nextRelease -Recurse -Force }
+    }
+    if ($previousReleaseMoved) {
+        try { Remove-Item -LiteralPath $previousRelease -Recurse -Force -ErrorAction Stop }
+        catch { Write-Warning "Previous versioned release retained at '$previousRelease': $($_.Exception.Message)" }
+    }
     # Never merge releases into latest: removed DLLs/config files from older builds
     # must not survive into the next release.
     $nextLatest = Join-Path $DestinationRoot ('.latest-next-' + [Guid]::NewGuid().ToString('N'))
