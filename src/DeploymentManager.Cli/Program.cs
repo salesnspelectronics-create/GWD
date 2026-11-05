@@ -345,7 +345,7 @@ internal static class CliApplication
     }
 
     private static CliResult ListBackups(DeploymentProfile profile) => CliResult.Ok("backups list", profile.ApplicationName, new() { ["backups"] = GetBackups(profile).Select(x => new { path = x, version = DetectVersion(x), createdUtc = Directory.GetCreationTimeUtc(x) }).ToArray() });
-    private static IEnumerable<string> GetBackups(DeploymentProfile profile) => Directory.Exists(ProjectBackupRoot(profile)) ? Directory.EnumerateDirectories(ProjectBackupRoot(profile)).OrderByDescending(Directory.GetCreationTimeUtc) : [];
+    private static IEnumerable<string> GetBackups(DeploymentProfile profile) => Directory.Exists(ProjectBackupRoot(profile)) ? Directory.EnumerateDirectories(ProjectBackupRoot(profile)).Where(path => !Path.GetFileName(path).StartsWith(".incomplete-", StringComparison.OrdinalIgnoreCase)).OrderByDescending(Directory.GetCreationTimeUtc) : [];
     private static string ProjectBackupRoot(DeploymentProfile p) => Path.Combine(p.BackupRoot, SafeName(p.ApplicationName));
 
     private static string CreateBackup(DeploymentProfile profile)
@@ -354,13 +354,14 @@ internal static class CliApplication
         var root = ProjectBackupRoot(profile);
         Directory.CreateDirectory(root);
         var path = Path.Combine(root, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + SafeName(DetectVersion(profile.HostingRoot) ?? "unknown") + "-" + Guid.NewGuid().ToString("N"));
-        CopyTree(profile.HostingRoot, path);
+        var staging = Path.Combine(root, ".incomplete-" + Path.GetFileName(path));
+        CopyTree(profile.HostingRoot, staging);
         // Equal file counts and aggregate sizes cannot establish a recoverable backup.
         // Compare each relative path and its SHA256 before permitting deployment.
         var sourceFiles = Directory.EnumerateFiles(profile.HostingRoot, "*", SearchOption.AllDirectories)
             .ToDictionary(file => Path.GetRelativePath(profile.HostingRoot, file), StringComparer.OrdinalIgnoreCase);
-        var backupFiles = Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
-            .ToDictionary(file => Path.GetRelativePath(path, file), StringComparer.OrdinalIgnoreCase);
+        var backupFiles = Directory.EnumerateFiles(staging, "*", SearchOption.AllDirectories)
+            .ToDictionary(file => Path.GetRelativePath(staging, file), StringComparer.OrdinalIgnoreCase);
         if (sourceFiles.Count == 0 || sourceFiles.Count != backupFiles.Count)
             throw new IOException("Backup verification failed: file count does not match the hosted site.");
         foreach (var (relative, sourceFile) in sourceFiles)
@@ -370,6 +371,7 @@ internal static class CliApplication
                 || !string.Equals(WorkspaceSynchronizer.Hash(sourceFile), WorkspaceSynchronizer.Hash(backupFile), StringComparison.Ordinal))
                 throw new IOException("Backup verification failed: missing or mismatched file: " + relative);
         }
+        Directory.Move(staging, path);
         return path;
     }
 
