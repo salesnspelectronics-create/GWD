@@ -1,6 +1,6 @@
 {
-  "version": "111.0.0",
+  "version": "112.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V111-R — اصلاح تشخیص نیاز به Restore در فضای Build موقت"
+  "commitNote": "V112-R — جداسازی فضای ساخت هم‌زمان و جلوگیری از حذف فایل‌های Build دیگر"
 }

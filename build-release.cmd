@@ -25,9 +25,11 @@ echo [RELEASE] Resolved Settings output: %MANAGER_ROOT%
 
 rem V60: never build directly from a potentially long incoming/versioned path.
 rem Stage the complete source in a controlled short path to avoid legacy MAX_PATH failures.
-set "BUILD_STAGE=%LOCALAPPDATA%\GWDM\Build\V%VERSION%"
-if exist "%BUILD_STAGE%" rmdir /s /q "%BUILD_STAGE%"
-mkdir "%BUILD_STAGE%" >nul 2>&1 || (echo [ERROR] Could not create short build staging folder: %BUILD_STAGE% & pause & exit /b 1)
+rem Isolate each invocation: a fixed V%VERSION% path can delete another running build.
+for /f "usebackq delims=" %%G in (`powershell -NoProfile -Command "[guid]::NewGuid().ToString('N')"`) do set "BUILD_RUN_ID=%%G"
+if not defined BUILD_RUN_ID (echo [ERROR] Could not allocate a unique build workspace. & pause & exit /b 1)
+set "BUILD_STAGE=%LOCALAPPDATA%\GWDM\Build\V%VERSION%-%BUILD_RUN_ID%"
+mkdir "%BUILD_STAGE%" >nul 2>&1 || (echo [ERROR] Could not create isolated build staging folder: %BUILD_STAGE% & pause & exit /b 1)
 robocopy "%SOURCE_ROOT%" "%BUILD_STAGE%" /E /XD .git bin obj dist /XF *.user *.suo >nul
 if errorlevel 8 (echo [ERROR] Could not stage source into short build workspace. & pause & exit /b 1)
 set "PROJECT=%BUILD_STAGE%\src\DeploymentManager\DeploymentManager.csproj"

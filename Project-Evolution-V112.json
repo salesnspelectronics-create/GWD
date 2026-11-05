@@ -1,0 +1,22 @@
+{
+  "version": "112.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-112-R",
+  "baseCommit": "d14193114949abf2932b08544e4ed004475fc226",
+  "summary": "جلوگیری از پاک‌کردن فضای Build اجرای دیگر توسط اسکریپت‌های Fast و Full؛ تخصیص مسیر مجزا برای هر فراخوانی",
+  "sourceFiles": [
+    "build-release.cmd",
+    "build-release-full.cmd"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows CMD runtime not executed",
+    "Unique build workspaces are retained for later manual cleanup"
+  ]
+}
