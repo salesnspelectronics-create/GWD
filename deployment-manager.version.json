@@ -1,6 +1,6 @@
 {
-  "version": "117.0.0",
+  "version": "118.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V117-R — جلوگیری از نمایش پشتیبان ناقص CLI"
+  "commitNote": "V118-R — حفاظت از خروجی تشخیصی پیشین هنگام شکست ساخت ZIP"
 }

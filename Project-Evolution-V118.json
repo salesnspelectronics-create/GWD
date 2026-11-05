@@ -1,0 +1,29 @@
+{
+  "version": "118.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-118-R",
+  "baseCommit": "a71c1cc500b6d076387957f06c0fc56a893b4fd2",
+  "summary": "خروجی تشخیصی ZIP ابتدا در فایل موقت هم‌مسیر ایجاد و پس از بسته‌شدن کامل با فایل مقصد جایگزین می‌شود؛ شکست تولید، فایل تشخیصی پیشین را حفظ می‌کند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DiagnosticBundleService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/DiagnosticBundleService.cs",
+      "lines": "1-205",
+      "sha": "208e8fce4caebc0a11c26b4cc28cd99a287e65ee"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows runtime not executed",
+    "Atomic replacement depends on filesystem semantics",
+    "Temporary files may remain if cleanup is denied"
+  ]
+}
