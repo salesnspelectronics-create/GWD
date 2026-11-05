@@ -1,0 +1,29 @@
+{
+  "version": "117.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-117-R",
+  "baseCommit": "85a5b87a2fdcbce024a8485480c15a2a9d8797fe",
+  "summary": "پشتیبان CLI ابتدا در پوشه موقت .incomplete ساخته و با SHA256 تأیید می‌شود؛ تنها پس از تأیید به نام نهایی منتقل می‌شود. پوشه‌های موقت از فهرست و انتخاب latest حذف شدند.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "lines": "1-650",
+      "sha": "d1c39a5e8db5dd8dd0929cbaddb478424e31e126"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows/IIS runtime not executed",
+    "Legacy incomplete backups created before V117 may still require manual inspection",
+    "No snapshot protection for concurrently modified source files"
+  ]
+}
