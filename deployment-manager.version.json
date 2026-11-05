@@ -1,6 +1,6 @@
 {
-  "version": "119.0.0",
+  "version": "120.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V119-R — حفظ نشانگرهای بازیابی IIS تا ثبت موفق وضعیت در ژورنال"
+  "commitNote": "V120-R — توقف استقرار IIS راه دور هنگام شکست پاک‌سازی فایل‌های قبلی"
 }

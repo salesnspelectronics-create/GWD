@@ -127,7 +127,8 @@ try {
     } else {
       New-WebAppPool $pool | Out-Null
     }
-    Remove-Item (Join-Path $target '*') -Recurse -Force -ErrorAction SilentlyContinue
+    # A failed cleanup must abort deployment instead of leaving stale application files.
+    Remove-Item (Join-Path $target '*') -Recurse -Force -ErrorAction Stop
     Copy-Item (Join-Path $stage '*') $target -Recurse -Force
     if(Test-Path "IIS:\Sites\$site") {
       Set-ItemProperty "IIS:\Sites\$site" -Name physicalPath -Value $target

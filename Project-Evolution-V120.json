@@ -1,0 +1,44 @@
+{
+  "version": "120.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-120-R",
+  "baseCommit": "b5736e0ed964080abfccd56c8629d1c06eb29f11",
+  "summary": "در DeployPublishAsync پاک‌سازی فایل‌های قبلی هدف IIS راه دور با ErrorAction SilentlyContinue خطاهای حذف را نادیده می‌گرفت؛ اکنون شکست پاک‌سازی عملیات را متوقف می‌کند تا استقرار با فایل‌های قدیمی مخلوط نشود.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "2b4a3e8b72a118adaed4983b683e5d2a0e1745a4"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-244",
+      "sha": "2b4a3e8b72a118adaed4983b683e5d2a0e1745a4"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "lines": "1-95",
+      "sha": "22b01fee51300c46678bed08498c39e3b1caffe7"
+    },
+    {
+      "path": "src/DeploymentManager/Services/WorkspaceSynchronizer.cs",
+      "lines": "1-121",
+      "sha": "fc9d5f7a0d3b67fbde84271244aabb8a04c5e2bc"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Remote IIS deployment lacks comprehensive rollback after destructive changes",
+    "Windows PowerShell and IIS runtime not executed",
+    "Existing V72 regression evidence is historical, not a new test run"
+  ]
+}
