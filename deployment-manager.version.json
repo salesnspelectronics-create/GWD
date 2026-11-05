@@ -1,6 +1,6 @@
 {
-  "version": "116.0.0",
+  "version": "117.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V116-R — حفظ نسخه اصلی تا تأیید نهایی بازیابی CLI"
+  "commitNote": "V117-R — جلوگیری از نمایش پشتیبان ناقص CLI"
 }
