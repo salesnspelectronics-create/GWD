@@ -131,7 +131,12 @@ try {
       if($poolState -eq 'Started') { Stop-WebAppPool -Name $pool -ErrorAction Stop }
       elseif($poolState -ne 'Stopped') { throw "Remote IIS application pool is not in a stable state: $poolState" }
     } else {
-      New-WebAppPool $pool | Out-Null
+      New-WebAppPool $pool -ErrorAction Stop | Out-Null
+      # A newly created pool can be Started by IIS defaults; enforce the same
+      # stopped-state precondition as for an existing pool.
+      $newPoolState=(Get-WebAppPoolState -Name $pool -ErrorAction Stop).Value
+      if($newPoolState -eq 'Started') { Stop-WebAppPool -Name $pool -ErrorAction Stop }
+      elseif($newPoolState -ne 'Stopped') { throw "New remote IIS app pool is not in a stable state: $newPoolState" }
     }
     # A successful Stop command can return while IIS is still stopping.
     # Never modify hosted files until both existing resources report Stopped.

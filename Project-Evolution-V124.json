@@ -1,0 +1,38 @@
+{
+  "version": "124.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-124-R",
+  "baseCommit": "64c52cf29fa8de6cb16f21e56161495b72f656e9",
+  "summary": "در V123-R بعد از ایجاد App Pool جدید، کنترل اجباری Stopped انجام می‌شد ولی مسیر ایجاد Pool هیچ فرمان توقفی نداشت. اگر IIS Pool را در حالت Started ایجاد کند، اولین استقرار پیش از کپی فایل‌ها شکست می‌خورد. اکنون Pool تازه نیز وضعیت‌سنجی و در صورت Started متوقف می‌شود و سپس وارد همان تأیید توقف محدود می‌گردد.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "6355bc2bd2ca2a4a9a3439e57d1900bc5a1b4544"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-271",
+      "sha": "6355bc2bd2ca2a4a9a3439e57d1900bc5a1b4544"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "warnings": {
+    "confirmedExisting": "No warnings in archived V72 build log (not applicable to current HEAD)",
+    "potential": "PowerShell runtime behavior unverified"
+  },
+  "limitations": [
+    "Remote PowerShell runtime not tested",
+    "Rollback remains non-transactional",
+    "No durable regression checkpoint exists in current repository tree"
+  ]
+}
