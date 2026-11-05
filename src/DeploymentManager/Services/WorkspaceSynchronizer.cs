@@ -41,13 +41,18 @@ public static class WorkspaceSynchronizer
         return files;
     }
 
+    // مقایسهٔ والد/فرزند باید برای ریشهٔ درایو نیز درست باشد؛ به ریشه جداکنندهٔ اضافی نچسبانید.
+    private static bool IsSameOrNested(string path, string parent) =>
+        path.Equals(parent, StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith(Path.EndsInDirectorySeparator(parent)
+            ? parent : parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+
     public static Result Sync(string source, string workspace, Action<string> log, CancellationToken ct = default)
     {
-        source = Path.GetFullPath(source).TrimEnd(Path.DirectorySeparatorChar);
-        workspace = Path.GetFullPath(workspace).TrimEnd(Path.DirectorySeparatorChar);
-        if (source.Equals(workspace, StringComparison.OrdinalIgnoreCase)
-            || source.StartsWith(workspace + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-            || workspace.StartsWith(source + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        // مسیر ریشهٔ درایو باید جداکنندهٔ پایانی خود را حفظ کند؛ C:\\ با C: یکسان نیست.
+        source = Path.TrimEndingDirectorySeparator(Path.GetFullPath(source));
+        workspace = Path.TrimEndingDirectorySeparator(Path.GetFullPath(workspace));
+        if (IsSameOrNested(source, workspace) || IsSameOrNested(workspace, source))
             throw new InvalidOperationException("Incoming source and workspace must be separate, non-nested directories.");
         var expected = Scan(source, ct);
         Directory.CreateDirectory(workspace);

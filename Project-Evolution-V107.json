@@ -1,0 +1,20 @@
+{
+  "version": "107.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-107-R",
+  "baseCommit": "90341fdf4f0424102e41ec29791029ce7e44ac3b",
+  "summary": "حفظ معنای مسیر ریشهٔ ویندوز و اصلاح تشخیص یکسان یا تودرتو بودن مسیرهای Incoming و Workspace پیش از تغییر فایل‌ها",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/WorkspaceSynchronizer.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER"
+  },
+  "limitations": [
+    "Windows filesystem runtime not executed",
+    "User performs runtime and automated testing"
+  ]
+}
