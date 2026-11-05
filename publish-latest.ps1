@@ -48,13 +48,41 @@ try {
 
     New-Item -ItemType Directory -Path $releaseRoot -Force | Out-Null
     Get-ChildItem -LiteralPath $staging | Copy-Item -Destination $releaseRoot -Recurse -Force
-    New-Item -ItemType Directory -Path $latest -Force | Out-Null
-    Get-ChildItem -LiteralPath $releaseRoot | Copy-Item -Destination $latest -Recurse -Force
+    # Never merge releases into latest: removed DLLs/config files from older builds
+    # must not survive into the next release.
+    $nextLatest = Join-Path $DestinationRoot ('.latest-next-' + [Guid]::NewGuid().ToString('N'))
+    $previousLatest = Join-Path $DestinationRoot ('.latest-previous-' + [Guid]::NewGuid().ToString('N'))
+    $previousMoved = $false
+    try {
+        New-Item -ItemType Directory -Path $nextLatest -Force | Out-Null
+        Get-ChildItem -LiteralPath $releaseRoot | Copy-Item -Destination $nextLatest -Recurse -Force
+        $candidateGui = Join-Path $nextLatest 'GenericWeb.DeploymentManager.exe'
+        if (-not (Test-Path -LiteralPath $candidateGui -PathType Leaf)) {
+            throw "Published GUI executable was not found at '$candidateGui'. Previous latest was preserved."
+        }
+        if (Test-Path -LiteralPath $latest) {
+            Move-Item -LiteralPath $latest -Destination $previousLatest -ErrorAction Stop
+            $previousMoved = $true
+        }
+        try {
+            Move-Item -LiteralPath $nextLatest -Destination $latest -ErrorAction Stop
+        } catch {
+            if ($previousMoved) {
+                Move-Item -LiteralPath $previousLatest -Destination $latest -ErrorAction Stop
+                $previousMoved = $false
+            }
+            throw
+        }
+    } finally {
+        if (Test-Path -LiteralPath $nextLatest) { Remove-Item -LiteralPath $nextLatest -Recurse -Force }
+    }
+    # Keep the previous latest if its cleanup fails; it is never merged into the new release.
+    if ($previousMoved) {
+        try { Remove-Item -LiteralPath $previousLatest -Recurse -Force -ErrorAction Stop }
+        catch { Write-Warning "Previous latest retained at '$previousLatest': $($_.Exception.Message)" }
+    }
 
     $gui = Join-Path $latest 'GenericWeb.DeploymentManager.exe'
-    if (-not (Test-Path -LiteralPath $gui)) {
-        throw "Published GUI executable was not found at '$gui'. Previous root EXEs were not replaced."
-    }
     Copy-Item -LiteralPath $gui -Destination (Join-Path $DestinationRoot "DeploymentManager-V$major.exe") -Force
     Copy-Item -LiteralPath $gui -Destination (Join-Path $DestinationRoot 'DeploymentManager.exe') -Force
 

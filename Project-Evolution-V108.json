@@ -1,0 +1,22 @@
+{
+  "version": "108.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-108-R",
+  "baseCommit": "ecb76a16633936a8f703df9e8d20092ec9de5fef",
+  "summary": "جایگزینی پوشه latest با نسخه تازه به جای ادغام فایل‌های نسخه‌های قدیمی؛ حفظ پوشه قبلی تا موفقیت جابه‌جایی",
+  "sourceFiles": [
+    "publish-latest.ps1"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows PowerShell runtime not executed",
+    "Root-level EXE copies remain separate non-atomic operations",
+    "Existing versioned release directory may retain old files on same-version reruns"
+  ]
+}
