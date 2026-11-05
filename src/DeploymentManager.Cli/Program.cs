@@ -349,10 +349,21 @@ internal static class CliApplication
         Directory.CreateDirectory(root);
         var path = Path.Combine(root, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + SafeName(DetectVersion(profile.HostingRoot) ?? "unknown"));
         CopyTree(profile.HostingRoot, path);
-        var sourceFiles = Directory.EnumerateFiles(profile.HostingRoot, "*", SearchOption.AllDirectories).ToArray();
-        var backupFiles = Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories).ToArray();
-        if (backupFiles.Length == 0 || backupFiles.Length != sourceFiles.Length || backupFiles.Sum(x => new FileInfo(x).Length) != sourceFiles.Sum(x => new FileInfo(x).Length))
-            throw new IOException("Backup verification failed: file count or total byte length does not match the hosted site.");
+        // Equal file counts and aggregate sizes cannot establish a recoverable backup.
+        // Compare each relative path and its SHA256 before permitting deployment.
+        var sourceFiles = Directory.EnumerateFiles(profile.HostingRoot, "*", SearchOption.AllDirectories)
+            .ToDictionary(file => Path.GetRelativePath(profile.HostingRoot, file), StringComparer.OrdinalIgnoreCase);
+        var backupFiles = Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
+            .ToDictionary(file => Path.GetRelativePath(path, file), StringComparer.OrdinalIgnoreCase);
+        if (sourceFiles.Count == 0 || sourceFiles.Count != backupFiles.Count)
+            throw new IOException("Backup verification failed: file count does not match the hosted site.");
+        foreach (var (relative, sourceFile) in sourceFiles)
+        {
+            if (!backupFiles.TryGetValue(relative, out var backupFile)
+                || new FileInfo(sourceFile).Length != new FileInfo(backupFile).Length
+                || !string.Equals(WorkspaceSynchronizer.Hash(sourceFile), WorkspaceSynchronizer.Hash(backupFile), StringComparison.Ordinal))
+                throw new IOException("Backup verification failed: missing or mismatched file: " + relative);
+        }
         return path;
     }
 

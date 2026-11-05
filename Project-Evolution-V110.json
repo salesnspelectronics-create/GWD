@@ -1,0 +1,21 @@
+{
+  "version": "110.0.0",
+  "date": "2026-11-05",
+  "handoff": "GWD-110-R",
+  "baseCommit": "943a3cfe4f46ad8648055ad009e4e5a2662d256e",
+  "summary": "جایگزینی اعتبارسنجی ناکافی شمارش و مجموع اندازه فایل‌های پشتیبان CLI با تطبیق مسیر نسبی، اندازه و SHA256 تک‌تک فایل‌ها قبل از Deploy",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows CLI backup runtime not executed",
+    "Concurrent modification of source during backup is not covered by a snapshot lease"
+  ]
+}

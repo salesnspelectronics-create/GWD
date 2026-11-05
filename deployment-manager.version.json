@@ -1,6 +1,6 @@
 {
-  "version": "109.0.0",
+  "version": "110.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V109-R — جلوگیری از ادغام فایل‌های قدیمی در بازانتشار نسخه یکسان"
+  "commitNote": "V110-R — اعتبارسنجی محتوای پشتیبان CLI با SHA256 برای هر فایل"
 }
