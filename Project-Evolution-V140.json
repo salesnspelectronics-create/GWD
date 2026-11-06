@@ -1,0 +1,48 @@
+{
+  "version": "140.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+  "summary": "بکاپ CLI با manifest مستقل مالکیت پروژه/مقصد و inventory پوشه‌ها/SHA256 تکمیل می‌شود. Rollback پیش از STOP و پیش از جایگزینی، manifest و payload را بررسی می‌کند؛ خروجی restore نیز اعتبارسنجی می‌شود. بکاپ قدیمی بدون manifest خودکار معتبر تلقی نمی‌شود. نام پوشه بکاپ از خروج از ریشه محافظت می‌شود. اصل جابه‌جاشده و failed release به‌جای حذف حفظ می‌شوند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/BackupIntegrity.cs",
+    "src/DeploymentManager.Cli/Program.cs",
+    "src/DeploymentManager/Services/DeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "blobSha": "a541b3c620fa5222be783cbeb71bebfcea844d84",
+      "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-509"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "blobSha": "165280df9c661e40ece4b9124b34931349ad78b4",
+      "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+      "ranges": [
+        "1-110",
+        "1435-1634",
+        "1635-1638",
+        "1870-1925",
+        "1950-2140",
+        "2390-2510"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Legacy backups without a completion manifest are rejected for automatic/manual CLI restore; do not fabricate sidecars.",
+    "CLI/IIS state restoration, corrupted backups and failure injection require user runtime validation.",
+    "Manifests establish local provenance/integrity, not protection against malicious administrative tampering."
+  ]
+}

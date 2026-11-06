@@ -2124,19 +2124,9 @@ public sealed class DeploymentService
         }
         else throw new IOException("IIS unavailable during recovery; files preserved.");
 
-        try
-        {
-            if (Directory.Exists(failedPublishFolder)) Directory.Delete(failedPublishFolder, recursive: true);
-            _runner.Report("[CLEANUP] Failed deployment folder removed. Persistent Data, Logs, backups, and databases were not deleted.");
-        }
-        catch (Exception ex)
-        {
-            _runner.Report("[CLEANUP] Could not completely remove the failed deployment folder: " + ex.Message);
-            InternalDiagnostics.Record(ex, "Remove failed deployment folder after rollback");
-            // The deployment has already failed. Propagate cleanup failure so callers
-            // cannot mistake the incomplete cleanup for a completed recovery.
-            throw new IOException($"Failed deployment cleanup is incomplete; folder remains at '{failedPublishFolder}'.", ex);
-        }
+        // IIS recovery does not prove that the caller-supplied folder is an owned,
+        // disposable artifact. Retain it for inspection rather than deleting a tree.
+        _runner.Report("[CLEANUP] Failed release retained for manual review: " + failedPublishFolder);
     }
 
     public void MarkDeploymentSuccessful(string publishFolder)

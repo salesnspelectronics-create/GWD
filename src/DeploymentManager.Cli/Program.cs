@@ -229,10 +229,14 @@ internal static class CliApplication
             DeploymentPathSafety.RequireSeparate(backup, profile.HostingRoot);
             DeploymentPathSafety.RequirePlainTree(backup);
             DeploymentPathSafety.RequirePlainTree(profile.HostingRoot);
+            BackupIntegrity.Require(backup, profile.ApplicationName, profile.HostingRoot);
             await deployment.StopSiteForDeploymentAsync(profile);
+            BackupIntegrity.Require(backup, profile.ApplicationName, profile.HostingRoot);
             if (Directory.Exists(profile.HostingRoot)) { Directory.Move(profile.HostingRoot, failed); displacedOriginal = true; }
             replacementStarted = true;
+            var restoreManifest = BackupIntegrity.Require(backup, profile.ApplicationName, profile.HostingRoot);
             CopyTree(backup, profile.HostingRoot);
+            BackupIntegrity.Verify(profile.HostingRoot, restoreManifest.Inventory);
             await deployment.ConfigureIisAsync(profile, profile.HostingRoot);
             await deployment.RestartAppAsync(profile);
             var engineHealth = await deployment.HealthCheckAsync(profile);
@@ -243,7 +247,7 @@ internal static class CliApplication
             // Keep the displaced original until the successful attempt is durably resolved.
             // If resolution fails, the catch path still needs these files for recovery.
             deployment.ResolveIisAttempt();
-            try { if (Directory.Exists(failed)) Directory.Delete(failed, true); } catch { }
+            // Retain the displaced original as a manual recovery point; no age-based deletion.
             return CliResult.Ok("rollback", profile.ApplicationName, new() { ["backupPath"] = backup, ["targetPath"] = profile.HostingRoot, ["healthCheck"] = health });
         }
         catch (Exception ex)
@@ -263,6 +267,8 @@ internal static class CliApplication
                 // A missing original requires manual recovery, not destructive cleanup.
                 if (!Directory.Exists(failed))
                     throw new IOException("Pre-rollback site folder is missing; attempted restore preserved for inspection.");
+                DeploymentPathSafety.RequirePlainTree(failed);
+                DeploymentPathSafety.RequirePlainTree(profile.HostingRoot);
                 if (Directory.Exists(profile.HostingRoot)) Directory.Delete(profile.HostingRoot, true);
                 Directory.Move(failed, profile.HostingRoot);
                 await deployment.RestoreOriginalIisStatesAsync(profile);
@@ -361,7 +367,16 @@ internal static class CliApplication
 
     private static CliResult ListBackups(DeploymentProfile profile) => CliResult.Ok("backups list", profile.ApplicationName, new() { ["backups"] = GetBackups(profile).Select(x => new { path = x, version = DetectVersion(x), createdUtc = Directory.GetCreationTimeUtc(x) }).ToArray() });
     private static IEnumerable<string> GetBackups(DeploymentProfile profile) => Directory.Exists(ProjectBackupRoot(profile)) ? Directory.EnumerateDirectories(ProjectBackupRoot(profile)).Where(path => !Path.GetFileName(path).StartsWith(".incomplete-", StringComparison.OrdinalIgnoreCase)).OrderByDescending(Directory.GetCreationTimeUtc) : [];
-    private static string ProjectBackupRoot(DeploymentProfile p) => Path.Combine(p.BackupRoot, SafeName(p.ApplicationName));
+    private static string ProjectBackupRoot(DeploymentProfile p)
+    {
+        var name = SafeName(p.ApplicationName);
+        if (string.IsNullOrWhiteSpace(name) || name is "." or "..") throw new IOException("Invalid backup project folder name.");
+        var root = DeploymentPathSafety.Normalize(p.BackupRoot);
+        var project = DeploymentPathSafety.RequireApplicationDirectory(Path.Combine(root, name));
+        if (!DeploymentPathSafety.Contains(root, project) || root.Equals(project, StringComparison.OrdinalIgnoreCase))
+            throw new IOException("Backup project folder escapes its root.");
+        return project;
+    }
 
     private static string CreateBackup(DeploymentProfile profile)
     {
@@ -370,6 +385,7 @@ internal static class CliApplication
         Directory.CreateDirectory(root);
         var path = Path.Combine(root, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + SafeName(DetectVersion(profile.HostingRoot) ?? "unknown") + "-" + Guid.NewGuid().ToString("N"));
         var staging = Path.Combine(root, ".incomplete-" + Path.GetFileName(path));
+        var inventory = BackupIntegrity.Capture(profile.HostingRoot);
         CopyTree(profile.HostingRoot, staging);
         // Equal file counts and aggregate sizes cannot establish a recoverable backup.
         // Compare each relative path and its SHA256 before permitting deployment.
@@ -386,7 +402,10 @@ internal static class CliApplication
                 || !string.Equals(WorkspaceSynchronizer.Hash(sourceFile), WorkspaceSynchronizer.Hash(backupFile), StringComparison.Ordinal))
                 throw new IOException("Backup verification failed: missing or mismatched file: " + relative);
         }
+        BackupIntegrity.Verify(staging, inventory);
+        BackupIntegrity.Verify(profile.HostingRoot, inventory);
         Directory.Move(staging, path);
+        BackupIntegrity.Complete(path, profile.ApplicationName, profile.HostingRoot, inventory);
         return path;
     }
 

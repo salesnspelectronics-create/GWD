@@ -1,6 +1,6 @@
 {
-  "version": "139.0.0",
+  "version": "140.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V139-R — مسدودسازی مسیر مستقیم Remote فاقد بازیابی تراکنشی"
+  "commitNote": "V140-R — اعتبارسنجی مالکیت و سلامت بکاپ دستی و حفظ شواهد بازیابی"
 }

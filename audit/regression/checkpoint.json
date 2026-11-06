@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
-  "lastVerifiedRelease": "V138-R",
-  "sourceFixRelease": "V139-R",
+  "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+  "lastVerifiedRelease": "V139-R",
+  "sourceFixRelease": "V140-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -197,6 +197,29 @@
       "ranges": [
         "1-304"
       ]
+    },
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "blobSha": "a541b3c620fa5222be783cbeb71bebfcea844d84",
+      "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-509"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "blobSha": "165280df9c661e40ece4b9124b34931349ad78b4",
+      "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+      "ranges": [
+        "1-110",
+        "1435-1634",
+        "1635-1638",
+        "1870-1925",
+        "1950-2140",
+        "2390-2510"
+      ]
     }
   ],
   "fixed": [
@@ -224,7 +247,10 @@
     "VOLUME_ROOT_EXCLUSIVE_LEASE",
     "LEGACY_PARENT_CHILD_RECOVERY_MARKERS",
     "FAIL_CLOSED_UNPROVEN_TARGET_ALIASES",
-    "REMOTE_DIRECT_CALL_FAIL_CLOSED"
+    "REMOTE_DIRECT_CALL_FAIL_CLOSED",
+    "CLI_COMPLETION_MANIFEST_AND_TARGET_OWNERSHIP",
+    "CLI_SHA256_DIRECTORY_RESTORE_VALIDATION",
+    "RETAIN_UNOWNED_FAILED_RELEASE_AND_DISPLACED_ORIGINAL"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -247,11 +273,11 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
+  "lastVerifiedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",
-    "cli": "OPEN",
+    "cli": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "retention": "OPEN",
     "validation": "SOURCE_COMPLETE_RUNTIME_PENDING_USER"
   }
