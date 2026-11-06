@@ -1,0 +1,49 @@
+{
+  "version": "128.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-128-R",
+  "baseCommit": "f1c9304fa59010a6859650ce1a3209625b74068d",
+  "summary": "پاک‌سازی مسیر IIS راه دور با wildcard و بدون جلوگیری از مسیر ریشه انجام می‌شد. مسیر ریشه دیسک قبل از تغییرات رد می‌شود و حذف/انتقال فایل‌ها با LiteralPath و Force شامل فایل‌های مخفی و نام‌های دارای کاراکتر wildcard انجام می‌شود.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "1-200",
+      "sha": "dcc5994c343c9748bf5257fc9c9a06ca972d2882"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "lines": "201-294",
+      "sha": "dcc5994c343c9748bf5257fc9c9a06ca972d2882"
+    },
+    {
+      "path": "src/DeploymentManager/Models/DeploymentProfile.cs",
+      "lines": "1-82",
+      "sha": "ce465ead5080442d3d1a3fcb5ed93705a5554700"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "lines": "1-95",
+      "sha": "22b01fee51300c46678bed08498c39e3b1caffe7"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN — USER_TESTING_POLICY",
+    "BuildValidation": "NOT_RUN — USER_TESTING_POLICY",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "warnings": {
+    "confirmedExisting": "Historical V72 build log: 0 warnings, 0 errors",
+    "potential": "No current compiler warning verified"
+  },
+  "limitations": [
+    "No distributed remote deployment lock",
+    "No transactional rollback",
+    "No runtime validation",
+    "Root guard does not prohibit all sensitive non-root directories"
+  ]
+}

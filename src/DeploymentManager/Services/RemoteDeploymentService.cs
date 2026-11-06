@@ -118,6 +118,14 @@ try {
   Invoke-Command -Session $s -ScriptBlock {
     param($stage,$target,$site,$pool,$port)
     Import-Module WebAdministration
+    # Reject drive roots before any backup, IIS stop or destructive file operation.
+    # The target is a profile value and must identify an application subdirectory.
+    if([string]::IsNullOrWhiteSpace($target)) { throw 'Remote IIS target directory is required.' }
+    $fullTarget=[IO.Path]::GetFullPath($target)
+    if(-not [IO.Path]::IsPathRooted($target) -or
+       $fullTarget.TrimEnd([char[]]@('\\','/')) -eq [IO.Path]::GetPathRoot($fullTarget).TrimEnd([char[]]@('\\','/'))) {
+      throw "Remote IIS target must be an absolute application subdirectory: $target"
+    }
     # A first-time deployment has no prior application to back up.
     # Capture whether the target existed before creating its directory.
     $targetExisted=Test-Path -LiteralPath $target -PathType Container
@@ -168,8 +176,10 @@ try {
       Copy-Item -LiteralPath $target -Destination $backup -Recurse -Force -ErrorAction Stop
     }
     # A failed cleanup must abort deployment instead of leaving stale application files.
-    Remove-Item (Join-Path $target '*') -Recurse -Force -ErrorAction Stop
-    Copy-Item (Join-Path $stage '*') $target -Recurse -Force
+    Get-ChildItem -LiteralPath $target -Force -ErrorAction Stop |
+      Remove-Item -Recurse -Force -ErrorAction Stop
+    Get-ChildItem -LiteralPath $stage -Force -ErrorAction Stop |
+      Copy-Item -Destination $target -Recurse -Force -ErrorAction Stop
     if(Test-Path "IIS:\Sites\$site") {
       Set-ItemProperty "IIS:\Sites\$site" -Name physicalPath -Value $target
     } else {
