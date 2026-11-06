@@ -225,6 +225,9 @@ internal static class CliApplication
         var failed = profile.HostingRoot.TrimEnd('\\') + ".__cli_failed_" + DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + Guid.NewGuid().ToString("N");
         try
         {
+            DeploymentPathSafety.RequireSeparate(backup, profile.HostingRoot);
+            DeploymentPathSafety.RequirePlainTree(backup);
+            DeploymentPathSafety.RequirePlainTree(profile.HostingRoot);
             await deployment.StopSiteForDeploymentAsync(profile);
             if (Directory.Exists(profile.HostingRoot)) { Directory.Move(profile.HostingRoot, failed); displacedOriginal = true; }
             replacementStarted = true;
@@ -441,7 +444,23 @@ internal static class CliApplication
     private static void EnsureAdministrator() { if (!IsAdministrator()) throw new CliFailure(8, "Administrator access is required."); }
     private static bool IsAdministrator() { try { using var id = WindowsIdentity.GetCurrent(); return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator); } catch { return false; } }
     private static long FreeBytes(string path) { try { var root = Path.GetPathRoot(Path.GetFullPath(path)); return root is null ? 0 : new DriveInfo(root).AvailableFreeSpace; } catch { return 0; } }
-    private static void CopyTree(string source, string target) { foreach (var dir in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories)) Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(source, dir))); Directory.CreateDirectory(target); foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories)) { var dest = Path.Combine(target, Path.GetRelativePath(source, file)); Directory.CreateDirectory(Path.GetDirectoryName(dest)!); File.Copy(file, dest, true); } }
+    private static void CopyTree(string source, string target)
+    {
+        DeploymentPathSafety.RequireSeparate(source, target);
+        DeploymentPathSafety.RequirePlainTree(source);
+        DeploymentPathSafety.RequirePlainTree(target);
+        foreach (var dir in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
+            Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(source, dir)));
+        Directory.CreateDirectory(target);
+        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var dest = Path.Combine(target, Path.GetRelativePath(source, file));
+            DeploymentPathSafety.Normalize(file);
+            DeploymentPathSafety.Normalize(dest);
+            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+            File.Copy(file, dest, true);
+        }
+    }
     private static string SafeName(string value) { foreach (var c in Path.GetInvalidFileNameChars()) value = value.Replace(c, '-'); return value.Trim(); }
     private static string? DetectVersion(string folder) { try { var state = Path.Combine(folder, ".smart-deploy-state.json"); if (File.Exists(state)) { using var doc = JsonDocument.Parse(File.ReadAllText(state)); if (doc.RootElement.TryGetProperty("SourceVersion", out var v)) return v.GetString(); if (doc.RootElement.TryGetProperty("sourceVersion", out v)) return v.GetString(); } var dll = Directory.Exists(folder) ? Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly).FirstOrDefault() : null; return dll is null ? null : FileVersionInfo.GetVersionInfo(dll).FileVersion; } catch { return null; } }
     private static string Redact(string text) => System.Text.RegularExpressions.Regex.Replace(text, "(?i)(password|token|connectionstring)\\s*[:=]\\s*[^;\\s]+", "$1=[REDACTED]");

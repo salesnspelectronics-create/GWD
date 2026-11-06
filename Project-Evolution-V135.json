@@ -1,0 +1,35 @@
+{
+  "version": "135.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-135-R",
+  "baseCommit": "217c31b7ce0f2f578db9dac3fed0a7fd1e4a09f7",
+  "summary": "اعمال محافظ مسیر مشترک روی ابزار مستقل کپی CLI و بررسی backup پیش از توقف IIS و جابه‌جایی مقصد.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "211-280",
+        "345-453"
+      ],
+      "blobSha": "01776226acd0a5414de750c779d85d4cc7979e80",
+      "reviewedCommit": "217c31b7ce0f2f578db9dac3fed0a7fd1e4a09f7"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
+  ]
+}

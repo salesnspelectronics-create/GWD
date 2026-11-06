@@ -1,6 +1,6 @@
 {
-  "version": "134.0.0",
+  "version": "135.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V134-R — بازیابی ایمن شکست Rollback در CLI"
+  "commitNote": "V135-R — محافظت مسیرهای کپی و Rollback در CLI"
 }
