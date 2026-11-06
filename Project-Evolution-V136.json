@@ -1,0 +1,34 @@
+{
+  "version": "136.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-136-R",
+  "baseCommit": "4c8151873c13c55e875110034a87b95d76fbf248",
+  "summary": "ثبت پایدار FilesChanged پیش از بازگشت setter و شروع جابه‌جایی فایل؛ خرابی ثبت journal مانع ادامه mutation می‌شود.",
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "af6817d378cf90c8f9079aea1f8bdc5e38262c31",
+      "reviewedCommit": "4c8151873c13c55e875110034a87b95d76fbf248"
+    }
+  ],
+  "sourceFiles": [
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs"
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
+  ]
+}

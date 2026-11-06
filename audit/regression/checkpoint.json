@@ -2,8 +2,8 @@
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
   "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f",
-  "lastVerifiedRelease": "V134-R",
-  "sourceFixRelease": "V135-R",
+  "lastVerifiedRelease": "V135-R",
+  "sourceFixRelease": "V136-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -153,6 +153,14 @@
       ],
       "blobSha": "01776226acd0a5414de750c779d85d4cc7979e80",
       "reviewedCommit": "217c31b7ce0f2f578db9dac3fed0a7fd1e4a09f7"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "af6817d378cf90c8f9079aea1f8bdc5e38262c31",
+      "reviewedCommit": "4c8151873c13c55e875110034a87b95d76fbf248"
     }
   ],
   "fixed": [
@@ -174,7 +182,8 @@
     "CLI_ROLLBACK_PARTIAL_STOP_RECOVERY",
     "CLI_ROLLBACK_ORIGINAL_IIS_STATE_RESTORE",
     "CLI_ROLLBACK_SECONDARY_ERROR_PRESERVATION",
-    "CLI_COPYTREE_PATH_OVERLAP_AND_REPARSE_BYPASS"
+    "CLI_COPYTREE_PATH_OVERLAP_AND_REPARSE_BYPASS",
+    "FILES_CHANGED_WRITE_AHEAD_JOURNAL"
   ],
   "pending": [
     "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
@@ -190,5 +199,5 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "217c31b7ce0f2f578db9dac3fed0a7fd1e4a09f7"
+  "lastVerifiedCommit": "4c8151873c13c55e875110034a87b95d76fbf248"
 }

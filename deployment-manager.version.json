@@ -1,6 +1,6 @@
 {
-  "version": "135.0.0",
+  "version": "136.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V135-R — محافظت مسیرهای کپی و Rollback در CLI"
+  "commitNote": "V136-R — ثبت پایدار آغاز تغییر فایل‌ها"
 }

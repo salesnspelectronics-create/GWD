@@ -19,7 +19,20 @@ public sealed class IisDeploymentAttempt : IDisposable
     public void Observe(string text) { if (IsDisposed) return; _observations.Add(text); Save(); }
     public void RecordRecovery(string result) { Recovery = result; Save(); }
     public string Id { get; }
-    public bool FilesChanged { get; set; }
+    private bool _filesChanged;
+    public bool FilesChanged
+    {
+        get => _filesChanged;
+        set
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            if (_filesChanged == value) return;
+            _filesChanged = value;
+            // Persist the conservative write-ahead state before the caller swaps files.
+            // On persistence failure the caller must abort; do not reset this evidence.
+            Save();
+        }
+    }
     public bool MutationStarted { get; private set; }
     public bool Resolved { get; private set; }
     public IisDeploymentAttempt(string lockRoot, string journalRoot, IEnumerable<string> targets, string id, Action<string> log, string? contentRoot = null)
