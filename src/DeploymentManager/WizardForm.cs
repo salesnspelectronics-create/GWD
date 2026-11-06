@@ -2405,7 +2405,7 @@ public sealed class WizardForm : Form
         var versioned = new RadioButton { Text = "Versioned Folders — keep releases as subfolders under this root", AutoSize = true, Checked = !string.Equals(_profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase) };
         var cleanup = new CheckBox { Text = "After a successful versioned deployment, delete older release folders", AutoSize = true, Checked = _profile.CleanupPreviousDeployments, Enabled = versioned.Checked };
         var hint = new Label { AutoSize = true, ForeColor = Color.DimGray, MaximumSize = new Size(720, 0), Text = @"Dedicated folder example: C:\inetpub\wwwroot\NSPOfficeAutomation
-Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound to port 80 is stopped/replaced only after you confirm Deploy." };
+Default website mode: C:\inetpub\wwwroot, HTTP port 80. A different IIS site owning port 80 blocks deployment; reconfigure its binding explicitly first." };
 
         AddRow(form, "Application", new TextBox { Text = _profile.ApplicationName, Dock = DockStyle.Fill, ReadOnly = true });
         AddRow(form, "Default IIS website", useDefault);
@@ -2516,7 +2516,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
     {
         _pageTitle.Text = "IIS site";
         _pageDescription.Text = _profile.UseDefaultIisWebsite
-            ? "Default IIS website mode is enabled. Port 80 will be taken over for this application; any IIS site currently bound to port 80 will be stopped/replaced during deployment."
+            ? "Default IIS website mode uses port 80. If another IIS site owns the port, deployment is blocked until its binding is explicitly reconfigured."
             : "Choose the HTTP port. Host Header and Health Check are available under Advanced IIS settings.";
         var form = FormGrid();
         var site = new TextBox { Text = _profile.SiteName, Dock = DockStyle.Fill, ReadOnly = true };
@@ -2546,7 +2546,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             _profile.HostHeader = _profile.UseDefaultIisWebsite ? string.Empty : hostHeader.Text.Trim();
             _profile.HealthPath = health.Text.Trim();
             var usable = _environment.IsPortUsableForSite(_profile.HttpPort, _profile.SiteName, out var portDetail);
-            portState.Text = _profile.UseDefaultIisWebsite ? "Port 80 / default IIS website — existing IIS site will be replaced" : portDetail;
+            portState.Text = portDetail;
             portState.ForeColor = usable ? (_profile.UseDefaultIisWebsite ? Color.DarkOrange : Color.ForestGreen) : Color.Firebrick;
             UpdateNavigationState();
         }
@@ -2684,7 +2684,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
         {
             using var confirmDialog = new AutoYesConfirmationForm(
                 "Confirm default IIS website takeover",
-                @"Default IIS website mode will replace the IIS site currently using port 80 and replace the contents of C:\inetpub\wwwroot after a successful build. Persistent database/data folders are not deleted.",
+                @"Default IIS website mode deploys into C:\inetpub\wwwroot after a successful build. Another IIS site owning port 80 blocks deployment; it will not be stopped or replaced automatically. Confirm this folder is dedicated to the application. Persistent database/data folders are not deleted.",
                 5);
             if (confirmDialog.ShowDialog(this) != DialogResult.Yes) return;
         }

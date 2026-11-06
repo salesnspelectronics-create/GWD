@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "c630b8ec8676d511b05039f310927105ca0d5cd3",
+  "reviewedCommit": "f6bc0da5e24371f52a951846cff727ba861f8ecd",
   "lastVerifiedRelease": "V142-R",
-  "sourceFixRelease": "V145-R",
+  "sourceFixRelease": "V146-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -272,6 +272,15 @@
       ],
       "blobSha": "c87daa158e7195eb24d778fc48e147abe0ea7994",
       "reviewedCommit": "c630b8ec8676d511b05039f310927105ca0d5cd3"
+    },
+    {
+      "path": "src/DeploymentManager/WizardForm.cs",
+      "ranges": [
+        "2400-2600",
+        "2601-2800"
+      ],
+      "blobSha": "f8131322f7a292eae698cf5f4531de28fe1e7934",
+      "reviewedCommit": "f6bc0da5e24371f52a951846cff727ba861f8ecd"
     }
   ],
   "fixed": [
@@ -306,7 +315,8 @@
     "READ_ONLY_CAPACITY_AND_RETENTION_PLAN",
     "DISPOSE_DIAGNOSTICS_PRESERVE_PRIMARY_FAILURE",
     "REJECT_REMOTE_PROFILE_IN_LOCAL_ENGINE",
-    "BLOCK_UNOWNED_DESTRUCTIVE_ADMIN_HELPERS"
+    "BLOCK_UNOWNED_DESTRUCTIVE_ADMIN_HELPERS",
+    "DEFAULT_IIS_PORT_80_UI_MESSAGING"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -344,9 +354,6 @@
   },
   "openIssues": [
     "V144-R: IIS port-owner inspection timeout is now bounded; user runtime validation remains pending.",
-    {
-      "path": "src/DeploymentManager/WizardForm.cs",
-      "detail": "Default IIS website UI still states site replacement; review presentation and ensure binding/port ownership messaging is consistent."
-    }
+    "V146-R: Default IIS website UI messaging corrected; runtime validation remains pending."
   ]
 }

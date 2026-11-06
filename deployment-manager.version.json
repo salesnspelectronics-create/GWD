@@ -1,6 +1,6 @@
 {
-  "version": "145.0.0",
+  "version": "146.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V145-R — جلوگیری از تأیید پورت متعلق به IIS Site دیگر"
+  "commitNote": "V146-R — اصلاح پیام‌های گمراه‌کننده تصاحب پورت ۸۰ در رابط کاربری"
 }
