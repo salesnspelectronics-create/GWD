@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098",
-  "lastVerifiedRelease": "V136-R",
-  "sourceFixRelease": "V137-R",
+  "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+  "lastVerifiedRelease": "V137-R",
+  "sourceFixRelease": "V138-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -173,6 +173,22 @@
       ],
       "blobSha": "b70f500240c6006b92f5e623ecf4f585ee369033",
       "reviewedCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "blobSha": "f875c08a07b3d1f926f5d15f5f63857a0d55f884",
+      "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+      "ranges": [
+        "1-151"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+      "blobSha": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
+      "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+      "ranges": [
+        "1-91"
+      ]
     }
   ],
   "fixed": [
@@ -196,21 +212,32 @@
     "CLI_ROLLBACK_SECONDARY_ERROR_PRESERVATION",
     "CLI_COPYTREE_PATH_OVERLAP_AND_REPARSE_BYPASS",
     "FILES_CHANGED_WRITE_AHEAD_JOURNAL",
-    "CLI_ARGUMENT_PARSE_ERROR_HANDLED"
+    "CLI_ARGUMENT_PARSE_ERROR_HANDLED",
+    "VOLUME_ROOT_EXCLUSIVE_LEASE",
+    "LEGACY_PARENT_CHILD_RECOVERY_MARKERS",
+    "FAIL_CLOSED_UNPROVEN_TARGET_ALIASES"
   ],
   "pending": [
-    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
-    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
-    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
-    "Automatic retention is deferred; retained backups and releases need capacity management.",
-    "No build or runtime validation was performed."
+    "Windows QueryDosDevice and filesystem leases are untested.",
+    "UNC/mapped/SUBST deployment is deliberately blocked until reliable alias coordination exists.",
+    "Older/non-cooperating clients and external applications are not protected.",
+    "مسیر مستقیم DeployPublishAsync دیگر نمی‌تواند محدودیت UI را دور بزند و بدون قفل پایدار، بکاپ اعتبارسنجی‌شده و بازیابی تراکنشی فایل‌های سرور را حذف کند. فراخوانی پیش از ایجاد WinRM session با REMOTE_DEPLOYMENT_SAFETY_BLOCK متوقف می‌شود. این تغییر پیاده‌سازی تراکنش Remote نیست.",
+    "بکاپ CLI با manifest مستقل مالکیت پروژه/مقصد و inventory پوشه‌ها/SHA256 تکمیل می‌شود. Rollback پیش از STOP و پیش از جایگزینی، manifest و payload را بررسی می‌کند؛ خروجی restore نیز اعتبارسنجی می‌شود. بکاپ قدیمی بدون manifest خودکار معتبر تلقی نمی‌شود. نام پوشه بکاپ از خروج از ریشه محافظت می‌شود. اصل جابه‌جاشده و failed release به‌جای حذف حفظ می‌شوند.",
+    "دستور backups plan --root گزارش ظرفیت و حجم artifactها را بدون ساخت AppDataService، ذخیره پروفایل یا نوشتن result-file تولید می‌کند. پیش‌فرض برنامه حداقل ۵ نسخه و ۳۰ روز است؛ همه artifactها تا اثبات مالکیت و resolution محافظت می‌شوند. EligibleForDeletion خالی است؛ هیچ API یا گزینه حذف خودکار اضافه نشده است."
   ],
   "validation": {
-    "StaticSourceReview": "COMPLETED",
+    "StaticSourceReview": "PARTIAL",
     "AutomatedTests": "NOT_RUN",
     "BuildValidation": "NOT_RUN",
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098"
+  "lastVerifiedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+  "workstreams": {
+    "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
+    "remote": "OPEN",
+    "cli": "OPEN",
+    "retention": "OPEN",
+    "validation": "SOURCE_COMPLETE_RUNTIME_PENDING_USER"
+  }
 }

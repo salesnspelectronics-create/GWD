@@ -3,6 +3,26 @@ namespace GenericWeb.DeploymentManager.Services;
 // Deployment paths are literal filesystem identities, never shell patterns.
 public static class DeploymentPathSafety
 {
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+    private static extern uint QueryDosDevice(string deviceName, System.Text.StringBuilder targetPath, int maximumLength);
+
+    public static string RequireExclusiveLocalTarget(string path)
+    {
+        var full = RequireApplicationDirectory(path);
+        var root = Path.GetPathRoot(Path.GetFullPath(full))!;
+        // UNC/share aliases and mapped/SUBST drives cannot be proven to share
+        // the same stable volume-root lease. Keep profiles intact, but fail closed.
+        if (!OperatingSystem.IsWindows() || root.Length != 3 || root[1] != ':'
+            || new DriveInfo(root).DriveType != DriveType.Fixed)
+            throw new IOException("Exclusive deployment requires a local fixed-volume path; UNC and mapped targets require a verified coordination mechanism.");
+        var device = new System.Text.StringBuilder(4096);
+        if (QueryDosDevice(root[..2], device, device.Capacity) == 0)
+            throw new System.ComponentModel.Win32Exception(System.Runtime.InteropServices.Marshal.GetLastWin32Error());
+        if (!device.ToString().StartsWith(@"\Device\HarddiskVolume", StringComparison.OrdinalIgnoreCase))
+            throw new IOException("Deployment drive alias cannot establish stable volume-root ownership: " + root);
+        return full;
+    }
+
     public static string Normalize(string path)
     {
         if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || path.StartsWith(@"\\?\") || path.StartsWith(@"\\.\"))
@@ -10,7 +30,7 @@ public static class DeploymentPathSafety
         var full = Path.GetFullPath(path);
         var root = Path.GetPathRoot(full)!;
         foreach (var segment in full[root.Length..].Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries))
-            if (segment.EndsWith('.') || segment.EndsWith(' ') || segment.Contains(':'))
+            if (segment.EndsWith('.') || segment.EndsWith(' ') || segment.Contains(':') || segment.Contains('~'))
                 throw new IOException("Ambiguous deployment path segment: " + segment);
         var current = full;
         while (!string.IsNullOrEmpty(current))

@@ -1,0 +1,40 @@
+{
+  "version": "138.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+  "summary": "قفل پایدار در ریشه Volume برای جلوگیری محافظه‌کارانه از تداخل ریشه‌های هم‌پوشان؛ بررسی مالکیت handle و marker پیش از mutation/resolution؛ بررسی markerهای قدیمی والد/فرزند. UNC، mapped، SUBST و مسیرهای 8.3 مبهم صریحاً رد می‌شوند. پروفایل‌ها تغییر نمی‌کنند. قفل کل Volume هم‌زمانی برنامه‌های مستقل همان Volume را نیز محدود می‌کند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+    "src/DeploymentManager/Services/DeploymentPathSafety.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "blobSha": "f875c08a07b3d1f926f5d15f5f63857a0d55f884",
+      "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+      "ranges": [
+        "1-151"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+      "blobSha": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
+      "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+      "ranges": [
+        "1-91"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows QueryDosDevice and filesystem leases are untested.",
+    "UNC/mapped/SUBST deployment is deliberately blocked until reliable alias coordination exists.",
+    "Older/non-cooperating clients and external applications are not protected."
+  ]
+}
