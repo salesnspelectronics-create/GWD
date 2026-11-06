@@ -1,5 +1,6 @@
 using GenericWeb.DeploymentManager.Models;
 using System.Text;
+using System.Text.Json;
 
 namespace GenericWeb.DeploymentManager.Services;
 
@@ -43,11 +44,33 @@ try {
         if (result.ExitCode != 0)
             return new(false, false, false, false, result.Error + result.Output);
 
-        var text = result.Output;
-        var admin = text.Contains("\"Administrator\":true", StringComparison.OrdinalIgnoreCase);
-        var iis = text.Contains("\"IIS\":true", StringComparison.OrdinalIgnoreCase);
-        var hosting = text.Contains("\"Hosting\":true", StringComparison.OrdinalIgnoreCase);
-        return new(true, admin, iis, hosting, $"Remote connected. Administrator={admin}; IIS={iis}; ASP.NET Hosting Bundle={hosting}.");
+        // Exit code alone does not prove that the remote script returned a valid readiness record.
+        // Reject missing, malformed and wrong-typed fields instead of reporting a false connection.
+        try
+        {
+            using var document = JsonDocument.Parse(result.Output);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object
+                || !root.TryGetProperty("Administrator", out var administratorValue)
+                || !root.TryGetProperty("IIS", out var iisValue)
+                || !root.TryGetProperty("Hosting", out var hostingValue)
+                || !root.TryGetProperty("Computer", out var computerValue)
+                || !IsBoolean(administratorValue)
+                || !IsBoolean(iisValue)
+                || !IsBoolean(hostingValue)
+                || computerValue.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(computerValue.GetString()))
+                return new(false, false, false, false, "Remote readiness returned an incomplete or invalid JSON record.");
+
+            var admin = administratorValue.GetBoolean();
+            var iis = iisValue.GetBoolean();
+            var hosting = hostingValue.GetBoolean();
+            return new(true, admin, iis, hosting, $"Remote connected. Administrator={admin}; IIS={iis}; ASP.NET Hosting Bundle={hosting}.");
+        }
+        catch (JsonException)
+        {
+            return new(false, false, false, false, "Remote readiness returned malformed JSON.");
+        }
     }
 
     public async Task BootstrapAsync(DeploymentProfile profile, CancellationToken ct = default)
@@ -193,6 +216,9 @@ try {
             catch (Exception ex) { InternalDiagnostics.Record(ex, "Delete temporary remote PowerShell script"); }
         }
     }
+
+    private static bool IsBoolean(JsonElement value)
+        => value.ValueKind is JsonValueKind.True or JsonValueKind.False;
 
     private static string Ps(string value) => value.Replace("'", "''");
 

@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "f6bc0da5e24371f52a951846cff727ba861f8ecd",
+  "reviewedCommit": "09bcbc2bd378eecf4adafe2984f716c0a339d68c",
   "lastVerifiedRelease": "V142-R",
-  "sourceFixRelease": "V146-R",
+  "sourceFixRelease": "V147-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -281,6 +281,15 @@
       ],
       "blobSha": "f8131322f7a292eae698cf5f4531de28fe1e7934",
       "reviewedCommit": "f6bc0da5e24371f52a951846cff727ba861f8ecd"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "ranges": [
+        "1-200",
+        "201-208"
+      ],
+      "blobSha": "76437541d53060b9dad2a80687e9565f75d4deb7",
+      "reviewedCommit": "09bcbc2bd378eecf4adafe2984f716c0a339d68c"
     }
   ],
   "fixed": [
@@ -355,5 +364,6 @@
   "openIssues": [
     "V144-R: IIS port-owner inspection timeout is now bounded; user runtime validation remains pending.",
     "V146-R: Default IIS website UI messaging corrected; runtime validation remains pending."
-  ]
+  ],
+  "lastRunNote": "V147-R: Remote readiness JSON validation; static review only; no tests/build/runtime."
 }

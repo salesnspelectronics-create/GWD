@@ -1,6 +1,6 @@
 {
-  "version": "146.0.0",
+  "version": "147.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V146-R — اصلاح پیام‌های گمراه‌کننده تصاحب پورت ۸۰ در رابط کاربری"
+  "commitNote": "V147-R — اعتبارسنجی ساختاری پاسخ آمادگی استقرار Remote"
 }
