@@ -17,10 +17,11 @@ internal static class CliApplication
     public static async Task<int> RunAsync(string[] args)
     {
         var started = Stopwatch.StartNew();
-        var parsed = Arguments.Parse(args);
+        Arguments? parsed = null;
         CliResult result;
         try
         {
+            parsed = Arguments.Parse(args);
             if (args.Length == 0 || parsed.Has("help") || parsed.Command is "help" or "--help" or "-h")
             {
                 Console.Out.WriteLine(HelpText());
@@ -31,22 +32,22 @@ internal static class CliApplication
         }
         catch (CliFailure ex)
         {
-            result = CliResult.Fail(parsed.Command, parsed.Project, Redact(ex.Message), ex.ExitCode);
+            result = CliResult.Fail(parsed?.Command ?? args.FirstOrDefault() ?? "", parsed?.Project, Redact(ex.Message), ex.ExitCode);
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine(Redact(ex.ToString()));
-            result = CliResult.Fail(parsed.Command, parsed.Project, Redact(ex.Message), 1);
+            result = CliResult.Fail(parsed?.Command ?? args.FirstOrDefault() ?? "", parsed?.Project, Redact(ex.Message), 1);
         }
         result.DurationSeconds = Math.Round(started.Elapsed.TotalSeconds, 3);
         var json = JsonSerializer.Serialize(result, JsonOptions);
-        if (!string.IsNullOrWhiteSpace(parsed.Get("result-file")))
+        if (!string.IsNullOrWhiteSpace(parsed?.Get("result-file")))
         {
             var file = Path.GetFullPath(parsed.Get("result-file")!);
             Directory.CreateDirectory(Path.GetDirectoryName(file)!);
             File.WriteAllText(file, json, new UTF8Encoding(false));
         }
-        if (string.Equals(parsed.Get("output"), "json", StringComparison.OrdinalIgnoreCase)) Console.Out.WriteLine(json);
+        if (string.Equals(parsed?.Get("output"), "json", StringComparison.OrdinalIgnoreCase)) Console.Out.WriteLine(json);
         else Console.Out.WriteLine(result.Success ? $"SUCCESS: {result.Operation}" : $"FAILED ({result.ExitCode}): {string.Join("; ", result.Errors)}");
         return result.ExitCode;
     }

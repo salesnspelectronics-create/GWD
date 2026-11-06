@@ -1,0 +1,44 @@
+{
+  "version": "137.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-137-R",
+  "baseCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098",
+  "summary": "در CLI، Arguments.Parse بیرون try اجرا می‌شد؛ خطای آرگومان نامعتبر به‌جای خروجی استاندارد CliResult به استثنای کنترل‌نشده منجر می‌شد. اکنون Parse در همان بلوک try قرار دارد و مسیرهای catch در صورت نساخته‌شدن Arguments از command اولیه استفاده می‌کنند.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "1-110",
+        "120-212",
+        "211-290",
+        "340-470",
+        "505-531"
+      ],
+      "blobSha": "b70f500240c6006b92f5e623ecf4f585ee369033",
+      "reviewedCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098"
+    },
+    {
+      "path": "src/DeploymentManager/Services/CommandRunner.cs",
+      "ranges": [
+        "1-187"
+      ],
+      "blobSha": "f8747a5bbb66770b55cbe9180874043554c66826",
+      "reviewedCommit": "3a9742e83d3abbde22305020bbd3d06e0d0f5098"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Windows CLI runtime not executed",
+    "Invalid syntax prevents parsed options such as --result-file from being recovered",
+    "Remote WinRM remains blocked by UI and transactional recovery is pending"
+  ]
+}
