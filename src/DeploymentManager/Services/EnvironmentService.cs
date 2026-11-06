@@ -270,8 +270,8 @@ public sealed class EnvironmentService
 
         if (!string.IsNullOrWhiteSpace(owner))
         {
-            detail = $"In use by IIS site '{owner}' — Deployment Manager will stop/replace that IIS site on this port";
-            return true;
+            detail = $"In use by another IIS site ('{owner}') — choose another port or explicitly reconfigure the existing site's binding";
+            return false;
         }
 
         detail = "In use by another process/service";
