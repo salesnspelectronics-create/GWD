@@ -101,111 +101,16 @@ try {
         }
     }
 
-    public async Task DeployPublishAsync(DeploymentProfile profile, string localPublish, CancellationToken ct = default)
+    public Task DeployPublishAsync(DeploymentProfile profile, string localPublish, CancellationToken ct = default)
     {
         EnsureRemoteProfile(profile);
-        var remoteStage = $"C:\\ProgramData\\GenericWebDeploymentManager\\Staging\\{Guid.NewGuid():N}";
-
-        var script = $$"""
-$ErrorActionPreference='Stop'
-$sec=ConvertTo-SecureString $env:GWDM_REMOTE_PASSWORD -AsPlainText -Force
-$cred=[pscredential]::new($env:GWDM_REMOTE_USER,$sec)
-$opt=New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
-$s=New-PSSession -ComputerName $env:GWDM_REMOTE_HOST -Port ([int]$env:GWDM_REMOTE_PORT) -Credential $cred -UseSSL:($env:GWDM_REMOTE_SSL -eq '1') -SessionOption $opt
-try {
-  Invoke-Command -Session $s -ScriptBlock { param($p) New-Item -ItemType Directory -Force -Path $p | Out-Null } -ArgumentList '{{Ps(remoteStage)}}'
-  Copy-Item -Path '{{Ps(Path.Combine(localPublish, "*"))}}' -Destination '{{Ps(remoteStage)}}' -ToSession $s -Recurse -Force
-  Invoke-Command -Session $s -ScriptBlock {
-    param($stage,$target,$site,$pool,$port)
-    Import-Module WebAdministration
-    # Reject drive roots before any backup, IIS stop or destructive file operation.
-    # The target is a profile value and must identify an application subdirectory.
-    if([string]::IsNullOrWhiteSpace($target)) { throw 'Remote IIS target directory is required.' }
-    $fullTarget=[IO.Path]::GetFullPath($target)
-    if(-not [IO.Path]::IsPathRooted($target) -or
-       $fullTarget.TrimEnd([char[]]@('\\','/')) -eq [IO.Path]::GetPathRoot($fullTarget).TrimEnd([char[]]@('\\','/'))) {
-      throw "Remote IIS target must be an absolute application subdirectory: $target"
-    }
-    # A first-time deployment has no prior application to back up.
-    # Capture whether the target existed before creating its directory.
-    $targetExisted=Test-Path -LiteralPath $target -PathType Container
-    if(Test-Path -LiteralPath $target -PathType Leaf) { throw "Remote IIS target is a file, not a directory: $target" }
-    if(-not $targetExisted) {
-      New-Item -ItemType Directory -Force -Path $target -ErrorAction Stop | Out-Null
-    }
-    if(Test-Path "IIS:\Sites\$site") {
-      $siteState=(Get-Website -Name $site).State
-      if($siteState -eq 'Started') { Stop-Website -Name $site -ErrorAction Stop }
-      elseif($siteState -ne 'Stopped') { throw "Remote IIS site is not in a stable state: $siteState" }
-    }
-    if(Test-Path "IIS:\AppPools\$pool") {
-      $poolState=(Get-WebAppPoolState -Name $pool).Value
-      if($poolState -eq 'Started') { Stop-WebAppPool -Name $pool -ErrorAction Stop }
-      elseif($poolState -ne 'Stopped') { throw "Remote IIS application pool is not in a stable state: $poolState" }
-    } else {
-      New-WebAppPool $pool -ErrorAction Stop | Out-Null
-      # A newly created pool can be Started by IIS defaults; enforce the same
-      # stopped-state precondition as for an existing pool.
-      $newPoolState=(Get-WebAppPoolState -Name $pool -ErrorAction Stop).Value
-      if($newPoolState -eq 'Started') { Stop-WebAppPool -Name $pool -ErrorAction Stop }
-      elseif($newPoolState -ne 'Stopped') { throw "New remote IIS app pool is not in a stable state: $newPoolState" }
-    }
-    # A successful Stop command can return while IIS is still stopping.
-    # Never modify hosted files until both existing resources report Stopped.
-    if(Test-Path "IIS:\Sites\$site") {
-      $siteStopped=$false
-      for($attempt=0; $attempt -lt 20; $attempt++) {
-        $state=(Get-Website -Name $site -ErrorAction Stop).State
-        if($state -eq 'Stopped') { $siteStopped=$true; break }
-        if($state -ne 'Stopping') { throw "Remote IIS site failed to stop: $state" }
-        Start-Sleep -Milliseconds 250
-      }
-      if(-not $siteStopped) { throw "Remote IIS site stop timed out: $site" }
-    }
-    $poolStopped=$false
-    for($attempt=0; $attempt -lt 20; $attempt++) {
-      $state=(Get-WebAppPoolState -Name $pool -ErrorAction Stop).Value
-      if($state -eq 'Stopped') { $poolStopped=$true; break }
-      if($state -ne 'Stopping') { throw "Remote IIS app pool failed to stop: $state" }
-      Start-Sleep -Milliseconds 250
-    }
-    if(-not $poolStopped) { throw "Remote IIS app pool stop timed out: $pool" }
-    # Back up only after IIS has stopped, before changing any target files.
-    if($targetExisted) {
-      $backup=$target + '.backup-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N')
-      Copy-Item -LiteralPath $target -Destination $backup -Recurse -Force -ErrorAction Stop
-    }
-    # A failed cleanup must abort deployment instead of leaving stale application files.
-    Get-ChildItem -LiteralPath $target -Force -ErrorAction Stop |
-      Remove-Item -Recurse -Force -ErrorAction Stop
-    Get-ChildItem -LiteralPath $stage -Force -ErrorAction Stop |
-      Copy-Item -Destination $target -Recurse -Force -ErrorAction Stop
-    if(Test-Path "IIS:\Sites\$site") {
-      Set-ItemProperty "IIS:\Sites\$site" -Name physicalPath -Value $target
-    } else {
-      New-Website -Name $site -PhysicalPath $target -Port $port -ApplicationPool $pool | Out-Null
-    }
-    Start-WebAppPool $pool
-    Start-Website $site
-  } -ArgumentList '{{Ps(remoteStage)}}','{{Ps(profile.HostingRoot)}}','{{Ps(profile.SiteName)}}','{{Ps(profile.AppPoolName)}}',{{profile.HttpPort}}
-} finally {
-  # Clean up the unique staging directory even when upload or deployment fails.
-  # Cleanup is best-effort and must not mask the original deployment error.
-  try {
-    Invoke-Command -Session $s -ScriptBlock {
-      param($stage)
-      Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction Stop
-    } -ArgumentList '{{Ps(remoteStage)}}' -ErrorAction Stop
-  } catch {
-    [Console]::Error.WriteLine("Remote staging cleanup failed: $($_.Exception.Message)")
-  }
-  Remove-PSSession $s -ErrorAction SilentlyContinue
-}
-""";
-
-        var result = await RunPowerShellAsync(profile, script, ct);
-        if (result.ExitCode != 0)
-            throw new InvalidOperationException("Remote IIS deployment failed. " + result.Error + result.Output);
+        ct.ThrowIfCancellationRequested();
+        // The former script stopped IIS, removed live files and then copied staging
+        // without a durable exclusive lease or verified transactional recovery.
+        // UI gating is insufficient: direct callers must fail before opening WinRM.
+        // Do not re-enable mutation until remote ownership, backup verification,
+        // original IIS configuration/state recovery and HTTP failure recovery exist.
+        throw new InvalidOperationException("REMOTE_DEPLOYMENT_SAFETY_BLOCK: remote transactional ownership and recovery are unavailable. No remote session or target mutation was started. Retain existing files/backups; use a separately validated deployment procedure.");
     }
 
     public async Task<(bool Ok, string Detail)> HealthCheckAsync(DeploymentProfile profile, CancellationToken ct = default)

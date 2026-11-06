@@ -1,6 +1,6 @@
 {
-  "version": "138.0.0",
+  "version": "139.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V138-R — تقویت انحصار Volume و محافظت از نشانگرهای بازیابی"
+  "commitNote": "V139-R — مسدودسازی مسیر مستقیم Remote فاقد بازیابی تراکنشی"
 }

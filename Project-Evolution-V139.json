@@ -1,0 +1,30 @@
+{
+  "version": "139.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
+  "summary": "مسیر مستقیم DeployPublishAsync دیگر نمی‌تواند محدودیت UI را دور بزند و بدون قفل پایدار، بکاپ اعتبارسنجی‌شده و بازیابی تراکنشی فایل‌های سرور را حذف کند. فراخوانی پیش از ایجاد WinRM session با REMOTE_DEPLOYMENT_SAFETY_BLOCK متوقف می‌شود. این تغییر پیاده‌سازی تراکنش Remote نیست.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RemoteDeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "blobSha": "d735afd2e34fd3d51fdb0a8f8506e4cffda9f5df",
+      "reviewedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
+      "ranges": [
+        "1-304"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "OPEN: remote deployment transaction, original IIS configuration/state restoration, HTTP failure recovery and owned remote staging/backup protocol still require implementation.",
+    "Live WinRM/IIS behavior has not been executed."
+  ]
+}

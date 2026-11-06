@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
-  "lastVerifiedRelease": "V137-R",
-  "sourceFixRelease": "V138-R",
+  "reviewedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
+  "lastVerifiedRelease": "V138-R",
+  "sourceFixRelease": "V139-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -189,6 +189,14 @@
       "ranges": [
         "1-91"
       ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "blobSha": "d735afd2e34fd3d51fdb0a8f8506e4cffda9f5df",
+      "reviewedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
+      "ranges": [
+        "1-304"
+      ]
     }
   ],
   "fixed": [
@@ -215,15 +223,22 @@
     "CLI_ARGUMENT_PARSE_ERROR_HANDLED",
     "VOLUME_ROOT_EXCLUSIVE_LEASE",
     "LEGACY_PARENT_CHILD_RECOVERY_MARKERS",
-    "FAIL_CLOSED_UNPROVEN_TARGET_ALIASES"
+    "FAIL_CLOSED_UNPROVEN_TARGET_ALIASES",
+    "REMOTE_DIRECT_CALL_FAIL_CLOSED"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
     "UNC/mapped/SUBST deployment is deliberately blocked until reliable alias coordination exists.",
     "Older/non-cooperating clients and external applications are not protected.",
-    "مسیر مستقیم DeployPublishAsync دیگر نمی‌تواند محدودیت UI را دور بزند و بدون قفل پایدار، بکاپ اعتبارسنجی‌شده و بازیابی تراکنشی فایل‌های سرور را حذف کند. فراخوانی پیش از ایجاد WinRM session با REMOTE_DEPLOYMENT_SAFETY_BLOCK متوقف می‌شود. این تغییر پیاده‌سازی تراکنش Remote نیست.",
-    "بکاپ CLI با manifest مستقل مالکیت پروژه/مقصد و inventory پوشه‌ها/SHA256 تکمیل می‌شود. Rollback پیش از STOP و پیش از جایگزینی، manifest و payload را بررسی می‌کند؛ خروجی restore نیز اعتبارسنجی می‌شود. بکاپ قدیمی بدون manifest خودکار معتبر تلقی نمی‌شود. نام پوشه بکاپ از خروج از ریشه محافظت می‌شود. اصل جابه‌جاشده و failed release به‌جای حذف حفظ می‌شوند.",
-    "دستور backups plan --root گزارش ظرفیت و حجم artifactها را بدون ساخت AppDataService، ذخیره پروفایل یا نوشتن result-file تولید می‌کند. پیش‌فرض برنامه حداقل ۵ نسخه و ۳۰ روز است؛ همه artifactها تا اثبات مالکیت و resolution محافظت می‌شوند. EligibleForDeletion خالی است؛ هیچ API یا گزینه حذف خودکار اضافه نشده است."
+    "OPEN: remote deployment transaction, original IIS configuration/state restoration, HTTP failure recovery and owned remote staging/backup protocol still require implementation.",
+    "Live WinRM/IIS behavior has not been executed.",
+    "Legacy backups without a completion manifest are rejected for automatic/manual CLI restore; do not fabricate sidecars.",
+    "CLI/IIS state restoration, corrupted backups and failure injection require user runtime validation.",
+    "Manifests establish local provenance/integrity, not protection against malicious administrative tampering.",
+    "SOURCE_COMPLETE_RUNTIME_PENDING_USER: reporting-only infrastructure; deletion is intentionally unavailable.",
+    "MinimumKeep/MinimumAgeDays are planning parameters, not deletion authorization.",
+    "Capacity is a point-in-time observation; inaccessible/reparse trees are protected and reported incomplete.",
+    "Resolved artifact ownership is not yet sufficient to safely nominate deletion candidates."
   ],
   "validation": {
     "StaticSourceReview": "PARTIAL",
@@ -232,7 +247,7 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "40e62b836c23b09be91a2ee312116d2b6ee263d9",
+  "lastVerifiedCommit": "c20fe41d6be44b1b86948c2ce8b7e6dd1dcad444",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",
