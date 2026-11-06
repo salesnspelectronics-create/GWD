@@ -23,6 +23,9 @@ public sealed class DeploymentService
     public IDisposable BeginIisAttempt(DeploymentProfile profile, string? attemptId = null)
     {
         if (_iisAttempt is { IsDisposed: false }) throw new IOException("Another IIS deployment attempt is active in this engine.");
+        if (!string.Equals(profile.TargetMode, "Local Server", StringComparison.OrdinalIgnoreCase)
+            || !new EnvironmentService(_runner).IsLocalTarget(profile.TargetHost))
+            throw new IOException("LOCAL_TARGET_SAFETY_BLOCK: a remote or unknown target profile cannot be executed by the local IIS engine.");
         ValidateDeploymentPaths(profile);
         _activeRollbackFolder = null;
         _filesChanged = false;

@@ -1,0 +1,40 @@
+{
+  "version": "143.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+  "summary": "بررسی caller نشان داد CLI پروفایل Remote را بدون کنترل TargetMode به موتور محلی می‌داد. BeginIisAttempt اکنون حالت غیرمحلی/ناشناخته و TargetHost غیرمحلی را پیش از عملیات رد می‌کند. دو helper حذف Site/Files و AppPool، فاقد lease مشترک و بکاپ مالکیت‌دار بودند؛ اکنون پیش از STOP یا DELETE با IIS_DESTRUCTIVE_CLEANUP_SAFETY_BLOCK مسدود می‌شوند. قابلیت حذف کمکی تا پیاده‌سازی مالکیت و بازیابی مناسب در دسترس نیست.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs",
+    "src/DeploymentManager/Services/EnvironmentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "blobSha": "480d13dadada365997f20e15c313b7404e099afe",
+      "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+      "ranges": [
+        "1-110"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "blobSha": "9dce1ce2ba5fb79f4f0854d7f9ae1a3abf94663d",
+      "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+      "ranges": [
+        "145-235"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Remote transactional deployment remains OPEN; blocking unsafe calls is not an implementation of remote recovery.",
+    "Auxiliary Site/Files/AppPool deletion is intentionally unavailable pending shared ownership and recoverable IIS configuration/backup prerequisites.",
+    "User runtime must verify remote profiles never mutate local IIS and cleanup helpers reject before STOP/DELETE."
+  ]
+}

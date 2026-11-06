@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
-  "lastVerifiedRelease": "V141-R",
-  "sourceFixRelease": "V142-R",
+  "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+  "lastVerifiedRelease": "V142-R",
+  "sourceFixRelease": "V143-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -238,6 +238,22 @@
       "ranges": [
         "170-183"
       ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "blobSha": "480d13dadada365997f20e15c313b7404e099afe",
+      "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+      "ranges": [
+        "1-110"
+      ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "blobSha": "9dce1ce2ba5fb79f4f0854d7f9ae1a3abf94663d",
+      "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+      "ranges": [
+        "145-235"
+      ]
     }
   ],
   "fixed": [
@@ -270,7 +286,9 @@
     "CLI_SHA256_DIRECTORY_RESTORE_VALIDATION",
     "RETAIN_UNOWNED_FAILED_RELEASE_AND_DISPLACED_ORIGINAL",
     "READ_ONLY_CAPACITY_AND_RETENTION_PLAN",
-    "DISPOSE_DIAGNOSTICS_PRESERVE_PRIMARY_FAILURE"
+    "DISPOSE_DIAGNOSTICS_PRESERVE_PRIMARY_FAILURE",
+    "REJECT_REMOTE_PROFILE_IN_LOCAL_ENGINE",
+    "BLOCK_UNOWNED_DESTRUCTIVE_ADMIN_HELPERS"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -286,7 +304,10 @@
     "Capacity is a point-in-time observation; inaccessible/reparse trees are protected and reported incomplete.",
     "Resolved artifact ownership is not yet sufficient to safely nominate deletion candidates.",
     "Failure injection for journal I/O and lease disposal is PENDING_USER_RUNTIME.",
-    "Remote transactional implementation remains OPEN; safety block is retained."
+    "Remote transactional implementation remains OPEN; safety block is retained.",
+    "Remote transactional deployment remains OPEN; blocking unsafe calls is not an implementation of remote recovery.",
+    "Auxiliary Site/Files/AppPool deletion is intentionally unavailable pending shared ownership and recoverable IIS configuration/backup prerequisites.",
+    "User runtime must verify remote profiles never mutate local IIS and cleanup helpers reject before STOP/DELETE."
   ],
   "validation": {
     "StaticSourceReview": "PARTIAL",
@@ -295,7 +316,7 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
+  "lastVerifiedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",

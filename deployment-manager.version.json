@@ -1,6 +1,6 @@
 {
-  "version": "142.0.0",
+  "version": "143.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V142-R — حفظ خطای اصلی هنگام آزادسازی تلاش استقرار"
+  "commitNote": "V143-R — مسدودسازی اجرای محلی پروفایل Remote و حذف کمکی فاقد مالکیت"
 }

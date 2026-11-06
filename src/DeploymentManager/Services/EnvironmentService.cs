@@ -157,15 +157,10 @@ public sealed class EnvironmentService
     public async Task RecycleIisAppPoolAsync(string name, CancellationToken ct = default)
         => await _runner.RunAsync(AppCmdPath(), $"recycle apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
 
-    public async Task DeleteIisAppPoolAsync(string name, CancellationToken ct = default)
+    public Task DeleteIisAppPoolAsync(string name, CancellationToken ct = default)
     {
-        if (name.Equals("DefaultAppPool", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("DefaultAppPool cannot be deleted from Deployment Manager.");
-        var used = await _runner.RunAsync(AppCmdPath(), $"list app /apppool.name:\"{EscapeArg(name)}\" /text:name", ct: ct);
-        if (!string.IsNullOrWhiteSpace(used.Output))
-            throw new InvalidOperationException($"Application pool '{name}' is still used by: {used.Output.Trim()}");
-        await _runner.RunAsync(AppCmdPath(), $"stop apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
-        await _runner.RunCheckedAsync(AppCmdPath(), $"delete apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
+        ct.ThrowIfCancellationRequested();
+        throw new InvalidOperationException("IIS_DESTRUCTIVE_CLEANUP_SAFETY_BLOCK: application-pool deletion requires shared lease ownership and recoverable IIS configuration. No stop or delete was performed.");
     }
 
     public async Task StartIisSiteAsync(string siteName, CancellationToken ct = default)
@@ -180,31 +175,13 @@ public sealed class EnvironmentService
         await _runner.RunAsync(appcmd, $"stop site /site.name:\"{EscapeArg(siteName)}\"", ct: ct);
     }
 
-    public async Task RemoveIisSiteAndFilesAsync(IisSiteInfo site, bool deletePhysicalFiles, CancellationToken ct = default)
+    public Task RemoveIisSiteAndFilesAsync(IisSiteInfo site, bool deletePhysicalFiles, CancellationToken ct = default)
     {
-        var appcmd = AppCmdPath();
-        if (!File.Exists(appcmd)) throw new InvalidOperationException("IIS appcmd.exe was not found.");
-        _runner.Report($"[IIS CLEANUP] Removing site '{site.Name}'.");
-        await _runner.RunAsync(appcmd, $"stop site /site.name:\"{EscapeArg(site.Name)}\"", ct: ct);
-        await _runner.RunCheckedAsync(appcmd, $"delete site /site.name:\"{EscapeArg(site.Name)}\"", ct: ct);
-
-        if (!string.IsNullOrWhiteSpace(site.AppPool) && !site.AppPool.Equals("DefaultAppPool", StringComparison.OrdinalIgnoreCase))
-        {
-            var remaining = await _runner.RunAsync(appcmd, $"list app /apppool.name:\"{EscapeArg(site.AppPool)}\" /text:name", ct: ct);
-            if (remaining.ExitCode == 0 && string.IsNullOrWhiteSpace(remaining.Output))
-            {
-                _runner.Report($"[IIS CLEANUP] Removing unused application pool '{site.AppPool}'.");
-                await _runner.RunAsync(appcmd, $"stop apppool /apppool.name:\"{EscapeArg(site.AppPool)}\"", ct: ct);
-                await _runner.RunAsync(appcmd, $"delete apppool /apppool.name:\"{EscapeArg(site.AppPool)}\"", ct: ct);
-            }
-        }
-
-        if (!deletePhysicalFiles || string.IsNullOrWhiteSpace(site.PhysicalPath)) return;
-        var path = Environment.ExpandEnvironmentVariables(site.PhysicalPath.Trim().Trim('"'));
-        if (!Directory.Exists(path)) { _runner.Report($"[IIS CLEANUP] Physical folder already absent: {path}"); return; }
-        EnsureSafeIisCleanupPath(path);
-        _runner.Report($"[IIS CLEANUP] Deleting physical site folder and files: {path}");
-        Directory.Delete(path, recursive: true);
+        ct.ThrowIfCancellationRequested();
+        // A cached site listing and a lexical path check cannot prove that the
+        // selected files/configuration are exclusively owned and recoverable.
+        // Block before STOP, config deletion or physical-file deletion.
+        throw new InvalidOperationException("IIS_DESTRUCTIVE_CLEANUP_SAFETY_BLOCK: site/file removal requires shared lease ownership, current IIS identity and a verified recoverable backup. No stop, configuration change or file deletion was performed.");
     }
 
     private async Task<string> ReadAppCmdTextAsync(string appcmd, string args, CancellationToken ct)
