@@ -176,9 +176,28 @@ public sealed class IisDeploymentAttempt : IDisposable
         try
         {
             foreach (var stage in _states.Keys.ToArray())
-                if (_states[stage] is "PENDING" or "RUNNING") Stage(stage, _states[stage] == "RUNNING" ? "FAILED" : "SKIPPED");
+            {
+                if (_states[stage] is not ("PENDING" or "RUNNING")) continue;
+                try { Stage(stage, _states[stage] == "RUNNING" ? "FAILED" : "SKIPPED"); }
+                catch (Exception ex) { RecordDisposeFailure(ex); }
+            }
         }
-        finally { IsDisposed = true; foreach (var item in _locks) item.Dispose(); }
+        finally
+        {
+            IsDisposed = true;
+            foreach (var item in _locks)
+            {
+                try { item.Dispose(); }
+                catch (Exception ex) { RecordDisposeFailure(ex); }
+            }
+        }
+    }
+    private static void RecordDisposeFailure(Exception error)
+    {
+        // Journal/diagnostic failures during stack unwinding must never replace
+        // the primary deployment exception, nor prevent other leases closing.
+        try { InternalDiagnostics.Record(error, "Dispose IIS attempt; recovery markers retained"); }
+        catch { }
     }
 }
 

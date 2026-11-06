@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
-  "lastVerifiedRelease": "V140-R",
-  "sourceFixRelease": "V141-R",
+  "reviewedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
+  "lastVerifiedRelease": "V141-R",
+  "sourceFixRelease": "V142-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -230,6 +230,14 @@
         "201-400",
         "401-509"
       ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "blobSha": "8864e212985a933197309abc67588d4da4396488",
+      "reviewedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
+      "ranges": [
+        "170-183"
+      ]
     }
   ],
   "fixed": [
@@ -261,7 +269,8 @@
     "CLI_COMPLETION_MANIFEST_AND_TARGET_OWNERSHIP",
     "CLI_SHA256_DIRECTORY_RESTORE_VALIDATION",
     "RETAIN_UNOWNED_FAILED_RELEASE_AND_DISPLACED_ORIGINAL",
-    "READ_ONLY_CAPACITY_AND_RETENTION_PLAN"
+    "READ_ONLY_CAPACITY_AND_RETENTION_PLAN",
+    "DISPOSE_DIAGNOSTICS_PRESERVE_PRIMARY_FAILURE"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -275,7 +284,9 @@
     "SOURCE_COMPLETE_RUNTIME_PENDING_USER: reporting-only infrastructure; deletion is intentionally unavailable.",
     "MinimumKeep/MinimumAgeDays are planning parameters, not deletion authorization.",
     "Capacity is a point-in-time observation; inaccessible/reparse trees are protected and reported incomplete.",
-    "Resolved artifact ownership is not yet sufficient to safely nominate deletion candidates."
+    "Resolved artifact ownership is not yet sufficient to safely nominate deletion candidates.",
+    "Failure injection for journal I/O and lease disposal is PENDING_USER_RUNTIME.",
+    "Remote transactional implementation remains OPEN; safety block is retained."
   ],
   "validation": {
     "StaticSourceReview": "PARTIAL",
@@ -284,7 +295,7 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
+  "lastVerifiedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",

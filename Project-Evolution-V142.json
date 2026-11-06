@@ -1,0 +1,30 @@
+{
+  "version": "142.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
+  "summary": "خطای Stage/Save یا diagnostic در Dispose دیگر استثنای اصلی استقرار را نمی‌پوشاند؛ آزادسازی هر lease مستقل انجام می‌شود و خرابی یک مورد مانع تلاش برای بستن بقیه نمی‌شود. markerها در Dispose حذف نمی‌شوند.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "blobSha": "8864e212985a933197309abc67588d4da4396488",
+      "reviewedCommit": "e85e973beea6a95b711c56e0aa63011ee1e2c470",
+      "ranges": [
+        "170-183"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Failure injection for journal I/O and lease disposal is PENDING_USER_RUNTIME.",
+    "Remote transactional implementation remains OPEN; safety block is retained."
+  ]
+}
