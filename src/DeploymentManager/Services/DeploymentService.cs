@@ -19,11 +19,13 @@ public sealed class DeploymentService
 
     private IisDeploymentAttempt? _iisAttempt;
     private bool _filesChanged;
+    private (string Site, string Pool)? _initialIisStates;
     public IDisposable BeginIisAttempt(DeploymentProfile profile, string? attemptId = null)
     {
         if (_iisAttempt is { IsDisposed: false }) throw new IOException("Another IIS deployment attempt is active in this engine.");
         _activeRollbackFolder = null;
         _filesChanged = false;
+        _initialIisStates = null;
         _iisAttempt = new IisDeploymentAttempt(
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GenericWeb.DeploymentManager", "TargetLocks"),
             Path.Combine(_appData.Root, "IisAttempts"),
@@ -1644,10 +1646,37 @@ public sealed class DeploymentService
     {
         if (_iisAttempt is null || _iisAttempt.IsDisposed) throw new IOException("IIS deployment target lock is required before STOP.");
         var iis = Iis();
-        await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        var states = await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
+        if (_initialIisStates is null)
+        {
+            // Capture both states before the first mutation; recovery STOP must not replace them.
+            _initialIisStates = states;
+            _iisAttempt.Observe($"ORIGINAL_IIS_STATE site={states.Site}; pool={states.Pool}");
+        }
         _iisAttempt.BeginMutation();
         await iis.TransitionAsync("site", profile.SiteName, "Stopped", ct);
         await iis.TransitionAsync("apppool", profile.AppPoolName, "Stopped", ct);
+    }
+
+    private async Task RestoreOriginalIisStatesAsync(DeploymentProfile profile)
+    {
+        if (_iisAttempt is null || _iisAttempt.IsDisposed || _initialIisStates is not { } original)
+            throw new IOException("Original IIS states or target lock unavailable; automatic restart blocked.");
+        var iis = Iis();
+        var failures = new List<Exception>();
+        // Stop a previously stopped site before changing its pool. Start a running site last.
+        async Task Restore(string kind, string name, string state)
+        {
+            try { await iis.TransitionAsync(kind, name, state, CancellationToken.None); }
+            catch (Exception ex) { failures.Add(new IOException($"Restore original {kind} state {state} failed.", ex)); }
+        }
+        if (original.Site == "Stopped") await Restore("site", profile.SiteName, original.Site);
+        await Restore("apppool", profile.AppPoolName, original.Pool);
+        if (original.Site == "Started") await Restore("site", profile.SiteName, original.Site);
+        if (failures.Count > 0) throw new AggregateException("Original IIS state recovery failed; unresolved markers retained.", failures);
+        var verified = await iis.ValidateAsync(profile.SiteName, profile.AppPoolName, CancellationToken.None);
+        if (verified != original) throw new IOException("Original IIS states were not restored; unresolved markers retained.");
+        _iisAttempt.Observe($"ORIGINAL_IIS_STATE_RESTORED site={verified.Site}; pool={verified.Pool}");
     }
 
     public (bool Ok, string Detail) VerifyActivatedDeployment(DeploymentProfile profile, string publishFolder)
@@ -1963,7 +1992,11 @@ public sealed class DeploymentService
         if (!_filesChanged)
         {
             if (_iisAttempt is { MutationStarted: true, Resolved: false })
-                throw new IOException("FILES_UNCHANGED / IIS_UNVERIFIED: STOP may have partially completed. No file rollback or blind restart attempted; manual IIS verification required.");
+            {
+                await RestoreOriginalIisStatesAsync(profile);
+                _iisAttempt.RecordRecovery("FILES_UNCHANGED / ORIGINAL_IIS_STATES_VERIFIED / HTTP_NOT_CHECKED");
+                ResolveIisAttempt();
+            }
             _runner.Report("[ROLLBACK] SKIPPED: hosted files were not changed.");
             return;
         }
@@ -2034,8 +2067,14 @@ public sealed class DeploymentService
             }
             _iisAttempt?.RecordRecovery("FILES_RESTORED / IIS_UNHEALTHY");
             _runner.Report("[ROLLBACK] FILES_RESTORED / IIS_UNHEALTHY; files restored; IIS/HTTP verification pending.");
-            try { await RestartAppAsync(profile, recoveryToken); }
+            try { await RestoreOriginalIisStatesAsync(profile); }
             catch (Exception ex) { throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: file rollback succeeded; IIS recovery failed. " + ex.Message, ex); }
+            if (_initialIisStates is not { Site: "Started", Pool: "Started" })
+            {
+                _iisAttempt?.RecordRecovery("FILES_RESTORED / ORIGINAL_IIS_STATES_VERIFIED / HTTP_NOT_CHECKED");
+                ResolveIisAttempt();
+                return;
+            }
             // Restoring files and configuration does not establish that the prior
             // release is actually responding over HTTP. Avoid a verified-success claim.
             // Verify live service health after rollback, not just successful IIS commands.
@@ -2071,9 +2110,13 @@ public sealed class DeploymentService
                     _runner.Report($"[ROLLBACK] Restoring IIS site '{profile.SiteName}' to previous path: {previousSitePath}");
                     await RunRollbackCommandCheckedAsync(appcmd, $"set vdir /vdir.name:\"{profile.SiteName}/\" /physicalPath:\"{previousSitePath}\"", "restore previous site path");
                     _iisAttempt?.RecordRecovery("FILES_RESTORED / IIS_UNHEALTHY");
-                    await RestartAppAsync(profile, recoveryToken);
-                    var health = await HealthCheckAsync(profile, recoveryToken);
-                    if (!health.Ok) throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: " + health.Detail);
+                    await RestoreOriginalIisStatesAsync(profile);
+                    if (_initialIisStates is { Site: "Started", Pool: "Started" })
+                    {
+                        var health = await HealthCheckAsync(profile, recoveryToken);
+                        if (!health.Ok) throw new IOException("FILES_RESTORED / IIS_UNHEALTHY: " + health.Detail);
+                    }
+                    else _iisAttempt?.RecordRecovery("FILES_RESTORED / ORIGINAL_IIS_STATES_VERIFIED / HTTP_NOT_CHECKED");
                     ResolveIisAttempt();
                 }
                 else
@@ -2421,3 +2464,4 @@ public sealed class DeploymentService
     }
 
 }
+

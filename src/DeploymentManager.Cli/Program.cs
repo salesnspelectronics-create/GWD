@@ -197,7 +197,8 @@ internal static class CliApplication
         }
         catch (Exception ex)
         {
-            await deployment.CollectIisFailureDiagnosticsAsync(profile);
+            try { await deployment.CollectIisFailureDiagnosticsAsync(profile); }
+            catch (Exception diagnosticEx) { runner.Report("[DIAGNOSTICS] Collection failed; primary deployment error preserved: " + diagnosticEx.Message); }
             if (!args.Has("no-auto-rollback"))
             {
                 try { await deployment.CleanupFailedDeploymentAsync(profile, target, previousSitePath); }
@@ -497,3 +498,4 @@ internal sealed record Validation(bool Success, int ExitCode, List<string> Error
 internal sealed record HealthResult(string Url, int? StatusCode, bool Passed, int Attempts, string? Error);
 internal sealed class CliFailure(int exitCode, string message) : Exception(message) { public int ExitCode { get; } = exitCode; }
 internal sealed class MutexLease(Mutex mutex) : IDisposable { public void Dispose() { try { mutex.ReleaseMutex(); } catch { } mutex.Dispose(); } }
+

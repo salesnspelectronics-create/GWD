@@ -2833,14 +2833,15 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             var rollbackAttempted = false;
             try
             {
-                if (!string.IsNullOrWhiteSpace(stagedPublish) && Directory.Exists(stagedPublish)) Directory.Delete(stagedPublish, recursive: true);
+                try { if (!string.IsNullOrWhiteSpace(stagedPublish) && Directory.Exists(stagedPublish)) Directory.Delete(stagedPublish, recursive: true); }
+                catch (Exception stagingEx) { AppendLog("[CLEANUP] Staging cleanup failed; IIS recovery will still be attempted: " + stagingEx); }
                 if (!isFastLocalTest && _profile.TargetMode != "Remote IIS Server")
                 {
                     rollbackAttempted = publish is not null;
                     await _deployment.CleanupFailedDeploymentAsync(_profile, publish, previousSitePath, CancellationToken.None);
                 }
 
-                AppendLog("[CANCEL] Deployment cancelled — cleanup completed; rollback " + (rollbackAttempted ? "attempt completed (restoration not independently verified)." : "not required or not attempted."));
+                AppendLog("[CANCEL] Recovery handler completed; inspect separate staging cleanup warnings. Rollback " + (rollbackAttempted ? "attempt completed (restoration not independently verified)." : "not required or not attempted."));
             }
             catch (Exception cleanupEx)
             {
@@ -2850,7 +2851,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
                 AppendLog("[CANCEL] Cleanup/recovery FAILED: " + cleanupEx);
             }
             MessageBox.Show(this,
-                cleanupOk ? "Deployment cancelled. Cleanup completed; restoration was not independently verified." : "Deployment cancelled and cleanup/recovery FAILED. Previous deployment state is uncertain. Review the log before retrying.",
+                cleanupOk ? "Deployment cancelled. Recovery handler completed; inspect the log for separate cleanup warnings. Restoration was not independently verified." : "Deployment cancelled and cleanup/recovery FAILED. Previous deployment state is uncertain. Review the log before retrying.",
                 "Deployment cancelled", MessageBoxButtons.OK, cleanupOk ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         }
         catch (Exception ex)
@@ -2858,11 +2859,13 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             _deploymentStatus = "DEPLOYMENT UNSUCCESSFUL";
             _persistentState.LastResult = "Failed";
             AppendLog("DEPLOYMENT UNSUCCESSFUL: " + ex);
-            if (iisAttempt is not null) await _deployment.CollectIisFailureDiagnosticsAsync(_profile);
+            try { if (iisAttempt is not null) await _deployment.CollectIisFailureDiagnosticsAsync(_profile); }
+            catch (Exception diagnosticEx) { AppendLog("[DIAGNOSTICS] Collection failed; primary deployment error preserved: " + diagnosticEx); }
             var recoveryFailed = false;
             try
             {
-                if (!string.IsNullOrWhiteSpace(stagedPublish) && Directory.Exists(stagedPublish)) Directory.Delete(stagedPublish, recursive: true);
+                try { if (!string.IsNullOrWhiteSpace(stagedPublish) && Directory.Exists(stagedPublish)) Directory.Delete(stagedPublish, recursive: true); }
+                catch (Exception stagingEx) { AppendLog("[CLEANUP] Staging cleanup failed; IIS recovery will still be attempted: " + stagingEx); }
                 if (!isFastLocalTest && _profile.TargetMode != "Remote IIS Server") await _deployment.CleanupFailedDeploymentAsync(_profile, publish, previousSitePath, CancellationToken.None);
 
             }
@@ -2876,7 +2879,7 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
             _lastErrorReportPath = CreateErrorReport(ex);
                 MessageBox.Show(
                 this,
-                (recoveryFailed ? "Deployment failed AND recovery failed. Previous deployment state is uncertain.\r\n\r\n" : "Deployment unsuccessful. Cleanup completed without a reported exception; restoration was not independently verified.\r\n\r\n") +
+                (recoveryFailed ? "Deployment failed AND recovery failed. Previous deployment state is uncertain.\r\n\r\n" : "Deployment unsuccessful. Recovery handler completed; inspect separate cleanup warnings. Restoration was not independently verified.\r\n\r\n") +
                 GenericWeb.DeploymentManager.Services.SecretRedactor.Redact(ex.Message) + "\r\n\r\n" +
                 "Diagnostic report saved to:\r\n" + _lastErrorReportPath,
                 "Deployment unsuccessful",
@@ -3286,3 +3289,4 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. The current site bound t
     }
 
 }
+

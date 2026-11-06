@@ -1,0 +1,77 @@
+{
+  "version": "129.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-129-R",
+  "baseCommit": "5aab643fe9246c31f0544eafa8769610f76608f2",
+  "summary": "ثبت وضعیت واقعی پیش از اولین STOP؛ بازیابی مستقل و تأیید هر دو وضعیت در شکست پیش از تغییر فایل و Rollback؛ جلوگیری از قطع Recovery بر اثر خطای staging یا diagnostics.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs",
+    "src/DeploymentManager/WizardForm.cs",
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1-110",
+        "1437-1690",
+        "1842-2120",
+        "2110-2424"
+      ],
+      "blobSha": "3bd8b6ad44a38ff3c0733150df9159cc7424bbb1",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager/WizardForm.cs",
+      "ranges": [
+        "2710-2945"
+      ],
+      "blobSha": "7bd58464baff72165d49bc452117cedcb10ae1e3",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "135-248"
+      ],
+      "blobSha": "4d7972699c78067abcbd6283ce6a839042b57755",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisSafety.cs",
+      "ranges": [
+        "1-85"
+      ],
+      "blobSha": "40ba7a55a4ebdd0f9d31ab1c5d5428eb3bc18ced",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-94"
+      ],
+      "blobSha": "22b01fee51300c46678bed08498c39e3b1caffe7",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "ranges": [
+        "1-303"
+      ],
+      "blobSha": "d735afd2e34fd3d51fdb0a8f8506e4cffda9f5df",
+      "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Remote IIS remains blocked by UI; remote service safety remediation pending.",
+    "Backup completeness, path safety and retention ownership require further review.",
+    "No build or runtime validation; user owns validation."
+  ]
+}

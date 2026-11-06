@@ -1,6 +1,6 @@
 {
-  "version": "128.0.0",
+  "version": "129.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V128-R — حفاظت از ریشه دیسک و اصلاح پردازش فایل‌های مخفی در IIS راه دور"
+  "commitNote": "V129-R — بازیابی وضعیت اولیه IIS و مستقل‌سازی خطاهای پاک‌سازی"
 }
