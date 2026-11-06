@@ -228,8 +228,17 @@ public sealed class EnvironmentService
             };
             using var process = Process.Start(psi);
             if (process is null) return null;
-            var output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit(4000);
+            // Drain both redirected streams concurrently so appcmd cannot block on a full pipe.
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+            if (!process.WaitForExit(4000))
+            {
+                try { process.Kill(entireProcessTree: true); }
+                catch (Exception ex) { InternalDiagnostics.Record(ex, "Stop timed-out IIS port inspection"); }
+                return null;
+            }
+            var output = outputTask.GetAwaiter().GetResult();
+            _ = errorTask.GetAwaiter().GetResult();
             if (process.ExitCode != 0) return null;
 
             // Typical line: SITE "WebApplication" (id:2,bindings:http/*:8080:,state:Started)

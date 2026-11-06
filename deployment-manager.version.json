@@ -1,6 +1,6 @@
 {
-  "version": "143.0.0",
+  "version": "144.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V143-R — مسدودسازی اجرای محلی پروفایل Remote و حذف کمکی فاقد مالکیت"
+  "commitNote": "V144-R — محدودسازی زمان بررسی مالک پورت IIS و تخلیه هم‌زمان خروجی فرایند"
 }

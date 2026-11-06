@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+  "reviewedCommit": "2aecf6f6ba52038f0f9547eeb43681e282bc6813",
   "lastVerifiedRelease": "V142-R",
-  "sourceFixRelease": "V143-R",
+  "sourceFixRelease": "V144-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -254,6 +254,15 @@
       "ranges": [
         "145-235"
       ]
+    },
+    {
+      "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "ranges": [
+        "1-200",
+        "201-306"
+      ],
+      "blobSha": "aa4cfa1e552789d74859595c486baabbc5ecae49",
+      "reviewedCommit": "2aecf6f6ba52038f0f9547eeb43681e282bc6813"
     }
   ],
   "fixed": [
@@ -323,5 +332,8 @@
     "cli": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "retention": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "validation": "SOURCE_COMPLETE_RUNTIME_PENDING_USER"
-  }
+  },
+  "openIssues": [
+    "V144-R: IIS port-owner inspection timeout is now bounded; user runtime validation remains pending."
+  ]
 }
