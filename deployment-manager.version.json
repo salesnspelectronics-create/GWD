@@ -1,6 +1,6 @@
 {
-  "version": "132.0.0",
+  "version": "133.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V132-R — قفل مشترک مقصد و مالکیت نشانگر بازیابی"
+  "commitNote": "V133-R — بررسی مسیرهای فعال و پایان تکرارپذیر تلاش"
 }

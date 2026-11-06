@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2",
-  "lastVerifiedRelease": "V131-R",
-  "sourceFixRelease": "V132-R",
+  "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36",
+  "lastVerifiedRelease": "V132-R",
+  "sourceFixRelease": "V133-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -95,6 +95,30 @@
       ],
       "blobSha": "abdd51b69b64d0b29a6de36e7301161975fcb9ff",
       "reviewedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "985bdc7aa3fabbd549a2c069e0263c96c07bf312",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "2480-2510"
+      ],
+      "blobSha": "e904a74d572717b62c8502b63bb0e7944c52fef2",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+      "ranges": [
+        "1-91"
+      ],
+      "blobSha": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
     }
   ],
   "fixed": [
@@ -110,7 +134,9 @@
     "STAGING_COLLISIONS_AND_UNOWNED_DELETION",
     "SHARED_CONTENT_ROOT_EXCLUSIVE_LEASE",
     "DURABLE_OWNED_RECOVERY_MARKERS",
-    "NO_TIME_BASED_LOCK_STEALING"
+    "NO_TIME_BASED_LOCK_STEALING",
+    "LIMIT_OVERLAP_GUARD_TO_ACTIVE_INPUT_AND_ACTUAL_BACKUP",
+    "IDEMPOTENT_VERIFIED_RESOLUTION"
   ],
   "pending": [
     "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
@@ -126,5 +152,5 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
+  "lastVerifiedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
 }

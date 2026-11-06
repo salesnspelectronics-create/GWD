@@ -100,7 +100,7 @@ public sealed class IisDeploymentAttempt : IDisposable
         foreach (var path in _unresolved)
         {
             DeploymentPathSafety.Normalize(path);
-            if (MutationStarted && !File.Exists(path))
+            if (MutationStarted && !Resolved && !File.Exists(path))
                 throw new IOException("Recovery marker is missing; automatic resolution blocked: " + path);
             if (File.Exists(path) && File.ReadAllText(path) != Id)
                 throw new IOException("Recovery marker belongs to another attempt; it was not removed: " + path);

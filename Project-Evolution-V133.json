@@ -1,0 +1,51 @@
+{
+  "version": "133.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-133-R",
+  "baseCommit": "8959df48e6cbbbfd27110b5878df010130402e36",
+  "summary": "رفع رد غیرضروری مسیرهای معتبر: بررسی زیرپوشه واقعی backup و ورودی فعال BuildMode؛ امکان تکرار Resolve پس از تأیید قبلی با حفظ کنترل مالکیت.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs",
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "985bdc7aa3fabbd549a2c069e0263c96c07bf312",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "2480-2510"
+      ],
+      "blobSha": "e904a74d572717b62c8502b63bb0e7944c52fef2",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+      "ranges": [
+        "1-91"
+      ],
+      "blobSha": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
+      "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
+  ]
+}

@@ -2488,8 +2488,12 @@ public sealed class DeploymentService
         var backup = GetRollbackRoot(profile);
         DeploymentPathSafety.RequireSeparate(profile.HostingRoot, staging);
         DeploymentPathSafety.RequireSeparate(profile.HostingRoot, backup);
-        DeploymentPathSafety.RequireSeparate(profile.HostingRoot, profile.BackupRoot);
-        foreach (var source in new[] { profile.SourceFolder, profile.ReadyPublishFolder }.Where(x => !string.IsNullOrWhiteSpace(x)))
+        // BackupRoot is a container; the CLI writes only beneath this application's subfolder.
+        var cliBackup = Path.Combine(profile.BackupRoot, SanitizeFolderName(profile.ApplicationName));
+        DeploymentPathSafety.RequireSeparate(profile.HostingRoot, cliBackup);
+        var activeSource = string.Equals(profile.BuildMode, "Prepared IIS Publish", StringComparison.OrdinalIgnoreCase)
+            ? profile.ReadyPublishFolder : profile.SourceFolder;
+        foreach (var source in new[] { activeSource }.Where(x => !string.IsNullOrWhiteSpace(x)))
         {
             DeploymentPathSafety.RequireSeparate(profile.HostingRoot, source);
             DeploymentPathSafety.RequireSeparate(staging, source);
