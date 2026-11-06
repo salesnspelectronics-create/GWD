@@ -2,8 +2,8 @@
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
   "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2",
-  "lastVerifiedRelease": "V128-R",
-  "sourceFixRelease": "V129-R",
+  "lastVerifiedRelease": "V129-R",
+  "sourceFixRelease": "V130-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -56,17 +56,30 @@
       ],
       "blobSha": "d735afd2e34fd3d51fdb0a8f8506e4cffda9f5df",
       "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1439-1690",
+        "1871-2140",
+        "2390-2465"
+      ],
+      "blobSha": "7c647c29205381f278b20424cd12330147cfab96",
+      "reviewedCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e"
     }
   ],
   "fixed": [
     "LOCAL_PARTIAL_STOP_RECOVERY",
     "ORIGINAL_IIS_STATES_ON_ROLLBACK",
-    "CLEANUP_DIAGNOSTICS_MUST_NOT_BLOCK_RECOVERY"
+    "CLEANUP_DIAGNOSTICS_MUST_NOT_BLOCK_RECOVERY",
+    "LOCAL_BACKUP_AFTER_STOP",
+    "BACKUP_SHA256_COMPLETENESS_AND_OWNERSHIP",
+    "REJECT_INCOMPLETE_OR_UNRELATED_ROLLBACK"
   ],
   "pending": [
-    "Remote IIS remains blocked by UI; remote service safety remediation pending.",
-    "Backup completeness, path safety and retention ownership require further review.",
-    "No build or runtime validation; user owns validation."
+    "Filesystem overlap, production-file relative paths and retention ownership are next.",
+    "Remote service remains gated; no remote transaction/lock implemented.",
+    "External writers can still invalidate a snapshot; IIS stop is not a filesystem transaction."
   ],
   "validation": {
     "StaticSourceReview": "COMPLETED",
@@ -74,5 +87,6 @@
     "BuildValidation": "NOT_RUN",
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
-  }
+  },
+  "lastVerifiedCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e"
 }

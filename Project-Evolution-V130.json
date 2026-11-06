@@ -1,0 +1,34 @@
+{
+  "version": "130.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-130-R",
+  "baseCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e",
+  "summary": "پشتیبان پس از توقف و تأیید IIS تهیه می‌شود؛ صحت محتوای فایل‌ها و پوشه‌ها با SHA256 و manifest مالکیت بررسی می‌شود. فقط پشتیبان کامل همین تلاش مجاز به بازیابی است.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1439-1690",
+        "1871-2140",
+        "2390-2465"
+      ],
+      "blobSha": "7c647c29205381f278b20424cd12330147cfab96",
+      "reviewedCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Filesystem overlap, production-file relative paths and retention ownership are next.",
+    "Remote service remains gated; no remote transaction/lock implemented.",
+    "External writers can still invalidate a snapshot; IIS stop is not a filesystem transaction."
+  ]
+}

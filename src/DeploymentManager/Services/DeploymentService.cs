@@ -1442,42 +1442,34 @@ public sealed class DeploymentService
         await ValidateIisPreflightAsync(profile, ct);
         var target = ResolveActivePublishFolder(profile);
         var rollback = CreateUniqueRollbackFolder(profile);
-        _activeRollbackFolder = rollback;
-
-        IisStage("BACKUP", "RUNNING");
-        _runner.Report($"[DEPLOY] BACKUP = PENDING; target={target}; backup={rollback}");
-        Directory.CreateDirectory(Path.GetDirectoryName(target) ?? profile.HostingRoot);
-
-        // V62: prepare and validate a unique backup BEFORE stopping IIS. A stale backup can
-        // never collide with a new deployment and a backup failure does not take the site down.
-        if (string.Equals(profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase) && Directory.Exists(target))
-        {
-            CopyDirectory(target, rollback, ct);
-            // V66: validate the backup against the actual source inventory instead of rejecting an
-            // intentionally empty web root. Report useful counts so failures are diagnosable.
-            var sourceFiles = Directory.EnumerateFiles(target, "*", SearchOption.AllDirectories).ToList();
-            var backupFiles = Directory.Exists(rollback) ? Directory.EnumerateFiles(rollback, "*", SearchOption.AllDirectories).ToList() : new List<string>();
-            var sourceRelative = sourceFiles.Select(x => Path.GetRelativePath(target, x)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var backupRelative = backupFiles.Select(x => Path.GetRelativePath(rollback, x)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var missing = sourceRelative.Where(x => !backupRelative.Contains(x)).Take(20).ToList();
-            _runner.Report($"[DEPLOY] BACKUP_VALIDATE source_files={sourceFiles.Count}; backup_files={backupFiles.Count}; missing={missing.Count}");
-            if (!Directory.Exists(rollback) || missing.Count > 0)
-            {
-                var detail = missing.Count == 0 ? "backup directory was not created" : "missing: " + string.Join(", ", missing);
-                throw new IOException("Deployment backup validation failed (" + detail + "); IIS was not stopped and hosted files were not changed.");
-            }
-            _runner.Report($"[DEPLOY] BACKUP = PASS; path={rollback}");
-        }
-        else
-        {
-            _runner.Report("[DEPLOY] BACKUP = NOT_REQUIRED");
-        }
-
-        IisStage("BACKUP", Directory.Exists(rollback) ? "PASS" : "SKIPPED");
+        // Stop and verify before taking the deployable snapshot. A backup taken while
+        // the application is writing files cannot establish a coherent rollback version.
         IisStage("STOP", "RUNNING");
         await StopSiteForDeploymentAsync(profile, ct);
+        await WaitForAppPoolStoppedAsync(profile, ct);
         IisStage("STOP", "PASS");
-        _runner.Report("[DEPLOY] IIS_STOP = PASS");
+        IisStage("BACKUP", "RUNNING");
+        Directory.CreateDirectory(Path.GetDirectoryName(target) ?? profile.HostingRoot);
+        if (string.Equals(profile.DeploymentLayout, "Single Folder", StringComparison.OrdinalIgnoreCase) && Directory.Exists(target))
+        {
+            var inventory = CaptureRecoveryInventory(target, ct);
+            CopyDirectory(target, rollback, ct);
+            VerifyRecoveryInventory(rollback, inventory, ct);
+            VerifyRecoveryInventory(target, inventory, ct);
+            // The sidecar is outside the payload. Incomplete copies never become active
+            // rollback sources, even when their directory already exists.
+            var manifest = new RecoveryBackup(_iisAttempt!.Id, Path.GetFullPath(target), inventory);
+            using (var stream = new FileStream(rollback + ".complete.json", FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                JsonSerializer.Serialize(stream, manifest);
+                stream.Flush(flushToDisk: true);
+            }
+            _activeRollbackFolder = rollback;
+            _iisAttempt.Observe($"BACKUP_COMPLETE path={rollback}; manifest={rollback}.complete.json");
+            _runner.Report($"[DEPLOY] BACKUP = PASS; SHA256 inventory verified; path={rollback}");
+        }
+        else _runner.Report("[DEPLOY] BACKUP = NOT_REQUIRED; no previous Single Folder payload.");
+        IisStage("BACKUP", _activeRollbackFolder is not null ? "PASS" : "SKIPPED");
 
         // V65: IIS may report the site/pool stopped before worker-process file handles are fully released.
         // Wait for the pool state and use bounded lock-aware retry instead of a one-shot Directory.Delete.
@@ -1565,8 +1557,7 @@ public sealed class DeploymentService
     // is installed. This method intentionally ignores deployment cancellation.
     private Task RestoreHostedFolderSafelyAsync(string rollback, string target)
     {
-        if (!Directory.Exists(rollback))
-            throw new DirectoryNotFoundException("Rollback backup was not found: " + rollback);
+        RequireCompleteRollback(rollback, target);
 
         var fullTarget = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var parent = Path.GetDirectoryName(fullTarget) ?? throw new IOException("Hosted path has no parent directory.");
@@ -1902,9 +1893,7 @@ public sealed class DeploymentService
     }
 
     private string GetRollbackFolder(DeploymentProfile profile)
-        => !string.IsNullOrWhiteSpace(_activeRollbackFolder)
-            ? _activeRollbackFolder
-            : Path.Combine(GetRollbackRoot(profile), "legacy-unresolved");
+        => _activeRollbackFolder ?? string.Empty; // Never adopt an unrelated or historical backup.
 
     private static string GetRollbackRoot(DeploymentProfile profile)
         => Path.Combine(profile.DeploymentRoot, "Backups", SanitizeFolderName(profile.ApplicationName));
@@ -2027,6 +2016,7 @@ public sealed class DeploymentService
             try { await StopSiteForDeploymentAsync(profile, recoveryToken); }
             catch (Exception ex) { throw new IOException("FILES_NOT_RESTORED / IIS_UNHEALTHY: safe STOP could not be verified; backup and current files preserved. " + ex.Message, ex); }
             var target = Path.GetFullPath(profile.HostingRoot);
+            RequireCompleteRollback(rollback, target);
             // Prepare the recovery payload before touching the active folder. A failed
             // copy must not destroy the only remaining hosted deployment.
             var parent = Path.GetDirectoryName(target) ?? throw new IOException("Hosted path has no parent directory.");
@@ -2403,12 +2393,57 @@ public sealed class DeploymentService
         using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         try
         {
+            var inventory = CaptureRecoveryInventory(source, deadline.Token);
             CopyDirectory(source, destination, deadline.Token);
+            VerifyRecoveryInventory(destination, inventory, deadline.Token);
         }
         catch (OperationCanceledException ex) when (deadline.IsCancellationRequested)
         {
             throw new TimeoutException("Recovery preparation exceeded 10 minutes; folder replacement was not started.", ex);
         }
+    }
+
+    private sealed record RecoveryBackup(string AttemptId, string Target, Dictionary<string, string> Inventory);
+
+    private void RequireCompleteRollback(string rollback, string target)
+    {
+        if (_iisAttempt is null || _iisAttempt.IsDisposed || _activeRollbackFolder != rollback)
+            throw new IOException("Rollback source is not owned by the current locked attempt.");
+        var manifest = JsonSerializer.Deserialize<RecoveryBackup>(File.ReadAllText(rollback + ".complete.json"));
+        if (manifest is null || manifest.AttemptId != _iisAttempt.Id || !PathsEqual(manifest.Target, target))
+            throw new IOException("Rollback completion manifest does not match this attempt and target.");
+        using var deadline = new CancellationTokenSource(TimeSpan.FromMinutes(10));
+        VerifyRecoveryInventory(rollback, manifest.Inventory, deadline.Token);
+    }
+
+    private static Dictionary<string, string> CaptureRecoveryInventory(string root, CancellationToken ct)
+    {
+        var inventory = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        void Visit(string directory)
+        {
+            ct.ThrowIfCancellationRequested();
+            if ((File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0)
+                throw new IOException("Recovery payload contains a reparse point: " + directory);
+            inventory.Add("D:" + Path.GetRelativePath(root, directory), "");
+            foreach (var file in Directory.EnumerateFiles(directory))
+            {
+                ct.ThrowIfCancellationRequested();
+                if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0)
+                    throw new IOException("Recovery payload contains a reparse point: " + file);
+                using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                inventory.Add("F:" + Path.GetRelativePath(root, file), Convert.ToHexString(SHA256.HashData(stream)));
+            }
+            foreach (var child in Directory.EnumerateDirectories(directory)) Visit(child);
+        }
+        Visit(root);
+        return inventory;
+    }
+
+    private static void VerifyRecoveryInventory(string root, Dictionary<string, string> expected, CancellationToken ct)
+    {
+        var actual = CaptureRecoveryInventory(root, ct);
+        if (actual.Count != expected.Count || expected.Any(pair => !actual.TryGetValue(pair.Key, out var hash) || hash != pair.Value))
+            throw new IOException("Recovery payload SHA256/directory inventory mismatch: " + root);
     }
 
     private static void CopyDirectory(string sourceDir, string destinationDir, CancellationToken ct = default)

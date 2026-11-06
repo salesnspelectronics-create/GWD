@@ -1,6 +1,6 @@
 {
-  "version": "129.0.0",
+  "version": "130.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V129-R — بازیابی وضعیت اولیه IIS و مستقل‌سازی خطاهای پاک‌سازی"
+  "commitNote": "V130-R — پشتیبان معتبر و بازیابی فقط از نسخه کامل همین تلاش"
 }
