@@ -1,6 +1,6 @@
 {
-  "version": "133.0.0",
+  "version": "134.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V133-R — بررسی مسیرهای فعال و پایان تکرارپذیر تلاش"
+  "commitNote": "V134-R — بازیابی ایمن شکست Rollback در CLI"
 }

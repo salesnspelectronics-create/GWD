@@ -1,0 +1,52 @@
+{
+  "version": "134.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-134-R",
+  "baseCommit": "1f934e995e417159f8d449940466f23f3d5a689f",
+  "summary": "بازیابی شکست STOP در rollback فرمان CLI از سرویس مشترک؛ حفظ وضعیت اولیه IIS در مسیر جبرانی و گزارش مستقل خطای اصلی و بازیابی.",
+  "sourceFiles": [
+    "src/DeploymentManager.Cli/Program.cs",
+    "src/DeploymentManager/Services/DeploymentService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "211-270"
+      ],
+      "blobSha": "2b31b502cd97895c5c6c4c4932cf3c1fda3ae3b4",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1641-1695",
+        "1970-2020"
+      ],
+      "blobSha": "0268a42d7ea97a1ef44033765be4c6bd2b4ffd53",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "af6817d378cf90c8f9079aea1f8bdc5e38262c31",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
+  ]
+}

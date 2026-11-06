@@ -217,15 +217,17 @@ internal static class CliApplication
         var requested = args.Get("to") ?? "latest";
         var backup = requested.Equals("latest", StringComparison.OrdinalIgnoreCase) ? backups.FirstOrDefault() : backups.FirstOrDefault(x => Path.GetFileName(x).Equals(requested, StringComparison.OrdinalIgnoreCase));
         if (backup is null) throw new CliFailure(9, "Requested backup was not found.");
-        var (_, deployment, _) = CreateEngine();
+        var (runner, deployment, _) = CreateEngine();
         using var iisAttempt = deployment.BeginIisAttempt(profile);
         await deployment.ValidateIisPreflightAsync(profile);
         var displacedOriginal = false;
+        var replacementStarted = false;
         var failed = profile.HostingRoot.TrimEnd('\\') + ".__cli_failed_" + DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + Guid.NewGuid().ToString("N");
         try
         {
             await deployment.StopSiteForDeploymentAsync(profile);
             if (Directory.Exists(profile.HostingRoot)) { Directory.Move(profile.HostingRoot, failed); displacedOriginal = true; }
+            replacementStarted = true;
             CopyTree(backup, profile.HostingRoot);
             await deployment.ConfigureIisAsync(profile, profile.HostingRoot);
             await deployment.RestartAppAsync(profile);
@@ -242,7 +244,14 @@ internal static class CliApplication
         }
         catch (Exception ex)
         {
-            if (!displacedOriginal) throw new CliFailure(5, "Rollback stopped before file replacement; original files preserved: " + ex.Message);
+            if (!displacedOriginal)
+            {
+                if (replacementStarted)
+                    throw new CliFailure(7, "Rollback failed without a displaced original; partial files and recovery markers retained: " + ex.Message);
+                try { await deployment.CleanupFailedDeploymentAsync(profile, null, null, CancellationToken.None); }
+                catch (Exception recoveryEx) { throw new CliFailure(7, "Rollback failed: " + ex.Message + "; IIS state recovery failed: " + recoveryEx.Message); }
+                throw new CliFailure(5, "Rollback failed before file replacement; IIS recovery handler completed (see attempt journal): " + ex.Message);
+            }
             try
             {
                 await deployment.StopSiteForDeploymentAsync(profile);
@@ -252,10 +261,11 @@ internal static class CliApplication
                     throw new IOException("Pre-rollback site folder is missing; attempted restore preserved for inspection.");
                 if (Directory.Exists(profile.HostingRoot)) Directory.Delete(profile.HostingRoot, true);
                 Directory.Move(failed, profile.HostingRoot);
-                await deployment.RestartAppAsync(profile);
+                await deployment.RestoreOriginalIisStatesAsync(profile);
+                runner.Report("[ROLLBACK] Original files and IIS states restored; HTTP health not checked; unresolved evidence retained.");
             }
-            catch { throw new CliFailure(7, "Rollback failed and the pre-rollback site could not be restored: " + ex.Message); }
-            throw new CliFailure(5, "Rollback failed; the pre-rollback site was restored: " + ex.Message);
+            catch (Exception recoveryEx) { throw new CliFailure(7, "Rollback failed: " + ex.Message + "; Pre-rollback recovery failed: " + recoveryEx.Message); }
+            throw new CliFailure(5, "Rollback failed; original files and IIS states restored, HTTP health not checked: " + ex.Message);
         }
     }
 

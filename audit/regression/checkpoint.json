@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36",
-  "lastVerifiedRelease": "V132-R",
-  "sourceFixRelease": "V133-R",
+  "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f",
+  "lastVerifiedRelease": "V133-R",
+  "sourceFixRelease": "V134-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -119,6 +119,31 @@
       ],
       "blobSha": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
       "reviewedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+    },
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "211-270"
+      ],
+      "blobSha": "2b31b502cd97895c5c6c4c4932cf3c1fda3ae3b4",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1641-1695",
+        "1970-2020"
+      ],
+      "blobSha": "0268a42d7ea97a1ef44033765be4c6bd2b4ffd53",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-138"
+      ],
+      "blobSha": "af6817d378cf90c8f9079aea1f8bdc5e38262c31",
+      "reviewedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
     }
   ],
   "fixed": [
@@ -136,7 +161,10 @@
     "DURABLE_OWNED_RECOVERY_MARKERS",
     "NO_TIME_BASED_LOCK_STEALING",
     "LIMIT_OVERLAP_GUARD_TO_ACTIVE_INPUT_AND_ACTUAL_BACKUP",
-    "IDEMPOTENT_VERIFIED_RESOLUTION"
+    "IDEMPOTENT_VERIFIED_RESOLUTION",
+    "CLI_ROLLBACK_PARTIAL_STOP_RECOVERY",
+    "CLI_ROLLBACK_ORIGINAL_IIS_STATE_RESTORE",
+    "CLI_ROLLBACK_SECONDARY_ERROR_PRESERVATION"
   ],
   "pending": [
     "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
@@ -152,5 +180,5 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "8959df48e6cbbbfd27110b5878df010130402e36"
+  "lastVerifiedCommit": "1f934e995e417159f8d449940466f23f3d5a689f"
 }

@@ -1662,7 +1662,7 @@ public sealed class DeploymentService
         await iis.TransitionAsync("apppool", profile.AppPoolName, "Stopped", ct);
     }
 
-    private async Task RestoreOriginalIisStatesAsync(DeploymentProfile profile)
+    public async Task RestoreOriginalIisStatesAsync(DeploymentProfile profile)
     {
         if (_iisAttempt is null || _iisAttempt.IsDisposed || _initialIisStates is not { } original)
             throw new IOException("Original IIS states or target lock unavailable; automatic restart blocked.");
