@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
-  "lastVerifiedRelease": "V139-R",
-  "sourceFixRelease": "V140-R",
+  "reviewedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
+  "lastVerifiedRelease": "V140-R",
+  "sourceFixRelease": "V141-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -220,6 +220,16 @@
         "1950-2140",
         "2390-2510"
       ]
+    },
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "blobSha": "df438c73ac0f396e49fb57099b9d0d10ab4901e9",
+      "reviewedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-509"
+      ]
     }
   ],
   "fixed": [
@@ -250,7 +260,8 @@
     "REMOTE_DIRECT_CALL_FAIL_CLOSED",
     "CLI_COMPLETION_MANIFEST_AND_TARGET_OWNERSHIP",
     "CLI_SHA256_DIRECTORY_RESTORE_VALIDATION",
-    "RETAIN_UNOWNED_FAILED_RELEASE_AND_DISPLACED_ORIGINAL"
+    "RETAIN_UNOWNED_FAILED_RELEASE_AND_DISPLACED_ORIGINAL",
+    "READ_ONLY_CAPACITY_AND_RETENTION_PLAN"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -273,12 +284,12 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "ccbdd32b6e1f35ce24b3d8b7e0ef19adcbcf8c38",
+  "lastVerifiedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",
     "cli": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
-    "retention": "OPEN",
+    "retention": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "validation": "SOURCE_COMPLETE_RUNTIME_PENDING_USER"
   }
 }

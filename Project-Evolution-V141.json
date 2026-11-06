@@ -1,0 +1,35 @@
+{
+  "version": "141.0.0",
+  "date": "2026-11-06",
+  "baseCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
+  "summary": "دستور backups plan --root گزارش ظرفیت و حجم artifactها را بدون ساخت AppDataService، ذخیره پروفایل یا نوشتن result-file تولید می‌کند. پیش‌فرض برنامه حداقل ۵ نسخه و ۳۰ روز است؛ همه artifactها تا اثبات مالکیت و resolution محافظت می‌شوند. EligibleForDeletion خالی است؛ هیچ API یا گزینه حذف خودکار اضافه نشده است.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RetentionPlanner.cs",
+    "src/DeploymentManager.Cli/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "blobSha": "df438c73ac0f396e49fb57099b9d0d10ab4901e9",
+      "reviewedCommit": "25a47020c56deb05a3a35846a0ef0f20b30bfb54",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-509"
+      ]
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "PARTIAL",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "SOURCE_COMPLETE_RUNTIME_PENDING_USER: reporting-only infrastructure; deletion is intentionally unavailable.",
+    "MinimumKeep/MinimumAgeDays are planning parameters, not deletion authorization.",
+    "Capacity is a point-in-time observation; inaccessible/reparse trees are protected and reported incomplete.",
+    "Resolved artifact ownership is not yet sufficient to safely nominate deletion candidates."
+  ]
+}

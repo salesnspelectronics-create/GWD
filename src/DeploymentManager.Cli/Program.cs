@@ -41,7 +41,7 @@ internal static class CliApplication
         }
         result.DurationSeconds = Math.Round(started.Elapsed.TotalSeconds, 3);
         var json = JsonSerializer.Serialize(result, JsonOptions);
-        if (!string.IsNullOrWhiteSpace(parsed?.Get("result-file")))
+        if (!(parsed?.Command == "backups" && parsed.Subcommand == "plan") && !string.IsNullOrWhiteSpace(parsed?.Get("result-file")))
         {
             var file = Path.GetFullPath(parsed.Get("result-file")!);
             Directory.CreateDirectory(Path.GetDirectoryName(file)!);
@@ -54,6 +54,16 @@ internal static class CliApplication
 
     private static async Task<CliResult> ExecuteAsync(Arguments args)
     {
+        if (args.Command == "backups" && args.Subcommand == "plan")
+        {
+            var root = args.Get("root");
+            if (string.IsNullOrWhiteSpace(root)) throw new CliFailure(2, "Read-only capacity planning requires --root with an absolute artifact container; no profile is loaded or saved.");
+            var keep = 5;
+            var days = 30;
+            if (args.Has("keep") && (!int.TryParse(args.Get("keep"), out keep) || keep < 1)) throw new CliFailure(2, "--keep must be a positive integer.");
+            if (args.Has("min-age-days") && (!int.TryParse(args.Get("min-age-days"), out days) || days < 1)) throw new CliFailure(2, "--min-age-days must be a positive integer.");
+            return CliResult.Ok("backups plan", null, new() { ["plan"] = RetentionPlanner.Inspect(new[] { root }, keep, days) });
+        }
         var appData = new AppDataService();
         if (args.Command == "projects" && args.Subcommand == "list")
         {
@@ -498,6 +508,8 @@ DeploymentManager.exe status --project "NSP Office" --output json
 DeploymentManager.exe health-check --project "NSP Office" --output json
 DeploymentManager.exe rollback --project "NSP Office" --to latest --non-interactive --output json
 DeploymentManager.exe backups list --project "NSP Office" --output json
+DeploymentManager.exe backups plan --root "C:\Deploy" [--keep 5] [--min-age-days 30] --output json
+  Read-only stdout report; --result-file is ignored for backups plan.
 
 Optional: --result-file "C:\Temp\deploy-result.json"
 """.Replace("{VERSION}", Version.Split('.')[0]);
