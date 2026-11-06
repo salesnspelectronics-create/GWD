@@ -1,0 +1,43 @@
+{
+  "version": "132.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-132-R",
+  "baseCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a",
+  "summary": "قفل انحصاری فایل کنار مقصد، مستقل از نام پروفایل و قابل اشتراک روی همان فایل‌سیستم؛ marker پایدار پیش از mutation و پاک‌سازی فقط توسط مالک، بدون انقضا یا حذف قفل فعال.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs",
+    "src/DeploymentManager/Services/IisDeploymentAttempt.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-94"
+      ],
+      "blobSha": "22b01fee51300c46678bed08498c39e3b1caffe7",
+      "reviewedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "20-40"
+      ],
+      "blobSha": "abdd51b69b64d0b29a6de36e7301161975fcb9ff",
+      "reviewedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
+  ]
+}

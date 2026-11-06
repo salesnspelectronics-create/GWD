@@ -2,8 +2,8 @@
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
   "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2",
-  "lastVerifiedRelease": "V130-R",
-  "sourceFixRelease": "V131-R",
+  "lastVerifiedRelease": "V131-R",
+  "sourceFixRelease": "V132-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -79,6 +79,22 @@
       ],
       "blobSha": "ef5db7e176b8fe30f987b60693454e51062422ce",
       "reviewedCommit": "973a223719b8b66be4ae829db682903d72045336"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-94"
+      ],
+      "blobSha": "22b01fee51300c46678bed08498c39e3b1caffe7",
+      "reviewedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "20-40"
+      ],
+      "blobSha": "abdd51b69b64d0b29a6de36e7301161975fcb9ff",
+      "reviewedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
     }
   ],
   "fixed": [
@@ -91,13 +107,17 @@
     "DEPLOYMENT_PATH_OVERLAP_AND_ROOTS",
     "PRESERVED_FILE_PATH_ESCAPE",
     "REPARSE_POINT_TRAVERSAL",
-    "STAGING_COLLISIONS_AND_UNOWNED_DELETION"
+    "STAGING_COLLISIONS_AND_UNOWNED_DELETION",
+    "SHARED_CONTENT_ROOT_EXCLUSIVE_LEASE",
+    "DURABLE_OWNED_RECOVERY_MARKERS",
+    "NO_TIME_BASED_LOCK_STEALING"
   ],
   "pending": [
-    "Automatic backup/release retention is deferred: retained content needs disk-capacity management.",
-    "The remote service remains gated; remote recovery is not implemented.",
-    "CLI independent backup/rollback helpers and all ancillary filesystem utilities are not fully remediated.",
-    "External filesystem mutation and path aliases require runtime/environment verification."
+    "Same-content coordination depends on filesystem share-lock semantics; aliases, nested roots and non-cooperating/older clients need environment review.",
+    "Remote WinRM service remains blocked by UI; no remote transaction/lock/recovery was enabled.",
+    "CLI independent manual backup/rollback and ancillary destructive helpers remain pending.",
+    "Automatic retention is deferred; retained backups and releases need capacity management.",
+    "No build or runtime validation was performed."
   ],
   "validation": {
     "StaticSourceReview": "COMPLETED",
@@ -106,5 +126,5 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "973a223719b8b66be4ae829db682903d72045336"
+  "lastVerifiedCommit": "9d01ae61cc71bfe5b1eb838452893527964d084a"
 }

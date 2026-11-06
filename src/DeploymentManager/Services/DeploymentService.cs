@@ -31,7 +31,8 @@ public sealed class DeploymentService
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GenericWeb.DeploymentManager", "TargetLocks"),
             Path.Combine(_appData.Root, "IisAttempts"),
             new[] { "site:" + profile.SiteName, "pool:" + profile.AppPoolName, "path:" + Path.GetFullPath(profile.HostingRoot).TrimEnd('\\', '/') },
-            attemptId ?? Guid.NewGuid().ToString("N"), _runner.Report);
+            attemptId ?? Guid.NewGuid().ToString("N"), _runner.Report,
+            DeploymentPathSafety.Normalize(profile.HostingRoot));
         ReportIis($"[IIS] GWD={ProductInfo.Version}; attempt={_iisAttempt.Id}; site={profile.SiteName}; pool={profile.AppPoolName}; path={profile.HostingRoot}; initial state is an observation, not proof deployment caused a later failure.");
         return _iisAttempt;
     }
