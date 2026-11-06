@@ -23,6 +23,7 @@ public sealed class DeploymentService
     public IDisposable BeginIisAttempt(DeploymentProfile profile, string? attemptId = null)
     {
         if (_iisAttempt is { IsDisposed: false }) throw new IOException("Another IIS deployment attempt is active in this engine.");
+        ValidateDeploymentPaths(profile);
         _activeRollbackFolder = null;
         _filesChanged = false;
         _initialIisStates = null;
@@ -55,6 +56,7 @@ public sealed class DeploymentService
 
     public async Task ValidateIisPreflightAsync(DeploymentProfile profile, CancellationToken ct = default)
     {
+        ValidateDeploymentPaths(profile);
         _activeRollbackFolder = null; // Never reuse a backup from a previous attempt.
         IisStage("PREFLIGHT", "RUNNING");
         var state = await Iis().ValidateAsync(profile.SiteName, profile.AppPoolName, ct);
@@ -358,20 +360,18 @@ public sealed class DeploymentService
         }
         if (!string.Equals(profile.BuildMode, "Prepared IIS Publish", StringComparison.OrdinalIgnoreCase))
             VerifyBuildSourceIdentity(profile);
-        var version = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        var version = DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N");
         var stagingRoot = Path.Combine(profile.DeploymentRoot, "Staging");
         var output = Path.Combine(stagingRoot, version);
         trace.Measure("Staging cleanup / create", () =>
         {
+            ValidateDeploymentPaths(profile);
+            DeploymentPathSafety.Normalize(stagingRoot);
             Directory.CreateDirectory(stagingRoot);
-            foreach (var stale in Directory.GetDirectories(stagingRoot))
-            {
-                try { Directory.Delete(stale, recursive: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Delete stale staging folder: " + stale); }
-            }
-            if (Directory.Exists(output)) Directory.Delete(output, recursive: true);
+            if (Directory.Exists(output)) throw new IOException("Unique staging path already exists; no content was removed.");
             Directory.CreateDirectory(output);
             File.WriteAllText(Path.Combine(output, ".deployment-incomplete"), DateTime.Now.ToString("O"));
-        }, "Deletes stale staging folders and creates the new publish staging folder.");
+        }, "Creates a unique publish staging folder; other attempts and retained staging are preserved.");
         _runner.Report($"[DEPLOY] Building into staging folder: {output}");
         _runner.Report($"[BUILD] Build mode: {profile.BuildMode}");
         _runner.Report($"[BUILD] Dependency mode: {profile.DependencyResolutionMode}");
@@ -1442,6 +1442,14 @@ public sealed class DeploymentService
         await ValidateIisPreflightAsync(profile, ct);
         var target = ResolveActivePublishFolder(profile);
         var rollback = CreateUniqueRollbackFolder(profile);
+        DeploymentPathSafety.RequireApplicationDirectory(target);
+        DeploymentPathSafety.RequirePlainTree(target);
+        DeploymentPathSafety.RequirePlainTree(stagingFolder);
+        DeploymentPathSafety.RequireSeparate(stagingFolder, target);
+        DeploymentPathSafety.RequireSeparate(rollback, target);
+        DeploymentPathSafety.RequireSeparate(rollback, stagingFolder);
+        foreach (var relative in profile.PreserveProductionFiles ?? Array.Empty<string>())
+            if (!string.IsNullOrWhiteSpace(relative)) DeploymentPathSafety.RelativeFile(target, relative);
         // Stop and verify before taking the deployable snapshot. A backup taken while
         // the application is writing files cannot establish a coherent rollback version.
         IisStage("STOP", "RUNNING");
@@ -1491,6 +1499,8 @@ public sealed class DeploymentService
                 CopyDirectory(stagingFolder, preparedRelease, ct);
                 ct.ThrowIfCancellationRequested();
                 await WaitForAppPoolStoppedAsync(profile, ct);
+                DeploymentPathSafety.RequirePlainTree(fullTarget);
+                DeploymentPathSafety.RequirePlainTree(preparedRelease);
                 _filesChanged = true;
                 if (_iisAttempt is not null) _iisAttempt.FilesChanged = true;
                 if (Directory.Exists(fullTarget)) Directory.Move(fullTarget, displacedRelease);
@@ -1515,8 +1525,8 @@ public sealed class DeploymentService
                 foreach (var relative in profile.PreserveProductionFiles ?? Array.Empty<string>())
                 {
                     if (string.IsNullOrWhiteSpace(relative)) continue;
-                    var previous = Path.Combine(rollback, relative);
-                    var deployed = Path.Combine(target, relative);
+                    var previous = DeploymentPathSafety.RelativeFile(rollback, relative);
+                    var deployed = DeploymentPathSafety.RelativeFile(target, relative);
                     if (!File.Exists(previous)) continue;
                     Directory.CreateDirectory(Path.GetDirectoryName(deployed) ?? target);
                     File.Copy(previous, deployed, overwrite: true);
@@ -1557,6 +1567,8 @@ public sealed class DeploymentService
     // is installed. This method intentionally ignores deployment cancellation.
     private Task RestoreHostedFolderSafelyAsync(string rollback, string target)
     {
+        DeploymentPathSafety.RequireApplicationDirectory(target);
+        DeploymentPathSafety.RequirePlainTree(target);
         RequireCompleteRollback(rollback, target);
 
         var fullTarget = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -1888,7 +1900,7 @@ public sealed class DeploymentService
         if (string.IsNullOrWhiteSpace(sourceName)) sourceName = "release-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
         var release = SanitizeFolderName(sourceName);
         var candidate = Path.Combine(profile.HostingRoot, release);
-        if (Directory.Exists(candidate)) candidate += "-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        candidate += "-" + Guid.NewGuid().ToString("N");
         return candidate;
     }
 
@@ -1908,25 +1920,16 @@ public sealed class DeploymentService
 
     private void CleanupOldRollbackBackups(DeploymentProfile profile, int keep)
     {
-        try
-        {
-            var root = GetRollbackRoot(profile);
-            if (!Directory.Exists(root)) return;
-            var dirs = new DirectoryInfo(root).EnumerateDirectories()
-                .OrderByDescending(d => d.CreationTimeUtc).ToArray();
-            foreach (var dir in dirs.Skip(Math.Max(1, keep)))
-            {
-                try { dir.Delete(recursive: true); _runner.Report($"[CLEANUP] Removed old deployment backup: {dir.FullName}"); }
-                catch (Exception ex) { InternalDiagnostics.Record(ex, "Cleanup old deployment backup"); }
-            }
-        }
-        catch (Exception ex) { InternalDiagnostics.Record(ex, "Enumerate deployment backups"); }
+        // A directory's name/age does not prove ownership or that its attempt resolved.
+        // Legacy and incomplete backups may be the only recovery copy; retain them.
+        _runner.Report("[CLEANUP] Backups retained: automatic retention requires verified ownership and resolved-attempt metadata. Review disk capacity and retained backups manually.");
     }
 
     private static string SanitizeFolderName(string value)
     {
         foreach (var c in Path.GetInvalidFileNameChars()) value = value.Replace(c, '-');
-        return string.IsNullOrWhiteSpace(value) ? "release" : value.Trim();
+        var name = value.Trim();
+        return string.IsNullOrWhiteSpace(name) || name is "." or ".." ? "release" : name;
     }
 
     public async Task ConfigureIisAsync(DeploymentProfile profile, string publishFolder, CancellationToken ct = default)
@@ -2016,6 +2019,8 @@ public sealed class DeploymentService
             try { await StopSiteForDeploymentAsync(profile, recoveryToken); }
             catch (Exception ex) { throw new IOException("FILES_NOT_RESTORED / IIS_UNHEALTHY: safe STOP could not be verified; backup and current files preserved. " + ex.Message, ex); }
             var target = Path.GetFullPath(profile.HostingRoot);
+            DeploymentPathSafety.RequireApplicationDirectory(target);
+            DeploymentPathSafety.RequirePlainTree(target);
             RequireCompleteRollback(rollback, target);
             // Prepare the recovery payload before touching the active folder. A failed
             // copy must not destroy the only remaining hosted deployment.
@@ -2418,6 +2423,7 @@ public sealed class DeploymentService
 
     private static Dictionary<string, string> CaptureRecoveryInventory(string root, CancellationToken ct)
     {
+        DeploymentPathSafety.Normalize(root);
         var inventory = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         void Visit(string directory)
         {
@@ -2448,17 +2454,45 @@ public sealed class DeploymentService
 
     private static void CopyDirectory(string sourceDir, string destinationDir, CancellationToken ct = default)
     {
+        DeploymentPathSafety.RequireSeparate(sourceDir, destinationDir);
+        DeploymentPathSafety.RequirePlainTree(sourceDir);
+        DeploymentPathSafety.RequirePlainTree(destinationDir);
+        CopyDirectoryContents(sourceDir, destinationDir, ct);
+    }
+
+    private static void CopyDirectoryContents(string sourceDir, string destinationDir, CancellationToken ct)
+    {
         ct.ThrowIfCancellationRequested();
+        DeploymentPathSafety.Normalize(sourceDir);
+        DeploymentPathSafety.Normalize(destinationDir);
         Directory.CreateDirectory(destinationDir);
         foreach (var file in Directory.EnumerateFiles(sourceDir, "*", SearchOption.TopDirectoryOnly))
         {
             ct.ThrowIfCancellationRequested();
+            DeploymentPathSafety.Normalize(file);
+            DeploymentPathSafety.Normalize(Path.Combine(destinationDir, Path.GetFileName(file)));
             File.Copy(file, Path.Combine(destinationDir, Path.GetFileName(file)), overwrite: true);
         }
         foreach (var directory in Directory.EnumerateDirectories(sourceDir, "*", SearchOption.TopDirectoryOnly))
         {
             ct.ThrowIfCancellationRequested();
-            CopyDirectory(directory, Path.Combine(destinationDir, Path.GetFileName(directory)), ct);
+            CopyDirectoryContents(directory, Path.Combine(destinationDir, Path.GetFileName(directory)), ct);
+        }
+    }
+
+    private static void ValidateDeploymentPaths(DeploymentProfile profile)
+    {
+        DeploymentPathSafety.RequireApplicationDirectory(profile.HostingRoot);
+        var staging = Path.Combine(DeploymentPathSafety.RequireApplicationDirectory(profile.DeploymentRoot), "Staging");
+        var backup = GetRollbackRoot(profile);
+        DeploymentPathSafety.RequireSeparate(profile.HostingRoot, staging);
+        DeploymentPathSafety.RequireSeparate(profile.HostingRoot, backup);
+        DeploymentPathSafety.RequireSeparate(profile.HostingRoot, profile.BackupRoot);
+        foreach (var source in new[] { profile.SourceFolder, profile.ReadyPublishFolder }.Where(x => !string.IsNullOrWhiteSpace(x)))
+        {
+            DeploymentPathSafety.RequireSeparate(profile.HostingRoot, source);
+            DeploymentPathSafety.RequireSeparate(staging, source);
+            DeploymentPathSafety.RequireSeparate(backup, source);
         }
     }
 
@@ -2478,25 +2512,9 @@ public sealed class DeploymentService
 
     public void CleanupPreviousDeployments(DeploymentProfile profile, string currentPublishFolder)
     {
-        if (!profile.CleanupPreviousDeployments) return;
-        if (!string.Equals(profile.DeploymentLayout, "Versioned Folders", StringComparison.OrdinalIgnoreCase)) return;
-        var root = profile.HostingRoot;
-        if (!Directory.Exists(root)) return;
-        foreach (var dir in Directory.GetDirectories(root))
-        {
-            if (PathsEqual(dir, currentPublishFolder)) continue;
-            if (dir.EndsWith(".__rollback", StringComparison.OrdinalIgnoreCase)) continue;
-            try
-            {
-                Directory.Delete(dir, true);
-                _runner.Report($"[CLEANUP] Removed previous deployment folder: {dir}");
-            }
-            catch (Exception ex)
-            {
-                _runner.Report($"[CLEANUP] Could not remove previous deployment folder '{dir}': {ex.Message}");
-            }
-        }
+        if (!profile.CleanupPreviousDeployments || !string.Equals(profile.DeploymentLayout, "Versioned Folders", StringComparison.OrdinalIgnoreCase)) return;
+        // Other child folders may be unrelated applications or another attempt's recovery.
+        _runner.Report("[CLEANUP] Previous release folders retained: ownership and recovery resolution must be verified before deletion.");
     }
 
 }
-

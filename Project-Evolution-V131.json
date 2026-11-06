@@ -1,0 +1,39 @@
+{
+  "version": "131.0.0",
+  "date": "2026-11-06",
+  "handoff": "GWD-131-R",
+  "baseCommit": "973a223719b8b66be4ae829db682903d72045336",
+  "summary": "حفاظت مسیر واقعی مقصد، جداسازی source/staging/backup، جلوگیری از عبور reparse point و خروج فایل تنظیمات از ریشه؛ staging یکتا و حفظ پوشه‌های بدون مالکیت اثبات‌شده.",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/DeploymentService.cs",
+    "src/DeploymentManager/Services/DeploymentPathSafety.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1-110",
+        "355-490",
+        "1439-1640",
+        "1871-1950",
+        "1980-2140",
+        "2390-2501"
+      ],
+      "blobSha": "ef5db7e176b8fe30f987b60693454e51062422ce",
+      "reviewedCommit": "973a223719b8b66be4ae829db682903d72045336"
+    }
+  ],
+  "validation": {
+    "StaticSourceReview": "COMPLETED",
+    "AutomatedTests": "NOT_RUN",
+    "BuildValidation": "NOT_RUN",
+    "RuntimeReview": "PENDING_USER",
+    "TestingOwner": "USER"
+  },
+  "limitations": [
+    "Automatic backup/release retention is deferred: retained content needs disk-capacity management.",
+    "The remote service remains gated; remote recovery is not implemented.",
+    "CLI independent backup/rollback helpers and all ancillary filesystem utilities are not fully remediated.",
+    "External filesystem mutation and path aliases require runtime/environment verification."
+  ]
+}

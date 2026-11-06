@@ -2,8 +2,8 @@
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
   "reviewedCommit": "5aab643fe9246c31f0544eafa8769610f76608f2",
-  "lastVerifiedRelease": "V129-R",
-  "sourceFixRelease": "V130-R",
+  "lastVerifiedRelease": "V130-R",
+  "sourceFixRelease": "V131-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -66,6 +66,19 @@
       ],
       "blobSha": "7c647c29205381f278b20424cd12330147cfab96",
       "reviewedCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1-110",
+        "355-490",
+        "1439-1640",
+        "1871-1950",
+        "1980-2140",
+        "2390-2501"
+      ],
+      "blobSha": "ef5db7e176b8fe30f987b60693454e51062422ce",
+      "reviewedCommit": "973a223719b8b66be4ae829db682903d72045336"
     }
   ],
   "fixed": [
@@ -74,12 +87,17 @@
     "CLEANUP_DIAGNOSTICS_MUST_NOT_BLOCK_RECOVERY",
     "LOCAL_BACKUP_AFTER_STOP",
     "BACKUP_SHA256_COMPLETENESS_AND_OWNERSHIP",
-    "REJECT_INCOMPLETE_OR_UNRELATED_ROLLBACK"
+    "REJECT_INCOMPLETE_OR_UNRELATED_ROLLBACK",
+    "DEPLOYMENT_PATH_OVERLAP_AND_ROOTS",
+    "PRESERVED_FILE_PATH_ESCAPE",
+    "REPARSE_POINT_TRAVERSAL",
+    "STAGING_COLLISIONS_AND_UNOWNED_DELETION"
   ],
   "pending": [
-    "Filesystem overlap, production-file relative paths and retention ownership are next.",
-    "Remote service remains gated; no remote transaction/lock implemented.",
-    "External writers can still invalidate a snapshot; IIS stop is not a filesystem transaction."
+    "Automatic backup/release retention is deferred: retained content needs disk-capacity management.",
+    "The remote service remains gated; remote recovery is not implemented.",
+    "CLI independent backup/rollback helpers and all ancillary filesystem utilities are not fully remediated.",
+    "External filesystem mutation and path aliases require runtime/environment verification."
   ],
   "validation": {
     "StaticSourceReview": "COMPLETED",
@@ -88,5 +106,5 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "ebe0402be3f52e4428df2aa921a29a9166ef523e"
+  "lastVerifiedCommit": "973a223719b8b66be4ae829db682903d72045336"
 }
