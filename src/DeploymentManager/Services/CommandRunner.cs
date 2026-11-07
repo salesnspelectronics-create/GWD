@@ -101,30 +101,38 @@ public sealed class CommandRunner
 
         try
         {
-            await process.WaitForExitAsync(linked.Token);
-            process.WaitForExit(); // flush async stdout/stderr events
+            try
+            {
+                await process.WaitForExitAsync(linked.Token);
+                process.WaitForExit(); // flush async stdout/stderr events
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested && timeoutCts?.IsCancellationRequested == true)
+            {
+                try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill timed-out process tree"); }
+                qualityStatus = "TimedOut";
+                try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
+                var configuredTimeout = timeout ?? TimeSpan.Zero;
+                var message = $"Process timed out after {configuredTimeout.TotalMinutes:0.#} minute(s): {fileName} {arguments}";
+                Report("TIMEOUT: " + message);
+                throw new TimeoutException(message);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill cancelled process tree"); }
+                qualityStatus = "Cancelled";
+                try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
+                Report($"CANCELLED: {Path.GetFileName(fileName)} process tree was stopped by the operator.");
+                throw;
+            }
         }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested && timeoutCts?.IsCancellationRequested == true)
+        finally
         {
-            try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill timed-out process tree"); }
-            qualityStatus = "TimedOut";
-            try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
-            var configuredTimeout = timeout ?? TimeSpan.Zero;
-            var message = $"Process timed out after {configuredTimeout.TotalMinutes:0.#} minute(s): {fileName} {arguments}";
-            Report("TIMEOUT: " + message);
-            throw new TimeoutException(message);
+            // Observe and stop the heartbeat on success, timeout, cancellation or failure.
+            heartbeatCts.Cancel();
+            try { await heartbeatTask; }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { InternalDiagnostics.Record(ex, "Stop process heartbeat"); }
         }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
-        {
-            try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (Exception ex) { InternalDiagnostics.Record(ex, "Kill cancelled process tree"); }
-            qualityStatus = "Cancelled";
-            try { if (process.WaitForExit(5000)) { process.WaitForExit(); qualityExitCode = process.ExitCode; } } catch (Exception ex) { InternalDiagnostics.Record(ex, "Flush stopped process output"); }
-            Report($"CANCELLED: {Path.GetFileName(fileName)} process tree was stopped by the operator.");
-            throw;
-        }
-
-        heartbeatCts.Cancel();
-        try { await heartbeatTask; } catch (OperationCanceledException) { }
 
         var duration = DateTime.UtcNow - started;
         Report($"<<< Exit code {process.ExitCode}; duration {duration.TotalSeconds:0.0}s");

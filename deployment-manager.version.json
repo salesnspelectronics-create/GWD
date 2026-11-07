@@ -1,6 +1,6 @@
 {
-  "version": "151.0.0",
+  "version": "152.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V151-R — اصلاح لغو و پاکسازی فرایند تعاملی"
+  "commitNote": "V152-R — اصلاح پاکسازی قطعی پایش فرایند پس از خطا و لغو"
 }

@@ -1,0 +1,26 @@
+{
+  "version": "152.0.0",
+  "release": "V152-R",
+  "date": "2026-11-07",
+  "baseCommit": "a302ecc974256c45dad744802f3f162962b3861a",
+  "summary": "پاکسازی پایش فرایند در تمام مسیرهای خروج",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/CommandRunner.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/CommandRunner.cs",
+      "ranges": [
+        "1-200"
+      ],
+      "blobSha": "82c2960b24d97d23c0f0527f417fcf19f632f8d3",
+      "reviewedCommit": "a302ecc974256c45dad744802f3f162962b3861a"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  }
+}
