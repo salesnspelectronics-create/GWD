@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "a302ecc974256c45dad744802f3f162962b3861a",
+  "reviewedCommit": "ae7f0dba15b0ec9bd33c5b6ce6d8cb13505f1115",
   "lastVerifiedRelease": "V151-R",
-  "sourceFixRelease": "V152-R",
+  "sourceFixRelease": "V153-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -601,6 +601,14 @@
       ],
       "blobSha": "82c2960b24d97d23c0f0527f417fcf19f632f8d3",
       "reviewedCommit": "a302ecc974256c45dad744802f3f162962b3861a"
+    },
+    {
+      "path": "src/DeploymentManager/Program.cs",
+      "ranges": [
+        "1-63"
+      ],
+      "blobSha": "3c9eb2e2ab30a0e7c53af7bcd9f54ac40f214f3a",
+      "reviewedCommit": "ae7f0dba15b0ec9bd33c5b6ce6d8cb13505f1115"
     }
   ],
   "fixed": [
@@ -648,7 +656,13 @@
     "CLI_LIVE_RELEASE_IDENTITY_BYPASS",
     "CLI_INCOMPLETE_SECRET_REDACTION",
     "PARTIAL_INSTALLER_CACHE_PUBLICATION",
-    "ATOMIC_JSON_TEMPORARY_FILE_COLLISION"
+    "ATOMIC_JSON_TEMPORARY_FILE_COLLISION",
+    {
+      "id": "ADMIN_ELEVATION_FALLTHROUGH",
+      "severity": "P1",
+      "cause": "Empty Environment.ProcessPath under non-admin identity fell through into WinForms UI.",
+      "fix": "Show an administrator-rights error and return before UI initialization."
+    }
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -696,7 +710,7 @@
     "V144-R: IIS port-owner inspection timeout is now bounded; user runtime validation remains pending.",
     "V146-R: Default IIS website UI messaging corrected; runtime validation remains pending."
   ],
-  "lastRunNote": "V148-R: SQL freshness, IIS commit recovery/ownership, WinRM/readiness, CLI verification/redaction, atomic cache/config writes. Static source review only; no tests/build/runtime.",
+  "lastRunNote": "V153-R ADMIN_ELEVATION_FALLTHROUGH corrected; Program.cs 1-63 at ae7f0dba15b0ec9bd33c5b6ce6d8cb13505f1115; user build/deploy likely V149-R unconfirmed; V153-R runtime pending.",
   "lastRun": {
     "executionSource": "CHATGPT_WORK",
     "initialHead": "b8e911e149766c58334c4fdc329ed668561bcf8f",

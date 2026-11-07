@@ -18,6 +18,11 @@ internal static class Program
                     Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true, Verb = "runas" });
                     return;
                 }
+                else
+                {
+                    MessageBox.Show("Deployment Manager must run as Administrator. The executable path could not be determined.", "Administrator rights required", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
             catch (Exception ex)
             {

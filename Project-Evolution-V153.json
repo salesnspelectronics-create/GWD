@@ -1,0 +1,26 @@
+{
+  "version": "153.0.0",
+  "release": "V153-R",
+  "date": "2026-11-07",
+  "baseCommit": "ae7f0dba15b0ec9bd33c5b6ce6d8cb13505f1115",
+  "summary": "جلوگیری از اجرای فرم اصلی بدون دسترسی مدیر در صورت نامشخص بودن مسیر فایل اجرایی",
+  "sourceFiles": [
+    "src/DeploymentManager/Program.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Program.cs",
+      "ranges": [
+        "1-63"
+      ],
+      "blobSha": "3c9eb2e2ab30a0e7c53af7bcd9f54ac40f214f3a",
+      "reviewedCommit": "ae7f0dba15b0ec9bd33c5b6ce6d8cb13505f1115"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  }
+}
