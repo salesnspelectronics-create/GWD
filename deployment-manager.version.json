@@ -1,6 +1,6 @@
 {
-  "version": "149.0.0",
+  "version": "150.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V149-R — اصلاح هم‌زمانی نمونه‌برداری شاخص‌های اجرا"
+  "commitNote": "V150-R — اصلاح گزارش شکست فرمان‌های IIS در مدیریت دستی"
 }

@@ -1679,20 +1679,20 @@ public sealed class WizardForm : Form
         if (_iisState.Installed) BeginInvoke(new Action(async () => { if (!grid.IsDisposed && grid.Parent is not null) await LoadSites(); }));
         refreshSites.Click += async (_, _) => await LoadSites();
         IisAppPoolInfo? SelectedPool() => poolGrid.CurrentRow?.Tag as IisAppPoolInfo;
-        startPool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await _environment.StartIisAppPoolAsync(x.Name); await LoadSites(); };
-        stopPool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await _environment.StopIisAppPoolAsync(x.Name); await LoadSites(); };
-        recyclePool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await _environment.RecycleIisAppPoolAsync(x.Name); await LoadSites(); };
+        startPool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await BusyAsync(startPool, async () => { await _environment.StartIisAppPoolAsync(x.Name); await LoadSites(); }); };
+        stopPool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await BusyAsync(stopPool, async () => { await _environment.StopIisAppPoolAsync(x.Name); await LoadSites(); }); };
+        recyclePool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; await BusyAsync(recyclePool, async () => { await _environment.RecycleIisAppPoolAsync(x.Name); await LoadSites(); }); };
         deletePool.Click += async (_, _) => { var x=SelectedPool(); if(x is null)return; if(MessageBox.Show(this,$"Delete unused application pool '{x.Name}'?","Delete App Pool",MessageBoxButtons.YesNo,MessageBoxIcon.Warning,MessageBoxDefaultButton.Button2)!=DialogResult.Yes)return; try{await _environment.DeleteIisAppPoolAsync(x.Name);await LoadSites();}catch(Exception ex){MessageBox.Show(this,GenericWeb.DeploymentManager.Services.SecretRedactor.Redact(ex.Message),"Delete App Pool",MessageBoxButtons.OK,MessageBoxIcon.Error);} };
-        startSites.Click += async (_, _) =>
+        startSites.Click += async (_, _) => await BusyAsync(startSites, async () =>
         {
             foreach (var x in PickedSites()) await _environment.StartIisSiteAsync(x.Name);
             await LoadSites();
-        };
-        stopSites.Click += async (_, _) =>
+        });
+        stopSites.Click += async (_, _) => await BusyAsync(stopSites, async () =>
         {
             foreach (var x in PickedSites()) await _environment.StopIisSiteAsync(x.Name);
             await LoadSites();
-        };
+        });
         removeSites.Click += async (_, _) =>
         {
             var picked = PickedSites();

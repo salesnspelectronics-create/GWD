@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "0182654d586cd6755559633ebfb6c8149e6be7e4",
-  "lastVerifiedRelease": "V148-R",
-  "sourceFixRelease": "V149-R",
+  "reviewedCommit": "3a9e9de0f04c792a50fb5d857b11603eac10facf",
+  "lastVerifiedRelease": "V149-R",
+  "sourceFixRelease": "V150-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -569,6 +569,22 @@
       ],
       "blobSha": "380a6ea4134a6a07e1bf6f22f38149af5aaaf023",
       "reviewedCommit": "0182654d586cd6755559633ebfb6c8149e6be7e4"
+    },
+    {
+      "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "ranges": [
+        "105-205"
+      ],
+      "blobSha": "1f4af37e2f225b1024b092b72bc81cad509f1cd1",
+      "reviewedCommit": "3a9e9de0f04c792a50fb5d857b11603eac10facf"
+    },
+    {
+      "path": "src/DeploymentManager/WizardForm.cs",
+      "ranges": [
+        "1650-1710"
+      ],
+      "blobSha": "11d0c3aff174953fea5488b12452cd8a36cd9902",
+      "reviewedCommit": "3a9e9de0f04c792a50fb5d857b11603eac10facf"
     }
   ],
   "fixed": [

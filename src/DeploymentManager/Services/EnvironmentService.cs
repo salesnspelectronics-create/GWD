@@ -152,10 +152,10 @@ public sealed class EnvironmentService
         => await _runner.RunCheckedAsync(AppCmdPath(), $"start apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
 
     public async Task StopIisAppPoolAsync(string name, CancellationToken ct = default)
-        => await _runner.RunAsync(AppCmdPath(), $"stop apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
+        => await _runner.RunCheckedAsync(AppCmdPath(), $"stop apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
 
     public async Task RecycleIisAppPoolAsync(string name, CancellationToken ct = default)
-        => await _runner.RunAsync(AppCmdPath(), $"recycle apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
+        => await _runner.RunCheckedAsync(AppCmdPath(), $"recycle apppool /apppool.name:\"{EscapeArg(name)}\"", ct: ct);
 
     public Task DeleteIisAppPoolAsync(string name, CancellationToken ct = default)
     {
@@ -172,7 +172,7 @@ public sealed class EnvironmentService
     public async Task StopIisSiteAsync(string siteName, CancellationToken ct = default)
     {
         var appcmd = AppCmdPath();
-        await _runner.RunAsync(appcmd, $"stop site /site.name:\"{EscapeArg(siteName)}\"", ct: ct);
+        await _runner.RunCheckedAsync(appcmd, $"stop site /site.name:\"{EscapeArg(siteName)}\"", ct: ct);
     }
 
     public Task RemoveIisSiteAndFilesAsync(IisSiteInfo site, bool deletePhysicalFiles, CancellationToken ct = default)
