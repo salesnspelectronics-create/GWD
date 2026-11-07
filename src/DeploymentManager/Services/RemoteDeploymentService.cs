@@ -25,16 +25,19 @@ public sealed class RemoteDeploymentService
 $ErrorActionPreference='Stop'
 $sec=ConvertTo-SecureString $env:GWDM_REMOTE_PASSWORD -AsPlainText -Force
 $cred=[pscredential]::new($env:GWDM_REMOTE_USER,$sec)
-$opt=New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+$opt=New-PSSessionOption
 $useSsl=($env:GWDM_REMOTE_SSL -eq '1')
 $s=New-PSSession -ComputerName $env:GWDM_REMOTE_HOST -Port ([int]$env:GWDM_REMOTE_PORT) -Credential $cred -UseSSL:$useSsl -SessionOption $opt
 try {
   Invoke-Command -Session $s -ScriptBlock {
+    param([int]$major)
     $admin=([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     $iis=((Get-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole -ErrorAction SilentlyContinue).State -eq 'Enabled')
-    $hosting=Test-Path 'C:\Program Files\IIS\Asp.Net Core Module\V2\aspnetcorev2.dll'
+    $runtimeRoot='C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App'
+    $matchingRuntime=@(Get-ChildItem -LiteralPath $runtimeRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name.StartsWith("$major.") }).Count -gt 0
+    $hosting=(Test-Path 'C:\Program Files\IIS\Asp.Net Core Module\V2\aspnetcorev2.dll') -and $matchingRuntime
     [pscustomobject]@{Administrator=$admin;IIS=$iis;Hosting=$hosting;Computer=$env:COMPUTERNAME} | ConvertTo-Json -Compress
-  }
+  } -ArgumentList ([int]$env:GWDM_REMOTE_FRAMEWORK_MAJOR)
 } finally {
   Remove-PSSession $s -ErrorAction SilentlyContinue
 }
@@ -89,25 +92,13 @@ try {
             (_prereq.HostingBundle(profile.TargetFrameworkMajor), !readiness.HostingBundleInstalled)
         };
 
-        foreach (var item in installers.Where(x => x.Needed))
-        {
-            var local = _prereq.FindCached(installerCache, item.Package)
-                ?? await _prereq.DownloadAsync(item.Package, installerCache, ct: ct);
-
-            await CopyInstallerAndExecuteAsync(
-                profile,
-                local,
-                item.Package.Key == "hosting" ? "/install /quiet /norestart" : "/quiet /norestart",
-                ct);
-        }
-
         if (!readiness.IisInstalled)
         {
             var script = """
 $ErrorActionPreference='Stop'
 $sec=ConvertTo-SecureString $env:GWDM_REMOTE_PASSWORD -AsPlainText -Force
 $cred=[pscredential]::new($env:GWDM_REMOTE_USER,$sec)
-$opt=New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+$opt=New-PSSessionOption
 $s=New-PSSession -ComputerName $env:GWDM_REMOTE_HOST -Port ([int]$env:GWDM_REMOTE_PORT) -Credential $cred -UseSSL:($env:GWDM_REMOTE_SSL -eq '1') -SessionOption $opt
 try {
   Invoke-Command -Session $s -ScriptBlock {
@@ -122,6 +113,24 @@ try {
             if (result.ExitCode != 0)
                 throw new InvalidOperationException("Remote IIS enable failed. " + result.Error + result.Output);
         }
+
+        // IIS must exist before installing its ASP.NET Core module.
+        foreach (var item in installers.Where(x => x.Needed))
+        {
+            var local = _prereq.FindCached(installerCache, item.Package)
+                ?? await _prereq.DownloadAsync(item.Package, installerCache, ct: ct);
+
+            await CopyInstallerAndExecuteAsync(
+                profile,
+                local,
+                item.Package.Key == "hosting" ? "/install /quiet /norestart" : "/quiet /norestart",
+                ct);
+        }
+
+        var finalReadiness = await CheckReadinessAsync(profile, ct);
+        if (!finalReadiness.Connected || !finalReadiness.IsAdministrator
+            || !finalReadiness.IisInstalled || !finalReadiness.HostingBundleInstalled)
+            throw new InvalidOperationException("Remote prerequisites remain incomplete after bootstrap. Review installer/restart requirements. " + finalReadiness.Detail);
     }
 
     public Task DeployPublishAsync(DeploymentProfile profile, string localPublish, CancellationToken ct = default)
@@ -163,13 +172,13 @@ try {
 $ErrorActionPreference='Stop'
 $sec=ConvertTo-SecureString $env:GWDM_REMOTE_PASSWORD -AsPlainText -Force
 $cred=[pscredential]::new($env:GWDM_REMOTE_USER,$sec)
-$opt=New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+$opt=New-PSSessionOption
 $s=New-PSSession -ComputerName $env:GWDM_REMOTE_HOST -Port ([int]$env:GWDM_REMOTE_PORT) -Credential $cred -UseSSL:($env:GWDM_REMOTE_SSL -eq '1') -SessionOption $opt
 try {
   Invoke-Command -Session $s -ScriptBlock {
     New-Item -ItemType Directory -Force -Path 'C:\ProgramData\GenericWebDeploymentManager\Installers' | Out-Null
   }
-  Copy-Item '{{Ps(localInstaller)}}' '{{Ps(remote)}}' -ToSession $s -Force
+  Copy-Item -LiteralPath '{{Ps(localInstaller)}}' -Destination '{{Ps(remote)}}' -ToSession $s -Force
   Invoke-Command -Session $s -ScriptBlock {
     param($p,$a)
     $x=Start-Process -FilePath $p -ArgumentList $a -Wait -PassThru
@@ -198,6 +207,7 @@ try {
             ["GWDM_REMOTE_USER"] = profile.RemoteUserName,
             ["GWDM_REMOTE_HOST"] = profile.TargetHost,
             ["GWDM_REMOTE_PORT"] = profile.RemoteWinRmPort.ToString(),
+            ["GWDM_REMOTE_FRAMEWORK_MAJOR"] = profile.TargetFrameworkMajor.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["GWDM_REMOTE_SSL"] = profile.RemoteUseSsl ? "1" : "0"
         };
 
@@ -224,6 +234,8 @@ try {
 
     private static void EnsureRemoteProfile(DeploymentProfile profile)
     {
+        if (profile.TargetFrameworkMajor <= 0)
+            throw new InvalidOperationException("A positive target framework major version is required.");
         if (string.IsNullOrWhiteSpace(profile.TargetHost))
             throw new InvalidOperationException("Remote host/IP is required.");
         if (string.IsNullOrWhiteSpace(profile.RemoteUserName))

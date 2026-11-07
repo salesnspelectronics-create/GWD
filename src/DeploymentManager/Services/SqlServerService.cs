@@ -259,8 +259,10 @@ ALTER LOGIN [sa] WITH PASSWORD = N'{Lit(password)}' UNLOCK;";
             await WaitForServiceNotRunningAsync(serviceName, TimeSpan.FromSeconds(30), ct);
 
             _runner.Report($"[SQL RECOVERY] Starting {serviceName} in restricted single-user mode for this Deployment Manager only...");
-            await StartServiceCheckedAsync(serviceName, $"/m\"{RecoveryApplicationName}\"", ct);
+            // A cancelled/timed-out start may already have started the service.
+            // Arm compensation before invoking the external mutation.
             normalRestartNeeded = true;
+            await StartServiceCheckedAsync(serviceName, $"/m\"{RecoveryApplicationName}\"", ct);
             await WaitForServiceStateAsync(serviceName, "RUNNING", TimeSpan.FromSeconds(30), ct);
 
             SqlConnection? recoveryConnection = null;

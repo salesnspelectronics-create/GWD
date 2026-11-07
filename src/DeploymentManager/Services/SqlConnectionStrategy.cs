@@ -8,9 +8,13 @@ using Microsoft.Data.SqlClient;
 namespace GenericWeb.DeploymentManager.Services;
 
 public sealed record SqlVerificationState(string Fingerprint, bool Verified, bool DatabaseVerified, bool Integrated, string Detail,
-    string Instance, string Database, bool RequestedIntegrated);
+    string Instance, string Database, bool RequestedIntegrated)
+{
+    public DateTimeOffset? LastSuccessfulVerificationUtc { get; init; }
+    internal long? SuccessfulTimestamp { get; init; }
+}
 
-// One session state per profile. No expiry, persisted credentials, or implicit Windows probes.
+// One session state per profile. Freshness is caller-defined; credentials are never persisted.
 public sealed class SqlConnectionStrategy
 {
     private sealed class Session
@@ -23,6 +27,7 @@ public sealed class SqlConnectionStrategy
     private readonly Func<string, IEnumerable<string>> _endpoints;
     private readonly Func<SqlConnection, CancellationToken, Task> _open;
     private readonly Action<string> _report;
+    private readonly TimeProvider _clock = TimeProvider.System;
 
     public SqlConnectionStrategy(Action<string> report, Func<string, IEnumerable<string>> endpoints,
         Func<SqlConnection, CancellationToken, Task>? open = null)
@@ -55,13 +60,30 @@ public sealed class SqlConnectionStrategy
         _sessions.Add(clone, _sessions.GetOrCreateValue(source));
     }
 
+    public bool HasRecentSuccessfulSql(DeploymentProfile profile, TimeSpan maxAge)
+    {
+        if (maxAge <= TimeSpan.Zero || string.IsNullOrWhiteSpace(profile.SqlInstance)
+            || string.IsNullOrWhiteSpace(profile.DatabaseName)) return false;
+        var session = _sessions.GetOrCreateValue(profile);
+        lock (session)
+        {
+            var state = State(profile);
+            if (!state.Verified || state.LastSuccessfulVerificationUtc is null
+                || state.SuccessfulTimestamp is not { } timestamp) return false;
+            // Use elapsed monotonic time so a wall-clock adjustment cannot extend freshness.
+            var age = _clock.GetElapsedTime(timestamp);
+            return age >= TimeSpan.Zero && age <= maxAge;
+        }
+    }
+
     public void Invalidate(DeploymentProfile profile, string reason, string? expectedFingerprint = null)
     {
         var session = _sessions.GetOrCreateValue(profile);
         lock (session)
         {
             if (expectedFingerprint is not null && Fingerprint(profile) != expectedFingerprint) return;
-            session.State = State(profile) with { Verified = false, DatabaseVerified = false, Detail = SecretRedactor.Redact(reason) };
+            session.State = State(profile) with { Verified = false, DatabaseVerified = false,
+                LastSuccessfulVerificationUtc = null, SuccessfulTimestamp = null, Detail = SecretRedactor.Redact(reason) };
         }
     }
 
@@ -100,11 +122,15 @@ public sealed class SqlConnectionStrategy
     {
         var session = _sessions.GetOrCreateValue(profile);
         await session.Gate.WaitAsync(ct);
-        var state = State(profile);
-        var integrated = state.Integrated;
+        SqlVerificationState? state = null;
+        var integrated = profile.UseWindowsAuthentication;
         var fallbackAttempted = false;
         try
         {
+            // Configuration parsing can fail (for example, an imported null field).
+            // It must remain inside the finally that releases the session gate.
+            state = State(profile);
+            integrated = state.Integrated;
             var instance = profile.SqlInstance;
             var user = profile.SqlUserName;
             var password = profile.SqlPassword;
@@ -128,12 +154,14 @@ public sealed class SqlConnectionStrategy
             lock (session)
             {
                 // A background result must never verify credentials edited during an await.
-                if (ct.IsCancellationRequested || Fingerprint(profile) != state.Fingerprint)
+                if (ct.IsCancellationRequested || Fingerprint(profile) != state.Fingerprint
+                    || !ReferenceEquals(session.State, state))
                 {
                     connection.Dispose();
                     throw new OperationCanceledException("SQL configuration changed during connection; verify the current configuration.");
                 }
                 session.State = state with { Verified = true, Integrated = integrated,
+                    LastSuccessfulVerificationUtc = _clock.GetUtcNow(), SuccessfulTimestamp = _clock.GetTimestamp(),
                     DatabaseVerified = state.DatabaseVerified || database.Equals(profile.DatabaseName, StringComparison.Ordinal),
                     Detail = AuthName(integrated) + (state.RequestedIntegrated && !integrated ? " fallback verified" : " verified") };
             }
@@ -147,7 +175,7 @@ public sealed class SqlConnectionStrategy
                 + (fallbackAttempted ? " fallback after Windows Authentication failure" : "") + ": " + ex.Message);
             lock (session)
             {
-                if (Fingerprint(profile) == state.Fingerprint) Invalidate(profile, detail);
+                if (state is not null && Fingerprint(profile) == state.Fingerprint) Invalidate(profile, detail);
             }
             // The original provider exception may contain a secret. Sanitized diagnostics retain its type and message.
             throw new InvalidOperationException(detail);

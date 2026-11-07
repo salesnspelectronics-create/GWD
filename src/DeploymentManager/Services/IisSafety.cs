@@ -63,6 +63,16 @@ public sealed class IisSafety
         return (s, p);
     }
 
+    public async Task RequireExclusivePoolAsync(string site, string pool, CancellationToken ct)
+    {
+        var result = await CheckedAsync($"list app /apppool.name:\"{Name(pool)}\" /text:app.name", ct);
+        var applications = result.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim()).ToArray();
+        if (applications.Length != 1
+            || !string.Equals(applications[0], Name(site) + "/", StringComparison.OrdinalIgnoreCase))
+            throw new IOException("IIS_SHARED_APPPOOL_SAFETY_BLOCK: selected pool must belong exclusively to the selected root application. No stop was performed.");
+    }
+
     public async Task TransitionAsync(string kind, string name, string desired, CancellationToken ct)
     {
         var before = await StateAsync(kind, name, ct);

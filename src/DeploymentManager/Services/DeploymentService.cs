@@ -41,7 +41,7 @@ public sealed class DeploymentService
     }
     public void RecordDeploymentHealth(string detail) => ReportIis("[HEALTH] " + detail);
     public void IisStage(string stage, string state) => _iisAttempt?.Stage(stage, state);
-    public void ResolveIisAttempt() { _iisAttempt?.Resolve(); _filesChanged = false; }
+    public void ResolveIisAttempt() { _iisAttempt?.Resolve(); _filesChanged = false; _activeRollbackFolder = null; }
 
     private IisSafety Iis()
     {
@@ -75,6 +75,7 @@ public sealed class DeploymentService
         var actualPool = await Iis().CheckedAsync($"list app /app.name:\"{profile.SiteName}/\" /text:applicationPool", ct);
         if (!string.Equals(actualPool.Output.Trim(), profile.AppPoolName, StringComparison.OrdinalIgnoreCase))
             throw new IOException("IIS application pool differs from the selected target; configuration was not changed.");
+        await Iis().RequireExclusivePoolAsync(profile.SiteName, profile.AppPoolName, ct);
         IisStage("PREFLIGHT", "PASS");
     }
 
@@ -1660,6 +1661,7 @@ public sealed class DeploymentService
             _initialIisStates = states;
             _iisAttempt.Observe($"ORIGINAL_IIS_STATE site={states.Site}; pool={states.Pool}");
         }
+        await iis.RequireExclusivePoolAsync(profile.SiteName, profile.AppPoolName, ct);
         _iisAttempt.BeginMutation();
         await iis.TransitionAsync("site", profile.SiteName, "Stopped", ct);
         await iis.TransitionAsync("apppool", profile.AppPoolName, "Stopped", ct);
@@ -1891,7 +1893,8 @@ public sealed class DeploymentService
         // V62: successful deployment backups are intentionally retained for rollback/history.
         // Keep only the newest five backups for this application.
         CleanupOldRollbackBackups(profile, keep: 5);
-        _activeRollbackFolder = null;
+        // Retain recovery ownership until the attempt journal and markers resolve.
+        // A later COMMIT/Resolve failure must still be able to restore this backup.
         CleanupPreviousDeployments(profile, currentPublishFolder);
     }
 

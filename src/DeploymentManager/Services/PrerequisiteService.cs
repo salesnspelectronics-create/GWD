@@ -40,7 +40,8 @@ public sealed class PrerequisiteService
         if (!Directory.Exists(cacheFolder)) return null;
         var stem = Path.GetFileNameWithoutExtension(package.FileName);
         return Directory.EnumerateFiles(cacheFolder, "*", SearchOption.TopDirectoryOnly)
-            .FirstOrDefault(x => Path.GetFileNameWithoutExtension(x).Contains(stem, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(x => Path.GetExtension(x).Equals(Path.GetExtension(package.FileName), StringComparison.OrdinalIgnoreCase)
+                && Path.GetFileNameWithoutExtension(x).Contains(stem, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task<string> DownloadAsync(InstallerDescriptor package, string cacheFolder, IProgress<int>? progress = null, CancellationToken ct = default)
@@ -55,32 +56,46 @@ public sealed class PrerequisiteService
             ? $"[DOWNLOAD] {package.DisplayName}: server reports {total.Value / 1024d / 1024d:0.0} MB."
             : $"[DOWNLOAD] {package.DisplayName}: download started; total size is not reported by the server.");
         await using var input = await response.Content.ReadAsStreamAsync(ct);
-        await using var output = File.Create(destination);
-        var buffer = new byte[1024 * 128];
+        var temporary = Path.Combine(cacheFolder, ".gwd-download-" + Guid.NewGuid().ToString("N") + ".partial");
         long done = 0;
-        var lastLoggedPercent = -5;
-        var lastLoggedUtc = DateTime.UtcNow;
-        while (true)
+        try
         {
-            var read = await input.ReadAsync(buffer, ct);
-            if (read <= 0) break;
-            await output.WriteAsync(buffer.AsMemory(0, read), ct);
-            done += read;
-            var percent = total is > 0 ? (int)Math.Clamp(done * 100 / total.Value, 0, 100) : -1;
-            if (percent >= 0) progress?.Report(percent);
-            var now = DateTime.UtcNow;
-            if ((percent >= 0 && percent >= lastLoggedPercent + 5) || (now - lastLoggedUtc) >= TimeSpan.FromSeconds(10))
+            await using (var output = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
-                var size = done / 1024d / 1024d;
-                var detail = percent >= 0 ? $"{percent}% — {size:0.0} MB" : $"{size:0.0} MB received";
-                _runner.Report($"[DOWNLOAD] {package.DisplayName}: {detail}");
-                if (percent >= 0) lastLoggedPercent = percent;
-                lastLoggedUtc = now;
+                var buffer = new byte[1024 * 128];
+                var lastLoggedPercent = -5;
+                var lastLoggedUtc = DateTime.UtcNow;
+                while (true)
+                {
+                    var read = await input.ReadAsync(buffer, ct);
+                    if (read <= 0) break;
+                    await output.WriteAsync(buffer.AsMemory(0, read), ct);
+                    done += read;
+                    var percent = total is > 0 ? (int)Math.Clamp(done * 100 / total.Value, 0, 100) : -1;
+                    if (percent >= 0) progress?.Report(percent);
+                    var now = DateTime.UtcNow;
+                    if ((percent >= 0 && percent >= lastLoggedPercent + 5) || (now - lastLoggedUtc) >= TimeSpan.FromSeconds(10))
+                    {
+                        var size = done / 1024d / 1024d;
+                        var detail = percent >= 0 ? $"{percent}% — {size:0.0} MB" : $"{size:0.0} MB received";
+                        _runner.Report($"[DOWNLOAD] {package.DisplayName}: {detail}");
+                        if (percent >= 0) lastLoggedPercent = percent;
+                        lastLoggedUtc = now;
+                    }
+                }
+                await output.FlushAsync(ct);
             }
+            ct.ThrowIfCancellationRequested();
+            File.Move(temporary, destination, overwrite: true);
+            progress?.Report(100);
+            _runner.Report($"[DOWNLOAD] {package.DisplayName}: completed — {done / 1024d / 1024d:0.0} MB saved to {destination}");
+            return destination;
         }
-        progress?.Report(100);
-        _runner.Report($"[DOWNLOAD] {package.DisplayName}: completed — {done / 1024d / 1024d:0.0} MB saved to {destination}");
-        return destination;
+        finally
+        {
+            try { if (File.Exists(temporary)) File.Delete(temporary); }
+            catch (Exception ex) { InternalDiagnostics.Record(ex, "Cleanup partial installer download"); }
+        }
     }
 
     public void OpenOfficialPage(string url)

@@ -1,6 +1,6 @@
 {
-  "version": "147.0.0",
+  "version": "148.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V147-R — اعتبارسنجی ساختاری پاسخ آمادگی استقرار Remote"
+  "commitNote": "V148-R — اصلاح تازگی SQL، بازیابی IIS و امنیت و صحت استقرار"
 }

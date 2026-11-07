@@ -192,12 +192,16 @@ internal static class CliApplication
             if (!health.Passed) throw new CliFailure(5, "HTTP health failed after deployment.");
             var verification = deployment.VerifyActivatedDeployment(profile, target);
             if (!verification.Ok) throw new CliFailure(5, verification.Detail);
+            var apiRelease = await deployment.VerifyRunningApiReleaseAsync(profile, target);
+            if (!apiRelease.Ok) throw new CliFailure(5, apiRelease.Detail);
+            var frontendRelease = await deployment.VerifyRunningFrontendReleaseAsync(profile, target);
+            if (!frontendRelease.Ok) throw new CliFailure(5, frontendRelease.Detail);
             deployment.IisStage("HEALTH", "PASS");
             deployment.IisStage("COMMIT", "RUNNING");
-            deployment.MarkDeploymentSuccessful(target);
             deployment.FinalizeSuccessfulDeployment(profile, target);
             deployment.IisStage("COMMIT", "PASS");
             deployment.ResolveIisAttempt();
+            deployment.MarkDeploymentSuccessful(target);
             return CliResult.Ok("deploy", profile.ApplicationName, new()
             {
                 ["mode"] = mode, ["sourcePath"] = profile.SourceFolder, ["publishPath"] = target,
@@ -493,7 +497,7 @@ internal static class CliApplication
     }
     private static string SafeName(string value) { foreach (var c in Path.GetInvalidFileNameChars()) value = value.Replace(c, '-'); return value.Trim(); }
     private static string? DetectVersion(string folder) { try { var state = Path.Combine(folder, ".smart-deploy-state.json"); if (File.Exists(state)) { using var doc = JsonDocument.Parse(File.ReadAllText(state)); if (doc.RootElement.TryGetProperty("SourceVersion", out var v)) return v.GetString(); if (doc.RootElement.TryGetProperty("sourceVersion", out v)) return v.GetString(); } var dll = Directory.Exists(folder) ? Directory.EnumerateFiles(folder, "*.dll", SearchOption.TopDirectoryOnly).FirstOrDefault() : null; return dll is null ? null : FileVersionInfo.GetVersionInfo(dll).FileVersion; } catch { return null; } }
-    private static string Redact(string text) => System.Text.RegularExpressions.Regex.Replace(text, "(?i)(password|token|connectionstring)\\s*[:=]\\s*[^;\\s]+", "$1=[REDACTED]");
+    private static string Redact(string text) => SecretRedactor.Redact(text);
     private static Dictionary<string, object?> PublicProfile(DeploymentProfile p) => new() { ["name"] = p.ApplicationName, ["sourcePath"] = p.SourceFolder, ["apiProjectPath"] = p.ApiProjectPath, ["siteName"] = p.SiteName, ["appPoolName"] = p.AppPoolName, ["targetPath"] = p.HostingRoot, ["healthUrl"] = (p.HttpPort == 80 ? "http://localhost" : $"http://localhost:{p.HttpPort}") + p.HealthPath, ["backupRoot"] = p.BackupRoot, ["dependencyMode"] = p.DependencyResolutionMode, ["workspaceRoot"] = p.WorkspaceRoot, ["preserveProductionFiles"] = p.PreserveProductionFiles };
 
     private static string HelpText() => """

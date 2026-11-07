@@ -458,14 +458,19 @@ public sealed class AppDataService
 
     private static void WriteJsonAtomic<T>(string path, T value)
     {
+        var temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            var temp = path + ".tmp";
             File.WriteAllText(temp, JsonSerializer.Serialize(value, JsonOptions));
             File.Move(temp, path, true);
         }
         catch (Exception ex) { InternalDiagnostics.Record(ex, "Atomic JSON save: " + path); throw; }
+        finally
+        {
+            try { if (File.Exists(temp)) File.Delete(temp); }
+            catch (Exception ex) { InternalDiagnostics.Record(ex, "Cleanup atomic JSON temporary file"); }
+        }
     }
 
     private static void EnsureDirectory(string path, string context)

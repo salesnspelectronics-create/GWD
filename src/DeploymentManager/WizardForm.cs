@@ -2806,11 +2806,15 @@ Default website mode: C:\inetpub\wwwroot, HTTP port 80. A different IIS site own
             {
                 _deployment.IisStage("HEALTH", "PASS");
                 _deployment.IisStage("COMMIT", "RUNNING");
-                _deployment.MarkDeploymentSuccessful(publish);
-                _lastSuccessfulPublishPath = publish;
                 try { _deployment.FinalizeSuccessfulDeployment(_profile, publish); } catch (Exception cleanupEx) { AppendLog("[CLEANUP] Post-success cleanup warning: " + cleanupEx.Message); }
             }
-            if (!isFastLocalTest) { _deployment.IisStage("COMMIT", "PASS"); _deployment.ResolveIisAttempt(); }
+            if (!isFastLocalTest)
+            {
+                _deployment.IisStage("COMMIT", "PASS");
+                _deployment.ResolveIisAttempt();
+                _deployment.MarkDeploymentSuccessful(publish);
+                _lastSuccessfulPublishPath = publish;
+            }
             _deploymentStatus = "DEPLOYMENT SUCCESSFUL";
             _persistentState.LastResult = "Successful";
             _progress.Value = 100;

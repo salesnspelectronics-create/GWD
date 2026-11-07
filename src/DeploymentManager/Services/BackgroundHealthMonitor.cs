@@ -18,7 +18,7 @@ public sealed class BackgroundHealthMonitor : IDisposable
     public BackgroundHealthMonitor(EnvironmentService environment, SqlServerService sql, DeploymentProfile profile) { _environment=environment; _sql=sql; _profile=profile; }
     public void Start() => _loop ??= Task.Run(LoopAsync);
     public async Task RefreshNowAsync(CancellationToken ct=default) => await CheckAsync(ct);
-    public bool HasRecentSuccessfulSql(TimeSpan maxAge) => _sql.Connections.State(_profile).Verified;
+    public bool HasRecentSuccessfulSql(TimeSpan maxAge) => _sql.Connections.HasRecentSuccessfulSql(_profile, maxAge);
     public void ReportSqlSuccess(string detail)
     {
         var previous = Latest;
@@ -30,6 +30,8 @@ public sealed class BackgroundHealthMonitor : IDisposable
     }
     public void ReportSqlFailure(string detail)
     {
+        _sql.Connections.Invalidate(_profile, detail);
+        detail = SecretRedactor.Redact(detail);
         var previous = Latest;
         var snap = previous is null
             ? new HealthSnapshot(DateTime.Now, false, 0, 0, false, detail, null, "Not checked")

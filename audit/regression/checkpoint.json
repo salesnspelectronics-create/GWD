@@ -1,9 +1,9 @@
 {
   "repository": "salesnspelectronics-create/GWD",
   "branch": "main",
-  "reviewedCommit": "09bcbc2bd378eecf4adafe2984f716c0a339d68c",
-  "lastVerifiedRelease": "V142-R",
-  "sourceFixRelease": "V147-R",
+  "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f",
+  "lastVerifiedRelease": "V147-R",
+  "sourceFixRelease": "V148-R",
   "verification": "Delivery must be independently read back; no self-referential commit SHA is stored.",
   "reviewed": [
     {
@@ -290,6 +290,277 @@
       ],
       "blobSha": "76437541d53060b9dad2a80687e9565f75d4deb7",
       "reviewedCommit": "09bcbc2bd378eecf4adafe2984f716c0a339d68c"
+    },
+    {
+      "path": "src/DeploymentManager/Services/BackgroundHealthMonitor.cs",
+      "ranges": [
+        "1-55"
+      ],
+      "blobSha": "c01d930bb521738049dda5d1def35e954448f10b",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/SqlConnectionStrategy.cs",
+      "ranges": [
+        "1-179"
+      ],
+      "blobSha": "268ac1751a5294091ec98385cdf710e41ddb0b4a",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/SqlServerService.cs",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-600",
+        "601-713"
+      ],
+      "blobSha": "b6fa1bf91b46e3e9b696644a727a0cdf4cc1eab6",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+      "ranges": [
+        "1-200",
+        "201-234"
+      ],
+      "blobSha": "f00266a5f08f1410757002d9fbb63072d3f78982",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+      "ranges": [
+        "1-200",
+        "201-203"
+      ],
+      "blobSha": "afa7b7e0f34c1a2ede70222b8f889359a1664062",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+      "ranges": [
+        "1-111"
+      ],
+      "blobSha": "fea0fa5ca9ae8102a6317504c68a4ccc2d126840",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/IisSafety.cs",
+      "ranges": [
+        "1-85"
+      ],
+      "blobSha": "40ba7a55a4ebdd0f9d31ab1c5d5428eb3bc18ced",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/CommandRunner.cs",
+      "ranges": [
+        "1-186"
+      ],
+      "blobSha": "f8747a5bbb66770b55cbe9180874043554c66826",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/BackupIntegrity.cs",
+      "ranges": [
+        "1-59"
+      ],
+      "blobSha": "c8954c84473c80ce5f7d0857699b5c9892fac782",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/RetentionPlanner.cs",
+      "ranges": [
+        "1-56"
+      ],
+      "blobSha": "8c1b21e3e191a2217e8c08aec83fe91b3e1c1f05",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/AppDataService.cs",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-529"
+      ],
+      "blobSha": "75d10c498fa4c3f1098fe6f28a44a7d31f935612",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DiagnosticBundleService.cs",
+      "ranges": [
+        "1-189"
+      ],
+      "blobSha": "9be8b41f12d3329526ae929fb53b5f69b6f9d500",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/LogService.cs",
+      "ranges": [
+        "1-42"
+      ],
+      "blobSha": "25c9cbefb6d17fe766b9c017b69e1100c7bb8fbc",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/InternalDiagnostics.cs",
+      "ranges": [
+        "1-33"
+      ],
+      "blobSha": "9f09714d6a61826f9b8b404b72406173070af4fe",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/SecretRedactor.cs",
+      "ranges": [
+        "1-30"
+      ],
+      "blobSha": "d36df8e281d4825adcc378a7655d58d6e5266ab6",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/WorkspaceSynchronizer.cs",
+      "ranges": [
+        "1-120"
+      ],
+      "blobSha": "fc9d5f7a0d3b67fbde84271244aabb8a04c5e2bc",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/PrerequisiteService.cs",
+      "ranges": [
+        "1-115"
+      ],
+      "blobSha": "fd6124a69c9a89cecdfee7ff20c2beb8d1706cf5",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentHistoryService.cs",
+      "ranges": [
+        "1-200",
+        "201-293"
+      ],
+      "blobSha": "ba86d4359e8879c2cd1b3da412ebaa68ad4db7e7",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/CodeQualitySession.cs",
+      "ranges": [
+        "1-79"
+      ],
+      "blobSha": "11ead276283023a52e26383d4b6c2b7e5d2f721f",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/ReleaseVersionContract.cs",
+      "ranges": [
+        "1-16"
+      ],
+      "blobSha": "89cf9baf0e803d176fe5ca71f118d37a7690b548",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/DeploymentService.cs",
+      "ranges": [
+        "1-200",
+        "201-336",
+        "808-852",
+        "1404-1432",
+        "1443-1642",
+        "1643-1842",
+        "1843-2042",
+        "2043-2214",
+        "2390-2518"
+      ],
+      "blobSha": "578560584b94e37b5e88704f0bb4a983da9dec76",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/WizardForm.cs",
+      "ranges": [
+        "1450-1500",
+        "1980-2055",
+        "2190-2325",
+        "2650-2849",
+        "2850-3049"
+      ],
+      "blobSha": "2de20e1bcfa8da04026283167655d823f7065184",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager.Cli/Program.cs",
+      "ranges": [
+        "1-200",
+        "201-400",
+        "401-562"
+      ],
+      "blobSha": "4b28d388815f857e318263bfaab9ddd28da60ed8",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Models/DeploymentProfile.cs",
+      "ranges": [
+        "1-81"
+      ],
+      "blobSha": "ce465ead5080442d3d1a3fcb5ed93705a5554700",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/DeploymentManager.csproj",
+      "ranges": [
+        "1-20"
+      ],
+      "blobSha": "f4f723986753b78283100490b39a137cc026315a",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager.Cli/DeploymentManager.Cli.csproj",
+      "ranges": [
+        "1-15"
+      ],
+      "blobSha": "edd32ea84e81d3736744b9d40bcdfba677f6403c",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/ProductInfo.cs",
+      "ranges": [
+        "1-8"
+      ],
+      "blobSha": "075e0461fb3709ddae134813ebb77f9087d55134",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "invoke-deployment-manager.ps1",
+      "ranges": [
+        "1-9"
+      ],
+      "blobSha": "508eabf489ab8d0c4447cff0b44bcb02dae7f258",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "publish-latest.ps1",
+      "ranges": [
+        "1-126"
+      ],
+      "blobSha": "2ea205d4de8f32733ea6f473c8762c4a52f53a9f",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "resolve-release-root.ps1",
+      "ranges": [
+        "1-58"
+      ],
+      "blobSha": "a54f2b82fc01bcd737db9f80fe4b224009eaf025",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
+    },
+    {
+      "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+      "ranges": [
+        "1-200",
+        "201-314"
+      ],
+      "blobSha": "1f4af37e2f225b1024b092b72bc81cad509f1cd1",
+      "reviewedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f"
     }
   ],
   "fixed": [
@@ -325,7 +596,19 @@
     "DISPOSE_DIAGNOSTICS_PRESERVE_PRIMARY_FAILURE",
     "REJECT_REMOTE_PROFILE_IN_LOCAL_ENGINE",
     "BLOCK_UNOWNED_DESTRUCTIVE_ADMIN_HELPERS",
-    "DEFAULT_IIS_PORT_80_UI_MESSAGING"
+    "DEFAULT_IIS_PORT_80_UI_MESSAGING",
+    "SQL_FRESHNESS_AND_INVALIDATION_RACE",
+    "SQL_SESSION_GATE_INITIALIZATION_FAILURE",
+    "SQL_SINGLE_USER_START_COMPENSATION",
+    "IIS_SHARED_APPPOOL_STOP",
+    "IIS_COMMIT_FAILURE_LOST_BACKUP",
+    "WINRM_CERTIFICATE_VALIDATION_BYPASS",
+    "REMOTE_FRAMEWORK_READINESS_AND_BOOTSTRAP",
+    "REMOTE_INSTALLER_WILDCARD_PATH",
+    "CLI_LIVE_RELEASE_IDENTITY_BYPASS",
+    "CLI_INCOMPLETE_SECRET_REDACTION",
+    "PARTIAL_INSTALLER_CACHE_PUBLICATION",
+    "ATOMIC_JSON_TEMPORARY_FILE_COLLISION"
   ],
   "pending": [
     "Windows QueryDosDevice and filesystem leases are untested.",
@@ -344,7 +627,15 @@
     "Remote transactional implementation remains OPEN; safety block is retained.",
     "Remote transactional deployment remains OPEN; blocking unsafe calls is not an implementation of remote recovery.",
     "Auxiliary Site/Files/AppPool deletion is intentionally unavailable pending shared ownership and recoverable IIS configuration/backup prerequisites.",
-    "User runtime must verify remote profiles never mutate local IIS and cleanup helpers reject before STOP/DELETE."
+    "User runtime must verify remote profiles never mutate local IIS and cleanup helpers reject before STOP/DELETE.",
+    "Remote deployment remains blocked: target-side durable exclusive lease; owned staging/backup completion and SHA256 inventory; original IIS configuration/binding/pool state restoration; cancellation/timeout recovery and live HTTP/API/frontend recovery evidence are not implemented.",
+    "SQL transport remains hardcoded Encrypt=False and TrustServerCertificate=True for local and remote SQL paths; no certificate policy/profile migration exists. Enabling validation blindly would break supported self-signed/local deployments.",
+    "Full repository line-by-line regression is PARTIAL. Unread files and gaps remain pending; fetching a file is not review.",
+    "Exclusive pool membership does not establish exclusive physical-content ownership across all IIS virtual directories, filesystem aliases or external/non-cooperating administrators.",
+    "Remote SSL now requires a trusted CA, matching target name/IP SAN and successful revocation validation; correct the certificate/trust chain rather than reintroduce bypass flags.",
+    "Atomic JSON replacement does not serialize concurrent read-modify-write settings updates; last-writer-wins remains.",
+    "Installer publication prevents new partial cache entries; it does not authenticate preexisting cached installers or establish publisher/signature provenance.",
+    "Windows/IIS/WinRM behavior, failure injection, restoration and filesystem leases remain unexecuted under USER_TESTING_POLICY."
   ],
   "validation": {
     "StaticSourceReview": "PARTIAL",
@@ -353,7 +644,7 @@
     "RuntimeReview": "PENDING_USER",
     "TestingOwner": "USER"
   },
-  "lastVerifiedCommit": "8764b4d1fd5f3ed976c6914afb43376695d2aa33",
+  "lastVerifiedCommit": "b8e911e149766c58334c4fdc329ed668561bcf8f",
   "workstreams": {
     "sharedContent": "SOURCE_COMPLETE_RUNTIME_PENDING_USER",
     "remote": "OPEN",
@@ -365,5 +656,184 @@
     "V144-R: IIS port-owner inspection timeout is now bounded; user runtime validation remains pending.",
     "V146-R: Default IIS website UI messaging corrected; runtime validation remains pending."
   ],
-  "lastRunNote": "V147-R: Remote readiness JSON validation; static review only; no tests/build/runtime."
+  "lastRunNote": "V148-R: SQL freshness, IIS commit recovery/ownership, WinRM/readiness, CLI verification/redaction, atomic cache/config writes. Static source review only; no tests/build/runtime.",
+  "lastRun": {
+    "executionSource": "CHATGPT_WORK",
+    "initialHead": "b8e911e149766c58334c4fdc329ed668561bcf8f",
+    "initialVersion": "147.0.0",
+    "sourceFixRelease": "V148-R",
+    "priorReviewedCommit": "09bcbc2bd378eecf4adafe2984f716c0a339d68c",
+    "checkpointReconciliation": [
+      {
+        "path": "src/DeploymentManager/Services/DeploymentService.cs",
+        "checkpointBlob": "480d13dadada365997f20e15c313b7404e099afe",
+        "currentBlob": "578560584b94e37b5e88704f0bb4a983da9dec76",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager/WizardForm.cs",
+        "checkpointBlob": "f8131322f7a292eae698cf5f4531de28fe1e7934",
+        "currentBlob": "2de20e1bcfa8da04026283167655d823f7065184",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager.Cli/Program.cs",
+        "checkpointBlob": "df438c73ac0f396e49fb57099b9d0d10ab4901e9",
+        "currentBlob": "4b28d388815f857e318263bfaab9ddd28da60ed8",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager/Services/IisSafety.cs",
+        "checkpointBlob": "40ba7a55a4ebdd0f9d31ab1c5d5428eb3bc18ced",
+        "currentBlob": "40ba7a55a4ebdd0f9d31ab1c5d5428eb3bc18ced",
+        "status": "UNCHANGED_SOURCE"
+      },
+      {
+        "path": "src/DeploymentManager/Services/IisDeploymentAttempt.cs",
+        "checkpointBlob": "8864e212985a933197309abc67588d4da4396488",
+        "currentBlob": "afa7b7e0f34c1a2ede70222b8f889359a1664062",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager/Services/RemoteDeploymentService.cs",
+        "checkpointBlob": "76437541d53060b9dad2a80687e9565f75d4deb7",
+        "currentBlob": "f00266a5f08f1410757002d9fbb63072d3f78982",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager/Services/DeploymentPathSafety.cs",
+        "checkpointBlob": "51a133a7b4832fac24e0d461361a7fd93cc18a2b",
+        "currentBlob": "fea0fa5ca9ae8102a6317504c68a4ccc2d126840",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      },
+      {
+        "path": "src/DeploymentManager/Services/EnvironmentService.cs",
+        "checkpointBlob": "c87daa158e7195eb24d778fc48e147abe0ea7994",
+        "currentBlob": "1f4af37e2f225b1024b092b72bc81cad509f1cd1",
+        "status": "SOURCE_CHANGED_REVIEW_NOT_TRANSFERRED"
+      }
+    ],
+    "findings": [
+      {
+        "id": "SQL_FRESHNESS_AND_INVALIDATION_RACE",
+        "severity": "P0",
+        "cause": "HasRecentSuccessfulSql ignored maxAge; verification had no timestamp; an in-flight success could overwrite invalidation.",
+        "fix": "Record UTC and monotonic success timestamps under the session lock; enforce caller maxAge; reject missing/expired/invalid state; clear timestamps on invalidation and reject replaced state snapshots."
+      },
+      {
+        "id": "SQL_SESSION_GATE_INITIALIZATION_FAILURE",
+        "severity": "P1",
+        "cause": "State(profile) executed after semaphore acquisition but before its try/finally; imported null SQL fields could leak the gate.",
+        "fix": "Initialize state inside the protected try; always release an acquired gate."
+      },
+      {
+        "id": "SQL_SINGLE_USER_START_COMPENSATION",
+        "severity": "P0",
+        "cause": "Recovery flag was armed after awaiting service start, so cancellation/timeout after a partial start could skip return to normal mode.",
+        "fix": "Arm compensating normal restart before starting the external mutation."
+      },
+      {
+        "id": "IIS_SHARED_APPPOOL_STOP",
+        "severity": "P0",
+        "cause": "Matching the selected root application's pool did not prove no other applications shared it.",
+        "fix": "Require exactly the selected root application in appcmd pool membership at preflight and immediately before STOP."
+      },
+      {
+        "id": "IIS_COMMIT_FAILURE_LOST_BACKUP",
+        "severity": "P0",
+        "cause": "FinalizeSuccessfulDeployment cleared the active backup before durable Resolve; success marker was written before resolution.",
+        "fix": "Keep the backup reference until Resolve succeeds; GUI and CLI write success markers and GUI successful-path state after resolution."
+      },
+      {
+        "id": "WINRM_CERTIFICATE_VALIDATION_BYPASS",
+        "severity": "P0",
+        "cause": "Three reachable WinRM paths unconditionally bypassed CA, CN and revocation checks.",
+        "fix": "Use standard PSSessionOption validation in all three paths; keep existing SSL/HTTP selection and deployment safety block."
+      },
+      {
+        "id": "REMOTE_FRAMEWORK_READINESS_AND_BOOTSTRAP",
+        "severity": "P1",
+        "cause": "Readiness checked only ANCM DLL presence; bootstrap installed Hosting Bundle before enabling IIS and did not verify final prerequisites.",
+        "fix": "Pass configured target major to remote probe, require matching ASP.NET Core runtime plus ANCM; enable IIS first and recheck complete readiness after bootstrap."
+      },
+      {
+        "id": "REMOTE_INSTALLER_WILDCARD_PATH",
+        "severity": "P1",
+        "cause": "Copy-Item interpreted the chosen installer as a wildcard path.",
+        "fix": "Use -LiteralPath and explicit -Destination while retaining apostrophe escaping."
+      },
+      {
+        "id": "CLI_LIVE_RELEASE_IDENTITY_BYPASS",
+        "severity": "P0",
+        "cause": "CLI declared success after HTTP health and disk verification without the GUI's live API/frontend identity checks.",
+        "fix": "Run both existing live verification methods before COMMIT; failures enter the existing recovery path."
+      },
+      {
+        "id": "CLI_INCOMPLETE_SECRET_REDACTION",
+        "severity": "P1",
+        "cause": "CLI used a whitespace-limited regex instead of registered secret and quoted-value redaction.",
+        "fix": "Route CLI diagnostics through the shared SecretRedactor."
+      },
+      {
+        "id": "PARTIAL_INSTALLER_CACHE_PUBLICATION",
+        "severity": "P1",
+        "cause": "Download wrote directly into a filename accepted by FindCached; cancellation left a partial installer eligible for reuse.",
+        "fix": "Download to a uniquely owned partial file, flush and close, publish by same-directory move only after completion; filter cache candidates by installer extension."
+      },
+      {
+        "id": "ATOMIC_JSON_TEMPORARY_FILE_COLLISION",
+        "severity": "P1",
+        "cause": "Concurrent settings/profile writes shared path.tmp, allowing one save to move another save's temporary contents.",
+        "fix": "Use unique temporary paths and clean up only the current write's temporary file; read-modify-write serialization remains separate work."
+      }
+    ],
+    "inventory": "NOT_PRESENT_404",
+    "finalHeadResolution": "This checkpoint is part of its source-fix commit. Resolve the containing Git commit and independently read main; a commit cannot embed its own SHA.",
+    "deliveryVerification": "PENDING_PUSH_AT_COMMIT_CREATION",
+    "automation": {
+      "id": "6aebfe9855d88191aaa79fc8420b19f4",
+      "unchanged": true,
+      "lastRecordedStatus": "completed",
+      "lastCompletedUtc": "2026-11-07T01:31:24.935047Z",
+      "apiNextRunUtc": null,
+      "nextNominalRunDerivedFromRruleUtc": "2026-11-07T02:30:36Z",
+      "collisionGuardMinutes": 5
+    },
+    "warnings": {
+      "CONFIRMED_EXISTING_WARNING": [],
+      "POTENTIAL_STATIC_WARNING": [],
+      "historicalLogs": "evidence/build-release.log (V71) and evidence/V72-build-release.log: 0 warnings, 0 errors; not evidence for V148."
+    },
+    "pendingSourceFiles": [
+      "build-release-full.cmd",
+      "build-release.cmd",
+      "src/DeploymentManager.CodeQuality/Diagnostics.cs",
+      "src/DeploymentManager.SmokeTests/Program.cs",
+      "src/DeploymentManager.SmokeTests/SqlStrategyTests.cs",
+      "src/DeploymentManager.SmokeTests/WorkspaceSyncTests.cs",
+      "src/DeploymentManager/AutoYesConfirmationForm.cs",
+      "src/DeploymentManager/BuildPerformanceForm.cs",
+      "src/DeploymentManager/CodeQualityTab.cs",
+      "src/DeploymentManager/DeploymentHistoryForm.cs",
+      "src/DeploymentManager/DiagnosticsCenterForm.cs",
+      "src/DeploymentManager/ErrorReportForm.cs",
+      "src/DeploymentManager/Ipv4AddressControl.cs",
+      "src/DeploymentManager/LogForm.cs",
+      "src/DeploymentManager/Models/DeploymentHistoryModels.cs",
+      "src/DeploymentManager/Program.cs",
+      "src/DeploymentManager/Services/BuildPerformanceTrace.cs",
+      "src/DeploymentManager/Services/CommandResult.cs",
+      "src/DeploymentManager/Services/IisDiagnostics.cs",
+      "src/DeploymentManager/Services/RuntimeMetricsService.cs",
+      "src/DeploymentManager/SettingsForm.cs",
+      "tests/CodeQuality.Tests/Program.cs",
+      "tests/CodeQuality.WindowsTests/Program.cs",
+      "tests/IisSafety.Tests/Program.cs",
+      "tests/ReleaseVersionRegression/Program.cs"
+    ],
+    "partiallyReviewedFiles": [
+      "src/DeploymentManager/Services/DeploymentService.cs",
+      "src/DeploymentManager/WizardForm.cs"
+    ]
+  }
 }
