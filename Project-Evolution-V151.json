@@ -1,0 +1,26 @@
+{
+  "version": "151.0.0",
+  "release": "V151-R",
+  "date": "2026-11-07",
+  "baseCommit": "602ccd5e46cdda163a7ac4cfef23bba90f3bceb2",
+  "summary": "اصلاح لغو و پاکسازی فرایند تعاملی",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/CommandRunner.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/CommandRunner.cs",
+      "ranges": [
+        "1-186"
+      ],
+      "blobSha": "f8747a5bbb66770b55cbe9180874043554c66826",
+      "reviewedCommit": "602ccd5e46cdda163a7ac4cfef23bba90f3bceb2"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  }
+}

@@ -179,8 +179,27 @@ public sealed class CommandRunner
             UseShellExecute = true,
             WorkingDirectory = workingDirectory ?? Path.GetDirectoryName(fileName) ?? Environment.CurrentDirectory
         };
+        ct.ThrowIfCancellationRequested();
         using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Could not start {fileName}.");
-        await process.WaitForExitAsync(ct);
-        return process.ExitCode;
+        try
+        {
+            await process.WaitForExitAsync(ct);
+            return process.ExitCode;
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            try
+            {
+                if (!process.HasExited) process.Kill(entireProcessTree: true);
+                if (process.WaitForExit(5000)) Report($"CANCELLED: interactive process {Path.GetFileName(fileName)} stopped.");
+                else Report($"CANCELLED: interactive process {Path.GetFileName(fileName)} termination could not be confirmed.");
+            }
+            catch (Exception ex)
+            {
+                InternalDiagnostics.Record(ex, "Stop cancelled interactive process tree");
+                Report($"CANCELLED: interactive process {Path.GetFileName(fileName)} termination failed.");
+            }
+            throw;
+        }
     }
 }

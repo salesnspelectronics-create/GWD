@@ -1,6 +1,6 @@
 {
-  "version": "150.0.0",
+  "version": "151.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V150-R — اصلاح گزارش شکست فرمان‌های IIS در مدیریت دستی"
+  "commitNote": "V151-R — اصلاح لغو و پاکسازی فرایند تعاملی"
 }
