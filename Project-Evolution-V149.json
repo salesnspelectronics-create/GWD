@@ -1,0 +1,31 @@
+{
+  "version": "149.0.0",
+  "release": "V149-R",
+  "date": "2026-11-07",
+  "baseCommit": "0182654d586cd6755559633ebfb6c8149e6be7e4",
+  "summary": "اصلاح هم‌زمانی نمونه‌برداری شاخص‌های اجرا",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/RuntimeMetricsService.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/RuntimeMetricsService.cs",
+      "ranges": [
+        "1-67"
+      ],
+      "blobSha": "380a6ea4134a6a07e1bf6f22f38149af5aaaf023",
+      "reviewedCommit": "0182654d586cd6755559633ebfb6c8149e6be7e4"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  },
+  "pending": [
+    "REMOTE_DEPLOYMENT_SAFETY_BLOCK",
+    "SQL_CERTIFICATE_MIGRATION",
+    "SMART_FULL_REPOSITORY_PARTIAL"
+  ]
+}

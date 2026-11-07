@@ -30,6 +30,14 @@ public sealed class RuntimeMetricsService : IDisposable
 
     public RuntimeMetricSample Sample()
     {
+        lock (_sync)
+        {
+            return SampleUnderLock();
+        }
+    }
+
+    private RuntimeMetricSample SampleUnderLock()
+    {
         try
         {
             _process.Refresh();
@@ -41,11 +49,8 @@ public sealed class RuntimeMetricsService : IDisposable
             _lastAt = now;
             _lastCpu = cpuNow;
             var sample = new RuntimeMetricSample(now, cpu, _process.WorkingSet64, _process.PrivateMemorySize64, GC.GetTotalMemory(false), _process.Threads.Count);
-            lock (_sync)
-            {
-                _history.Enqueue(sample);
-                while (_history.Count > MaxSamples) _history.Dequeue();
-            }
+            _history.Enqueue(sample);
+            while (_history.Count > MaxSamples) _history.Dequeue();
             return sample;
         }
         catch (Exception ex)
