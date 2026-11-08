@@ -77,8 +77,16 @@ public sealed class CommandRunner
 
         var started = DateTime.UtcNow;
         if (!process.Start()) throw new InvalidOperationException($"Could not start {fileName}.");
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+        try
+        {
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+        }
+        catch
+        {
+            StopUnexpectedProcess(process);
+            throw;
+        }
 
         using var timeoutCts = timeout.HasValue ? new CancellationTokenSource(timeout.Value) : null;
         using var linked = timeoutCts is null
@@ -124,6 +132,11 @@ public sealed class CommandRunner
                 Report($"CANCELLED: {Path.GetFileName(fileName)} process tree was stopped by the operator.");
                 throw;
             }
+            catch
+            {
+                StopUnexpectedProcess(process);
+                throw;
+            }
         }
         finally
         {
@@ -141,6 +154,17 @@ public sealed class CommandRunner
         return new CommandResult(process.ExitCode, stdout.ToString(), stderr.ToString());
         }
         finally { quality?.End(qualityStage, qualityExitCode, qualityStatus); }
+    }
+
+    private static void StopUnexpectedProcess(Process process)
+    {
+        try
+        {
+            if (!process.HasExited) process.Kill(entireProcessTree: true);
+            if (process.WaitForExit(5000)) process.WaitForExit();
+            else InternalDiagnostics.Record(new TimeoutException("Process termination could not be confirmed."), "Stop unexpected process tree");
+        }
+        catch (Exception ex) { InternalDiagnostics.Record(ex, "Stop unexpected process tree"); }
     }
 
     private static void AppendBounded(StringBuilder buffer, string line, int maxChars)

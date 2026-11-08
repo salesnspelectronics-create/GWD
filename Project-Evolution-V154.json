@@ -1,0 +1,27 @@
+{
+  "version": "154.0.0",
+  "release": "V154-R",
+  "date": "2026-11-08",
+  "baseCommit": "9b1965555d9bb740e2d299c2eadebc52ea5e7847",
+  "summary": "پاکسازی فرایند خارجی پس از شکست خواندن خروجی یا انتظار",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/CommandRunner.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/CommandRunner.cs",
+      "ranges": [
+        "1-200",
+        "201-213"
+      ],
+      "blobSha": "32ea66f9a796f4c4fd96d53f71d8bf81ec0e8cfb",
+      "reviewedCommit": "9b1965555d9bb740e2d299c2eadebc52ea5e7847"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  }
+}
