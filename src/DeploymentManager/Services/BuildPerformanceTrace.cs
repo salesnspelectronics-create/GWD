@@ -24,7 +24,7 @@ public sealed class BuildPerformanceTrace
     public DateTime? CompletedAt { get; private set; }
     public string BuildMode { get; }
     public string DependencyMode { get; }
-    public TimeSpan TotalElapsed => CompletedAt.HasValue ? (CompletedAt.Value - StartedAt) : _total.Elapsed;
+    public TimeSpan TotalElapsed => _total.Elapsed;
     public IReadOnlyList<BuildPerformanceStage> Stages { get { lock (_gate) return _stages.ToArray(); } }
 
     public T Measure<T>(string name, Func<T> action, string detail = "")

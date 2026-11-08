@@ -1,6 +1,6 @@
 {
-  "version": "154.0.0",
+  "version": "155.0.0",
   "buildDateUtc": null,
   "commit": null,
-  "commitNote": "V154-R — پاکسازی فرایندهای خارجی در خطاهای غیرمنتظره"
+  "commitNote": "V155-R — اصلاح زمان‌سنج یکنواخت گزارش عملکرد ساخت"
 }

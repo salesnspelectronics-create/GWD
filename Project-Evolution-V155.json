@@ -1,0 +1,26 @@
+{
+  "version": "155.0.0",
+  "release": "V155-R",
+  "date": "2026-11-08",
+  "baseCommit": "47f14dfbd370e0742634f0b4f20276910ab69a44",
+  "summary": "جلوگیری از تأثیر تغییر ساعت سیستم بر مدت کل گزارش عملکرد ساخت",
+  "sourceFiles": [
+    "src/DeploymentManager/Services/BuildPerformanceTrace.cs"
+  ],
+  "reviewed": [
+    {
+      "path": "src/DeploymentManager/Services/BuildPerformanceTrace.cs",
+      "ranges": [
+        "1-107"
+      ],
+      "blobSha": "1b8ae726e86b96de1260900e7499414f7218a5ad",
+      "reviewedCommit": "47f14dfbd370e0742634f0b4f20276910ab69a44"
+    }
+  ],
+  "testing": {
+    "automated": "NOT_RUN",
+    "build": "NOT_RUN",
+    "runtime": "PENDING_USER",
+    "owner": "USER"
+  }
+}
